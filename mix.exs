@@ -6,7 +6,7 @@ defmodule Api.Mixfile do
      version: "0.0.1",
      elixir: "~> 1.2",
      elixirc_paths: elixirc_paths(Mix.env),
-     compilers: [:phoenix, :gettext] ++ Mix.compilers,
+     compilers: [:phoenix] ++ Mix.compilers,
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      aliases: aliases(),
@@ -17,9 +17,16 @@ defmodule Api.Mixfile do
   #
   # Type `mix help compile.app` for more information.
   def application do
-    [mod: {Api, []},
-     applications: [:phoenix, :phoenix_pubsub, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :postgrex]]
+    [
+      mod: {Api, []},
+      applications: [
+        :phoenix,
+        :cowboy,
+        :logger,
+        :phoenix_ecto,
+        :postgrex
+      ]
+    ]
   end
 
   # Specifies which paths to compile per environment.
@@ -31,10 +38,8 @@ defmodule Api.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [{:phoenix, "~> 1.2.1"},
-     {:phoenix_pubsub, "~> 1.0"},
      {:phoenix_ecto, "~> 3.0"},
      {:postgrex, ">= 0.0.0"},
-     {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"}]
   end
 
