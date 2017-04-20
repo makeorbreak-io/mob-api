@@ -1,0 +1,2 @@
+export DB_URL=postgresql://user:password@localhost/api_dev
+export SECRET_KEY_BASE=

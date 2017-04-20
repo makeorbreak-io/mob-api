@@ -12,13 +12,18 @@ config :api,
 # Configures the endpoint
 config :api, Api.Endpoint,
   url: [host: "localhost"],
-  secret_key_base: "EPtwOn4zZhvQC/3vYBZmkkm+0/0e4Gl/I+eYbYhYLPBhrXzeqw1OygYqbZhg4U9r",
+  secret_key_base: System.get_env("SECRET_KEY_BASE"),
   render_errors: [view: Api.ErrorView, accepts: ~w(json)]
 
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
+
+# Configure your database
+config :api, Api.Repo,
+  adapter: Ecto.Adapters.Postgres,
+  url: System.get_env("DB_URL")
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

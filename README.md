@@ -1,19 +1,19 @@
 # Api
 
+## Setup guide
 To start your Phoenix app:
 
   * Install dependencies with `mix deps.get`
+  * Add the necessary variables to your environment
   * Create and migrate your database with `mix ecto.create && mix ecto.migrate`
   * Start Phoenix endpoint with `mix phoenix.server`
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+## Environment Variables
 
-Ready to run in production? Please [check our deployment guides](http://www.phoenixframework.org/docs/deployment).
+Use your preferred method to add the following variables to your environment.
+You can find an example env file you can source in `share/env/env`
 
-## Learn more
-
-  * Official website: http://www.phoenixframework.org/
-  * Guides: http://phoenixframework.org/docs/overview
-  * Docs: https://hexdocs.pm/phoenix
-  * Mailing list: http://groups.google.com/group/phoenix-talk
-  * Source: https://github.com/phoenixframework/phoenix
+| Variable        | Description
+| --------------- | -------------
+| DB_URL          | Postgresql database url
+| SECRET_KEY_BASE | Secret key base
