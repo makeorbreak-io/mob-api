@@ -35,6 +35,7 @@ defmodule Api.Web do
       import Ecto.Query
 
       import Api.Router.Helpers
+      import Api.Gettext
     end
   end
 
@@ -47,6 +48,7 @@ defmodule Api.Web do
 
       import Api.Router.Helpers
       import Api.ErrorHelpers
+      import Api.Gettext
     end
   end
 
@@ -63,6 +65,7 @@ defmodule Api.Web do
       alias Api.Repo
       import Ecto
       import Ecto.Query
+      import Api.Gettext
     end
   end
 
