@@ -25,7 +25,8 @@ defmodule Api.Mixfile do
         :logger,
         :phoenix,
         :phoenix_ecto,
-        :postgrex
+        :postgrex,
+        :comeonin
       ]
     ]
   end
@@ -43,7 +44,8 @@ defmodule Api.Mixfile do
       {:phoenix, "~> 1.2.1"},
       {:phoenix_ecto, "~> 3.0"},
       {:postgrex, ">= 0.0.0"},
-      {:cowboy, "~> 1.0"}
+      {:cowboy, "~> 1.0"},
+      {:cors_plug, "~> 1.2"},
     ]
   end
 

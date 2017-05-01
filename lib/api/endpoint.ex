@@ -12,5 +12,7 @@ defmodule Api.Endpoint do
   plug Plug.MethodOverride
   plug Plug.Head
 
+  plug CORSPlug
+
   plug Api.Router
 end
