@@ -15,10 +15,11 @@ defmodule Api.UserController do
 
     case Repo.insert(changeset) do
       {:ok, user} ->
+        {:ok, jwt, _full_claims} = Guardian.encode_and_sign(user, :token)
         conn
         |> put_status(:created)
         |> put_resp_header("location", user_path(conn, :show, user))
-        |> render("show.json", user: user)
+        |> render(Api.SessionView, "session.json", data: %{jwt: jwt, user: user})
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
