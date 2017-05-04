@@ -12,3 +12,7 @@ config :logger, level: :warn
 # Configure your database
 config :api, Api.Repo,
   pool: Ecto.Adapters.SQL.Sandbox
+
+# Comeonin bcrypt test options
+config :comeonin, :bcrypt_log_rounds, 4
+config :comeonin, :pbkdf2_rounds, 1
