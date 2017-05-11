@@ -1,7 +1,8 @@
 machine:
   environment:
     PATH: "$HOME/.asdf/bin:$HOME/.asdf/shims:$PATH"
-
+    DB_URL: postgresql://ubuntu:@127.0.0.1:5432/api_test
+    SECRET_KEY_BASE: "7uY6pDK6XstDPpgcnU+cL+dXE0e1cHrL21uDPiwOg84Co4rJOwzh9+EZhMocEYhb"
 dependencies:
   cache_directories:
     - ~/.asdf
