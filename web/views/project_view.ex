@@ -14,7 +14,13 @@ defmodule Api.ProjectView do
       id: project.id,
       name: project.name,
       description: project.description,
-      technologies: project.technologies
+      technologies: project.technologies,
+      team_name: project.team_name,
+      repo: project.repo,
+      server: project.server,
+      student_team: project.student_team,
+      applied_at: project.applied_at,
+      completed_at: project.completed_at
     }
   end
 end
