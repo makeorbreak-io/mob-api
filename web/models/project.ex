@@ -4,7 +4,8 @@ defmodule Api.Project do
   """
   use Api.Web, :model
 
-  @valid_attrs ~w(name team_name description technologies user_id)
+  @valid_attrs ~w(name team_name description technologies repo server
+                  student_team applied_at completed_at user_id)
   @required_attrs ~w(name)a
 
   schema "projects" do
@@ -12,7 +13,13 @@ defmodule Api.Project do
     field :team_name, :string
     field :description, :string
     field :technologies, :string
+    field :repo, :string
+    field :server, :string
+    field :student_team, :boolean
 
+    # Timestamps
+    field :applied_at, Ecto.DateTime
+    field :completed_at, Ecto.DateTime
     timestamps()
 
     # Relationships
