@@ -26,7 +26,14 @@ defmodule Api.UserControllerTest do
       "id" => user.id,
       "email" => user.email,
       "first_name" => user.first_name,
-      "last_name" => user.last_name
+      "last_name" => user.last_name,
+      "birthday" => user.birthday,
+      "employment_status" => user.employment_status,
+      "college" => user.college,
+      "company" => user.company,
+      "github_handle" => user.github_handle,
+      "twitter_handle" => user.twitter_handle,
+      "bio" => user.bio
     }
   end
 
