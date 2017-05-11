@@ -9,10 +9,12 @@ defmodule Api.SessionControllerTest do
     create_user
 
     response = create_session(conn, "email@example.com", "thisisapassword")
+
+    data = response["data"]
     
-    assert response["data"]["jwt"]
-    assert response["data"]["user"]["id"]
-    assert response["data"]["user"]["email"]
+    assert data["jwt"]
+    assert data["user"]["id"]
+    assert data["user"]["email"]
   end
 
   test "deletes a session", %{conn: conn} do
@@ -20,7 +22,7 @@ defmodule Api.SessionControllerTest do
     session_response = create_session(conn, "email@example.com", "thisisapassword")
 
     conn
-    |> put_req_header("authorization", session_response["data"]["jwt"])
+    |> put_req_header("authorization", "Bearer #{session_response["data"]["jwt"]}")
     |> delete("/api/logout")
     |> json_response(200)
   end
@@ -34,9 +36,9 @@ defmodule Api.SessionControllerTest do
     assert response == %{"error" => "Unable to authenticate"} 
   end
 
-  defp create_user do
+  defp create_user(params \\ @valid_attrs) do
     %User{}
-    |> User.registration_changeset(@valid_attrs)
+    |> User.registration_changeset(params)
     |> Repo.insert!
   end
 
@@ -44,5 +46,4 @@ defmodule Api.SessionControllerTest do
     post(conn, "/api/login", email: email, password: password)
     |> json_response(201)
   end
-
 end
