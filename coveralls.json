@@ -1,0 +1,21 @@
+{
+  "default_stop_words": [
+    "defmodule",
+    "defrecord",
+    "defimpl",
+    "def.+(.+\/\/.+).+do"
+  ],
+
+  "skip_files": [
+    "lib/api.ex",
+    "lib/api/endpoint.ex",
+    "lib/api/repo.ex",
+    "web/gettext.ex",
+    "web/web.ex",
+  ],
+
+  "coverage_options": {
+    "treat_no_relevant_lines_as_covered": true,
+    "output_dir": "cover/"
+  }
+}

@@ -1,9 +1,10 @@
 defmodule Api.ProjectController do
   use Api.Web, :controller
-  plug Guardian.Plug.EnsureAuthenticated, 
+  plug Guardian.Plug.EnsureAuthenticated,
     [handler: Api.SessionController] when action in [:create, :update, :delete]
 
   alias Api.Project
+  alias Guardian.Plug
 
   def index(conn, _params) do
     projects = Repo.all(Project)
@@ -11,9 +12,11 @@ defmodule Api.ProjectController do
   end
 
   def create(conn, %{"project" => project_params}) do
-    user = Guardian.Plug.current_resource(conn)
+    user = Plug.current_resource(conn)
 
-    changeset = Project.changeset(%Project{}, Map.merge(project_params, %{"user_id" => user.id}))
+    changeset = Project.changeset(%Project{}, Map.merge(project_params, %{
+      "user_id" => user.id
+    }))
 
     case Repo.insert(changeset) do
       {:ok, project} ->
