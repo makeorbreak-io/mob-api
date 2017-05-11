@@ -1,4 +1,7 @@
 defmodule Api.Project do
+  @moduledoc """
+    TODO: Write.
+  """
   use Api.Web, :model
 
   @valid_attrs ~w(name team_name description technologies user_id)

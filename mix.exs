@@ -47,7 +47,8 @@ defmodule Api.Mixfile do
       {:cowboy, "~> 1.0"},
       {:cors_plug, "~> 1.2"},
       {:comeonin, "~> 3.0"},
-      {:guardian, "~> 0.14"}
+      {:guardian, "~> 0.14"},
+      {:credo, "~> 0.7", only: [:dev, :test]}
     ]
   end
 

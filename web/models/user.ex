@@ -1,6 +1,12 @@
 defmodule Api.User do
+  @moduledoc """
+    TODO: Write.
+  """
+
   use Api.Web, :model
   @derive {Poison.Encoder, only: [:id, :email, :first_name, :last_name]}
+
+  alias Comeonin.Bcrypt
 
   schema "users" do
     field :email, :string
@@ -41,7 +47,7 @@ defmodule Api.User do
     hashed_password =
       changeset
       |> get_field(:password)
-      |> Comeonin.Bcrypt.hashpwsalt()
+      |> Bcrypt.hashpwsalt()
 
     changeset
     |> put_change(:password_hash, hashed_password)
