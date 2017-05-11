@@ -12,6 +12,9 @@ defmodule Api.User do
 
     # Virtual fields
     field :password, :string, virtual: true
+
+    # Relationships
+    has_one :project, Api.Project
   end
 
   @doc "Builds a changeset based on the `struct` and `params`."

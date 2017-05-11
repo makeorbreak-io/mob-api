@@ -1,7 +1,8 @@
 defmodule Api.ProjectControllerTest do
   use Api.ConnCase
 
-  alias Api.Project
+  alias Api.{Project, User}
+  
   @valid_attrs %{
     description: "some content",
     name: "some content",
@@ -10,7 +11,15 @@ defmodule Api.ProjectControllerTest do
   @invalid_attrs %{}
 
   setup %{conn: conn} do
-    {:ok, conn: put_req_header(conn, "accept", "application/json")}
+    user = create_user
+    {:ok, jwt, full_claims} = Guardian.encode_and_sign(user)
+
+    {:ok, %{
+      user: user,
+      jwt: jwt,
+      claims: full_claims,
+      conn: put_req_header(conn, "content-type", "application/json")
+    }}
   end
 
   test "lists all entries on index", %{conn: conn} do
@@ -35,34 +44,57 @@ defmodule Api.ProjectControllerTest do
     end
   end
 
-  test "creates and renders resource when data is valid", %{conn: conn} do
-    conn = post conn, project_path(conn, :create), project: @valid_attrs
-    assert json_response(conn, 201)["data"]["id"]
-    assert Repo.get_by(Project, @valid_attrs)
+  test "creates resource when data is valid", %{conn: conn, jwt: jwt, user: user} do
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> post(project_path(conn, :create), project: @valid_attrs)
+
+    id = json_response(conn, 201)["data"]["id"]
+    project = Repo.get(Project, id)
+    
+    assert project
+    assert project.user_id == user.id
   end
 
-  test "does not create resource and renders errors when data is invalid", %{conn: conn} do
-    conn = post conn, project_path(conn, :create), project: @invalid_attrs
+  test "doesn't create resource when data is invalid", %{conn: conn, jwt: jwt} do
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> post(project_path(conn, :create), project: @invalid_attrs)
+
     assert json_response(conn, 422)["errors"] != %{}
   end
 
-  test "updates and renders chosen resource when data is valid", %{conn: conn} do
+  test "updates resource when data is valid", %{conn: conn, jwt: jwt} do
     project = Repo.insert! %Project{}
-    conn = put conn, project_path(conn, :update, project), project: @valid_attrs
-    assert json_response(conn, 200)["data"]["id"]
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> put(project_path(conn, :update, project), project: @valid_attrs)
+
     assert Repo.get_by(Project, @valid_attrs)
   end
 
-  test "does not update chosen resource and renders errors when data is invalid", %{conn: conn} do
+  test "doesn't update resource when data is invalid", %{conn: conn, jwt: jwt} do
     project = Repo.insert! %Project{}
-    conn = put conn, project_path(conn, :update, project), project: @invalid_attrs
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> put(project_path(conn, :update, project), project: @invalid_attrs)
+
     assert json_response(conn, 422)["errors"] != %{}
   end
 
-  test "deletes chosen resource", %{conn: conn} do
+  test "deletes resource", %{conn: conn, jwt: jwt} do
     project = Repo.insert! %Project{}
-    conn = delete conn, project_path(conn, :delete, project)
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> delete(project_path(conn, :delete, project))
+
     assert response(conn, 204)
     refute Repo.get(Project, project.id)
+  end
+
+  defp create_user do
+    %User{}
+    |> User.registration_changeset(%{email: "email@example.com", password: "thisisapassword"})
+    |> Repo.insert!
   end
 end

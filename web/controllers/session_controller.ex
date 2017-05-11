@@ -17,6 +17,12 @@ defmodule Api.SessionController do
     |> render(Api.SessionView, "session.json", data: %{})
   end
 
+  def unauthenticated(conn, _params) do
+    conn
+    |> put_status(401)
+    |> render(Api.ErrorView, "error.json", error: "Authentication required")
+  end
+
   defp get_user(email) do
     Repo.get_by(User, email: String.downcase(email))
   end
@@ -36,7 +42,7 @@ defmodule Api.SessionController do
   defp handle_check_password(false, conn, _user) do
     conn
     |> put_status(:unprocessable_entity)
-    |> render(Api.SessionView, "error.json", error: "Unable to authenticate")
+    |> render(Api.ErrorView, "error.json", error: "Unable to authenticate")
   end
 
   defp revoke_claims(conn) do

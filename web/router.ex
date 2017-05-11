@@ -3,7 +3,7 @@ defmodule Api.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
-    plug Guardian.Plug.VerifyHeader
+    plug Guardian.Plug.VerifyHeader, realm: "Bearer"
     plug Guardian.Plug.LoadResource
   end
 
