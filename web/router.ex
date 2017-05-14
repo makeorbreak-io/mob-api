@@ -13,6 +13,7 @@ defmodule Api.Router do
     resources "/projects", ProjectController, except: [:new, :edit]
     resources "/users", UserController, except: [:new, :edit]
 
+    get "/me", SessionController, :me
     post "/login", SessionController, :create
     delete "/logout", SessionController, :delete
   end
