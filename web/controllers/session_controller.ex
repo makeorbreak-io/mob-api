@@ -5,6 +5,12 @@ defmodule Api.SessionController do
   alias Comeonin.Bcrypt
   alias Guardian.Plug
 
+  def me(conn, _params) do
+    user = Plug.current_resource(conn)
+
+    render(conn, "session.json", data: user)
+  end
+
   def create(conn, %{"email" => email, "password" => password}) do
     user = get_user(email)
 
