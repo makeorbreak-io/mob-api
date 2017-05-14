@@ -72,7 +72,7 @@ defmodule Api.ProjectControllerTest do
 
   test "updates resource when data is valid", %{conn: conn, jwt: jwt} do
     project = Repo.insert! %Project{}
-    conn = conn
+    conn
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> put(project_path(conn, :update, project), project: @valid_attrs)
 

@@ -27,6 +27,19 @@ defmodule Api.SessionControllerTest do
     |> json_response(200)
   end
 
+  test "jwt checking works", %{conn: conn} do
+    user = create_user
+
+    session_response = create_session(conn, "email@example.com", "thisisapassword")
+    
+    response = conn    
+    |> put_req_header("authorization", "Bearer #{session_response["data"]["jwt"]}")
+    |> get("api/me")
+    |> json_response(200)
+
+    assert response["data"]["id"] == user.id
+  end
+
   test "fails authorization", %{conn: conn} do
     create_user
 
