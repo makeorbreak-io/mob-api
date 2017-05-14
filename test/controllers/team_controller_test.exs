@@ -1,14 +1,9 @@
-defmodule Api.ProjectControllerTest do
+defmodule Api.TeamControllerTest do
   use Api.ConnCase
 
   alias Api.{Project, User}
   
-  @valid_attrs %{
-    description: "some content",
-    name: "some content",
-    technologies: "some content",
-    team_name: "awesome team"
-  }
+  @valid_attrs %{team_name: "awesome team"}
   @invalid_attrs %{}
 
   setup %{conn: conn} do
@@ -24,82 +19,76 @@ defmodule Api.ProjectControllerTest do
   end
 
   test "lists all entries on index", %{conn: conn} do
-    conn = get conn, project_path(conn, :index)
+    conn = get conn, team_path(conn, :index)
     assert json_response(conn, 200)["data"] == []
   end
 
   test "shows chosen resource", %{conn: conn} do
-    project = Repo.insert! %Project{}
-    conn = get conn, project_path(conn, :show, project)
+    team = Repo.insert! %Project{team_name: "awesome team"}
+    conn = get conn, team_path(conn, :show, team)
     assert json_response(conn, 200)["data"] == %{
-      "id" => project.id,
-      "name" => project.name,
-      "description" => project.description,
-      "technologies" => project.technologies,
-      "applied_at" => project.applied_at,
-      "completed_at" => project.completed_at,
-      "repo" => project.repo,
-      "server" => project.server,
-      "student_team" => project.student_team
+      "id" => team.id,
+      "team_name" => team.team_name
     }
   end
 
   test "renders page not found when id is nonexistent", %{conn: conn} do
     assert_error_sent 404, fn ->
-      get conn, project_path(conn, :show, "30e2751a-3d6c-4424-811b-ab1e1f8f0e31")
+      get conn, team_path(conn, :show, "30e2751a-3d6c-4424-811b-ab1e1f8f0e31")
     end
   end
 
-  test "creates resource when data is valid", %{conn: conn, jwt: jwt} do
-    team = create_team
-
+  test "creates resource when data is valid", %{conn: conn, jwt: jwt, user: user} do
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
-    |> post(project_path(conn, :create), id: team.id, project: @valid_attrs)
+    |> post(team_path(conn, :create), team: @valid_attrs)
 
-    project = json_response(conn, 201)["data"]
+    id = json_response(conn, 201)["data"]["id"]
+    team = Repo.get(Project, id)
     
-    assert project
-    assert project["applied_at"]
+    assert team
+    assert team.user_id == user.id
+  end
+
+  test "doesn't create resource when data is invalid", %{conn: conn, jwt: jwt} do
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> post(team_path(conn, :create), team: @invalid_attrs)
+
+    assert json_response(conn, 422)["errors"] != %{}
   end
 
   test "updates resource when data is valid", %{conn: conn, jwt: jwt} do
-    project = Repo.insert! %Project{}
+    team = Repo.insert! %Project{}
     conn
     |> put_req_header("authorization", "Bearer #{jwt}")
-    |> put(project_path(conn, :update, project), project: @valid_attrs)
+    |> put(team_path(conn, :update, team), team: @valid_attrs)
 
     assert Repo.get_by(Project, @valid_attrs)
   end
 
   test "doesn't update resource when data is invalid", %{conn: conn, jwt: jwt} do
-    project = Repo.insert! %Project{}
+    team = Repo.insert! %Project{}
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
-    |> put(project_path(conn, :update, project), project: @invalid_attrs)
+    |> put(team_path(conn, :update, team), team: @invalid_attrs)
 
     assert json_response(conn, 422)["errors"] != %{}
   end
 
   test "deletes resource", %{conn: conn, jwt: jwt} do
-    project = Repo.insert! %Project{}
+    team = Repo.insert! %Project{}
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
-    |> delete(project_path(conn, :delete, project))
+    |> delete(team_path(conn, :delete, team))
 
     assert response(conn, 204)
-    refute Repo.get(Project, project.id)
+    refute Repo.get(Project, team.id)
   end
 
   defp create_user do
     %User{}
     |> User.registration_changeset(%{email: "email@example.com", password: "thisisapassword"})
-    |> Repo.insert!
-  end
-
-  defp create_team do
-    %Project{}
-    |> Project.changeset(%{team_name: "awesome team"})
     |> Repo.insert!
   end
 end

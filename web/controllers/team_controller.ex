@@ -1,51 +1,52 @@
-defmodule Api.ProjectController do
+defmodule Api.TeamController do
   use Api.Web, :controller
   plug Guardian.Plug.EnsureAuthenticated,
     [handler: Api.SessionController] when action in [:create, :update, :delete]
 
-  alias Api.{Project, ChangesetView}
+  alias Api.Project
+  alias Guardian.Plug
 
   def index(conn, _params) do
     projects = Repo.all(Project)
-    render(conn, "index.json", projects: projects)
+    render(conn, Api.TeamView, "index.json", teams: projects)
   end
 
-  def create(conn, %{"id" => id, "project" => project_params}) do
-    project = Repo.get!(Project, id)
+  def create(conn, %{"team" => team_params}) do
+    user = Plug.current_resource(conn)
 
-    changeset = Project.changeset(project, Map.merge(project_params, %{
-      "applied_at" => Ecto.DateTime.utc
+    changeset = Project.changeset(%Project{}, Map.merge(team_params, %{
+      "user_id" => user.id
     }))
 
-    case Repo.update(changeset) do
+    case Repo.insert(changeset) do
       {:ok, project} ->
         conn
         |> put_status(:created)
-        |> put_resp_header("location", project_path(conn, :show, project))
-        |> render("show.json", project: project)
+        |> put_resp_header("location", team_path(conn, :show, project))
+        |> render(Api.TeamView, "show.json", team: project)
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(ChangesetView, "error.json", changeset: changeset)
+        |> render(Api.ChangesetView, "error.json", changeset: changeset)
     end
   end
 
   def show(conn, %{"id" => id}) do
     project = Repo.get!(Project, id)
-    render(conn, "show.json", project: project)
+    render(conn, Api.TeamView, "show.json", team: project)
   end
 
-  def update(conn, %{"id" => id, "project" => project_params}) do
+  def update(conn, %{"id" => id, "team" => team_params}) do
     project = Repo.get!(Project, id)
-    changeset = Project.changeset(project, project_params)
+    changeset = Project.changeset(project, team_params)
 
     case Repo.update(changeset) do
       {:ok, project} ->
-        render(conn, "show.json", project: project)
+        render(conn, Api.TeamView, "show.json", team: project)
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(ChangesetView, "error.json", changeset: changeset)
+        |> render(Api.ChangesetView, "error.json", changeset: changeset)
     end
   end
 

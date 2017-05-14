@@ -12,6 +12,8 @@
     "lib/api/repo.ex",
     "web/gettext.ex",
     "web/web.ex",
+    "test/support/conn_case.ex",
+    "test/support/model_case.ex"
   ],
 
   "coverage_options": {

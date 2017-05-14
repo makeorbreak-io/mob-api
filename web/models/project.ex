@@ -6,7 +6,7 @@ defmodule Api.Project do
 
   @valid_attrs ~w(name team_name description technologies repo server
                   student_team applied_at completed_at user_id)
-  @required_attrs ~w(name)a
+  @required_attrs ~w(team_name)a
 
   schema "projects" do
     field :name, :string

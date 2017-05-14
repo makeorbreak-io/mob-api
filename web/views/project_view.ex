@@ -15,7 +15,6 @@ defmodule Api.ProjectView do
       name: project.name,
       description: project.description,
       technologies: project.technologies,
-      team_name: project.team_name,
       repo: project.repo,
       server: project.server,
       student_team: project.student_team,
