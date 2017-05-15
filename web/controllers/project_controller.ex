@@ -3,10 +3,10 @@ defmodule Api.ProjectController do
   plug Guardian.Plug.EnsureAuthenticated,
     [handler: Api.SessionController] when action in [:create, :update, :delete]
 
-  alias Api.{Project, ChangesetView}
+  alias Api.{Project, ChangesetView, ErrorView}
 
   def index(conn, _params) do
-    projects = Repo.all(Project)
+    projects = Repo.all(from p in Project, where: not is_nil(p.applied_at))
     render(conn, "index.json", projects: projects)
   end
 
@@ -31,7 +31,8 @@ defmodule Api.ProjectController do
   end
 
   def show(conn, %{"id" => id}) do
-    project = Repo.get!(Project, id)
+    query = from p in Project, where: not is_nil(p.applied_at)
+    project = Repo.get!(query, id)
     render(conn, "show.json", project: project)
   end
 
@@ -52,10 +53,15 @@ defmodule Api.ProjectController do
   def delete(conn, %{"id" => id}) do
     project = Repo.get!(Project, id)
 
-    # Here we use delete! (with a bang) because we expect
-    # it to always work (and if it does not, it will raise).
-    Repo.delete!(project)
+    changeset = Project.changeset(project, %{applied_at: nil, completed_at: nil})
 
-    send_resp(conn, :no_content, "")
+    case Repo.update(changeset) do
+      {:ok, project} ->
+        send_resp(conn, :no_content, "")
+      {:error, _} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(ErrorView, "error.json", error: "Unable to delete project")
+    end
   end
 end

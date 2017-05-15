@@ -2,6 +2,7 @@ defmodule Api.ProjectControllerTest do
   use Api.ConnCase
 
   alias Api.{Project, User}
+  alias Ecto.DateTime
   
   @valid_attrs %{
     description: "some content",
@@ -24,19 +25,32 @@ defmodule Api.ProjectControllerTest do
   end
 
   test "lists all entries on index", %{conn: conn} do
+    create_team
+
+    for _ <- 1..2 do
+      %Project{}
+      |> Project.changeset(%{applied_at: DateTime.utc, team_name: "awesome team"})
+      |> Repo.insert!
+    end
+
     conn = get conn, project_path(conn, :index)
-    assert json_response(conn, 200)["data"] == []
+    projects = json_response(conn, 200)["data"]
+
+    assert length(projects) == 2
   end
 
   test "shows chosen resource", %{conn: conn} do
-    project = Repo.insert! %Project{}
+    project =       %Project{}
+      |> Project.changeset(%{applied_at: DateTime.utc, team_name: "awesome team"})
+      |> Repo.insert!
+
     conn = get conn, project_path(conn, :show, project)
     assert json_response(conn, 200)["data"] == %{
       "id" => project.id,
       "name" => project.name,
       "description" => project.description,
       "technologies" => project.technologies,
-      "applied_at" => project.applied_at,
+      "applied_at" => DateTime.to_iso8601(project.applied_at),
       "completed_at" => project.completed_at,
       "repo" => project.repo,
       "server" => project.server,
@@ -82,13 +96,15 @@ defmodule Api.ProjectControllerTest do
   end
 
   test "deletes resource", %{conn: conn, jwt: jwt} do
-    project = Repo.insert! %Project{}
+    project = %Project{}
+    |> Project.changeset(%{applied_at: nil, team_name: "awesome team"})
+    |> Repo.insert!
+
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> delete(project_path(conn, :delete, project))
 
     assert response(conn, 204)
-    refute Repo.get(Project, project.id)
   end
 
   defp create_user do
