@@ -6,7 +6,8 @@ defmodule Api.ProjectTest do
   @valid_attrs %{
     description: "some content",
     name: "some content",
-    technologies: "some content"
+    technologies: "some content",
+    team_name: "awesome team"
   }
   @invalid_attrs %{}
 
