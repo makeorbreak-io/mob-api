@@ -1,7 +1,7 @@
 defmodule Api.ProjectControllerTest do
   use Api.ConnCase
 
-  alias Api.{Project, User}
+  alias Api.Project
   alias Ecto.DateTime
   
   @valid_attrs %{
@@ -105,17 +105,5 @@ defmodule Api.ProjectControllerTest do
     |> delete(project_path(conn, :delete, project))
 
     assert response(conn, 204)
-  end
-
-  defp create_user do
-    %User{}
-    |> User.registration_changeset(%{email: "email@example.com", password: "thisisapassword"})
-    |> Repo.insert!
-  end
-
-  defp create_team do
-    %Project{}
-    |> Project.changeset(%{team_name: "awesome team"})
-    |> Repo.insert!
   end
 end
