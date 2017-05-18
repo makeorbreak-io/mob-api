@@ -6,7 +6,10 @@ defmodule Api.SessionController do
   alias Guardian.Plug
 
   def me(conn, _params) do
-    user = Plug.current_resource(conn)
+    %{id: id} = Plug.current_resource(conn)
+
+    user = Repo.get!(User, id)
+    |> Repo.preload(:project)
 
     render(conn, UserView, "show.json", user: user)
   end
@@ -33,6 +36,7 @@ defmodule Api.SessionController do
 
   defp get_user(email) do
     Repo.get_by(User, email: String.downcase(email))
+    |> Repo.preload(:project)
   end
 
   defp check_password(nil, _password), do: false

@@ -1,7 +1,7 @@
 defmodule Api.TeamControllerTest do
   use Api.ConnCase
 
-  alias Api.{Project, User}
+  alias Api.Project
   
   @valid_attrs %{team_name: "awesome team"}
   @invalid_attrs %{}
@@ -84,11 +84,5 @@ defmodule Api.TeamControllerTest do
 
     assert response(conn, 204)
     refute Repo.get(Project, team.id)
-  end
-
-  defp create_user do
-    %User{}
-    |> User.registration_changeset(%{email: "email@example.com", password: "thisisapassword"})
-    |> Repo.insert!
   end
 end

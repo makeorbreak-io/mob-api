@@ -21,7 +21,8 @@ defmodule Api.UserView do
       twitter_handle: user.twitter_handle,
       employment_status: user.employment_status,
       college: user.college,
-      company: user.company
+      company: user.company,
+      team: if user.project do render_one(user.project, Api.TeamView, "team.json") end
     }
   end
 end

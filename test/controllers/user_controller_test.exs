@@ -2,6 +2,7 @@ defmodule Api.UserControllerTest do
   use Api.ConnCase
 
   alias Api.User
+
   @valid_attrs %{
     email: "johndoe@example.com",
     first_name: "john",
@@ -20,7 +21,12 @@ defmodule Api.UserControllerTest do
   end
 
   test "shows chosen resource", %{conn: conn} do
-    user = Repo.insert! %User{}
+    %{id: id} = create_user
+    create_team(%{user_id: id, team_name: "awesome_team"})
+
+    user = Repo.get!(User, id)
+    |> Repo.preload(:project)
+
     conn = get conn, user_path(conn, :show, user)
     assert json_response(conn, 200)["data"] == %{
       "id" => user.id,
@@ -33,7 +39,11 @@ defmodule Api.UserControllerTest do
       "company" => user.company,
       "github_handle" => user.github_handle,
       "twitter_handle" => user.twitter_handle,
-      "bio" => user.bio
+      "bio" => user.bio,
+      "team" => %{
+        "id" => user.project.id,
+        "team_name" => user.project.team_name
+      }
     }
   end
 

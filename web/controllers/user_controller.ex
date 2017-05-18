@@ -29,11 +29,15 @@ defmodule Api.UserController do
 
   def show(conn, %{"id" => id}) do
     user = Repo.get!(User, id)
+    |> Repo.preload(:project)
+
     render(conn, "show.json", user: user)
   end
 
   def update(conn, %{"id" => id, "user" => user_params}) do
     user = Repo.get!(User, id)
+    |> Repo.preload(:project)
+    
     changeset = User.changeset(user, user_params)
 
     case Repo.update(changeset) do
