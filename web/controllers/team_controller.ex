@@ -1,29 +1,24 @@
 defmodule Api.TeamController do
+  
   use Api.Web, :controller
+
+  alias Api.TeamActions
+
+  plug :scrub_params, "team" when action in [:create]
   plug Guardian.Plug.EnsureAuthenticated,
     [handler: Api.SessionController] when action in [:create, :update, :delete]
 
-  alias Api.Project
-  alias Guardian.Plug
-
   def index(conn, _params) do
-    projects = Repo.all(Project)
-    render(conn, Api.TeamView, "index.json", teams: projects)
+    render(conn, "index.json", teams: TeamActions.all)
   end
 
   def create(conn, %{"team" => team_params}) do
-    user = Plug.current_resource(conn)
-
-    changeset = Project.changeset(%Project{}, Map.merge(team_params, %{
-      "user_id" => user.id
-    }))
-
-    case Repo.insert(changeset) do
-      {:ok, project} ->
+    case TeamActions.create(conn, team_params) do
+      {:ok, team} ->
         conn
         |> put_status(:created)
-        |> put_resp_header("location", team_path(conn, :show, project))
-        |> render(Api.TeamView, "show.json", team: project)
+        |> put_resp_header("location", team_path(conn, :show, team))
+        |> render("show.json", team: team)
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
@@ -32,17 +27,13 @@ defmodule Api.TeamController do
   end
 
   def show(conn, %{"id" => id}) do
-    project = Repo.get!(Project, id)
-    render(conn, Api.TeamView, "show.json", team: project)
+    render(conn, "show.json", team: TeamActions.get(id))
   end
 
   def update(conn, %{"id" => id, "team" => team_params}) do
-    project = Repo.get!(Project, id)
-    changeset = Project.changeset(project, team_params)
-
-    case Repo.update(changeset) do
-      {:ok, project} ->
-        render(conn, Api.TeamView, "show.json", team: project)
+    case TeamActions.update(id, team_params) do
+      {:ok, team} ->
+        render(conn, "show.json", team: team)
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
@@ -51,12 +42,7 @@ defmodule Api.TeamController do
   end
 
   def delete(conn, %{"id" => id}) do
-    project = Repo.get!(Project, id)
-
-    # Here we use delete! (with a bang) because we expect
-    # it to always work (and if it does not, it will raise).
-    Repo.delete!(project)
-
+    TeamActions.delete(id)
     send_resp(conn, :no_content, "")
   end
 end

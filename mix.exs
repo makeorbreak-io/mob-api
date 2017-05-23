@@ -7,7 +7,7 @@ defmodule Api.Mixfile do
       version: "0.0.1",
       elixir: "~> 1.2",
       elixirc_paths: elixirc_paths(Mix.env),
-      compilers: [:phoenix, :gettext] ++ Mix.compilers,
+      compilers: [:phoenix] ++ Mix.compilers,
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
       aliases: aliases(),
@@ -29,13 +29,12 @@ defmodule Api.Mixfile do
     [
       mod: {Api, []},
       applications: [
+        :comeonin,
         :cowboy,
-        :gettext,
         :logger,
         :phoenix,
         :phoenix_ecto,
-        :postgrex,
-        :comeonin
+        :postgrex
       ]
     ]
   end
@@ -49,16 +48,15 @@ defmodule Api.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:gettext, "~> 0.11"},
+      {:comeonin, "~> 3.0"},
+      {:cors_plug, "~> 1.2"},
+      {:cowboy, "~> 1.0"},
+      {:credo, "~> 0.7", only: [:dev, :test]},
+      {:excoveralls, "~> 0.6", only: :test},
+      {:guardian, "~> 0.14"},
       {:phoenix, "~> 1.2.1"},
       {:phoenix_ecto, "~> 3.0"},
-      {:postgrex, ">= 0.0.0"},
-      {:cowboy, "~> 1.0"},
-      {:cors_plug, "~> 1.2"},
-      {:comeonin, "~> 3.0"},
-      {:guardian, "~> 0.14"},
-      {:credo, "~> 0.7", only: [:dev, :test]},
-      {:excoveralls, "~> 0.6", only: :test}
+      {:postgrex, ">= 0.0.0"}
     ]
   end
 
@@ -83,6 +81,9 @@ defmodule Api.Mixfile do
         "ecto.create --quiet",
         "ecto.migrate",
         "coveralls"
+      ],
+      "server": [
+        "phoenix.server"
       ]
     ]
   end

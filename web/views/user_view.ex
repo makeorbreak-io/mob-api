@@ -1,12 +1,14 @@
 defmodule Api.UserView do
   use Api.Web, :view
 
+  alias Api.{UserView, TeamView}
+
   def render("index.json", %{users: users}) do
-    %{data: render_many(users, Api.UserView, "user.json")}
+    %{data: render_many(users, UserView, "user.json")}
   end
 
   def render("show.json", %{user: user}) do
-    %{data: render_one(user, Api.UserView, "user.json")}
+    %{data: render_one(user, UserView, "user.json")}
   end
 
   def render("user.json", %{user: user}) do
@@ -22,7 +24,7 @@ defmodule Api.UserView do
       employment_status: user.employment_status,
       college: user.college,
       company: user.company,
-      team: if user.project do render_one(user.project, Api.TeamView, "team.json") end
+      team: if user.team do render_one(user.team, TeamView, "team.json") end
     }
   end
 end

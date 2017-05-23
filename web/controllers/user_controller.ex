@@ -1,21 +1,23 @@
 defmodule Api.UserController do
   use Api.Web, :controller
 
-  alias Api.User
+  alias Api.UserActions
 
   plug :scrub_params, "user" when action in [:create]
 
   def index(conn, _params) do
-    users = Repo.all(User)
-    render(conn, "index.json", users: users)
+    render(conn, "index.json", users: UserActions.all)
+  end
+
+  def show(conn, %{"id" => id}) do
+    render(conn, "show.json", user: UserActions.get(id))
   end
 
   def create(conn, %{"user" => user_params}) do
-    changeset = User.registration_changeset(%User{}, user_params)
-
-    case Repo.insert(changeset) do
+    case UserActions.create(user_params) do
       {:ok, user} ->
         {:ok, jwt, _full_claims} = Guardian.encode_and_sign(user, :token)
+
         conn
         |> put_status(:created)
         |> put_resp_header("location", user_path(conn, :show, user))
@@ -27,20 +29,8 @@ defmodule Api.UserController do
     end
   end
 
-  def show(conn, %{"id" => id}) do
-    user = Repo.get!(User, id)
-    |> Repo.preload(:project)
-
-    render(conn, "show.json", user: user)
-  end
-
   def update(conn, %{"id" => id, "user" => user_params}) do
-    user = Repo.get!(User, id)
-    |> Repo.preload(:project)
-    
-    changeset = User.changeset(user, user_params)
-
-    case Repo.update(changeset) do
+    case UserActions.update(id, user_params) do
       {:ok, user} ->
         render(conn, "show.json", user: user)
       {:error, changeset} ->
@@ -51,12 +41,7 @@ defmodule Api.UserController do
   end
 
   def delete(conn, %{"id" => id}) do
-    user = Repo.get!(User, id)
-
-    # Here we use delete! (with a bang) because we expect
-    # it to always work (and if it does not, it will raise).
-    Repo.delete!(user)
-
+    UserActions.delete(id)
     send_resp(conn, :no_content, "")
   end
 end

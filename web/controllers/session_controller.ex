@@ -9,7 +9,7 @@ defmodule Api.SessionController do
     %{id: id} = Plug.current_resource(conn)
 
     user = Repo.get!(User, id)
-    |> Repo.preload(:project)
+    |> Repo.preload(:team)
 
     render(conn, UserView, "show.json", user: user)
   end
@@ -36,7 +36,7 @@ defmodule Api.SessionController do
 
   defp get_user(email) do
     Repo.get_by(User, email: String.downcase(email))
-    |> Repo.preload(:project)
+    |> Repo.preload(:team)
   end
 
   defp check_password(nil, _password), do: false
