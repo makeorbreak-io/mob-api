@@ -23,14 +23,13 @@ defmodule Api.User do
     field :github_handle, :string
     field :twitter_handle, :string
     field :bio, :string
-
     timestamps()
 
     # Virtual fields
     field :password, :string, virtual: true
 
-    # Relationships
-    has_one :project, Api.Project
+    # Associations
+    has_one :team, Api.Team
   end
 
   @doc "Builds a changeset based on the `struct` and `params`."

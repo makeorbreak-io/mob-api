@@ -1,4 +1,4 @@
-defmodule Api.Repo.Migrations.AddFieldsToUsers do
+defmodule Api.Repo.Migrations.AddAttributesToUsers do
   use Ecto.Migration
 
   def change do

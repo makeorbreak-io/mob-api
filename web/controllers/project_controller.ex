@@ -1,23 +1,19 @@
 defmodule Api.ProjectController do
+
   use Api.Web, :controller
+  
+  alias Api.ProjectActions
+  
+  plug :scrub_params, "project" when action in [:create]
   plug Guardian.Plug.EnsureAuthenticated,
     [handler: Api.SessionController] when action in [:create, :update, :delete]
 
-  alias Api.{Project, ChangesetView, ErrorView}
-
   def index(conn, _params) do
-    projects = Repo.all(from p in Project, where: not is_nil(p.applied_at))
-    render(conn, "index.json", projects: projects)
+    render(conn, "index.json", projects: ProjectActions.all)
   end
 
-  def create(conn, %{"id" => id, "project" => project_params}) do
-    project = Repo.get!(Project, id)
-
-    changeset = Project.changeset(project, Map.merge(project_params, %{
-      "applied_at" => Ecto.DateTime.utc
-    }))
-
-    case Repo.update(changeset) do
+  def create(conn, %{"project" => project_params}) do
+    case ProjectActions.create(project_params) do
       {:ok, project} ->
         conn
         |> put_status(:created)
@@ -26,42 +22,27 @@ defmodule Api.ProjectController do
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(ChangesetView, "error.json", changeset: changeset)
+        |> render(Api.ChangesetView, "error.json", changeset: changeset)
     end
   end
 
   def show(conn, %{"id" => id}) do
-    query = from p in Project, where: not is_nil(p.applied_at)
-    project = Repo.get!(query, id)
-    render(conn, "show.json", project: project)
+    render(conn, "show.json", project: ProjectActions.get(id))
   end
 
   def update(conn, %{"id" => id, "project" => project_params}) do
-    project = Repo.get!(Project, id)
-    changeset = Project.changeset(project, project_params)
-
-    case Repo.update(changeset) do
+    case ProjectActions.update(id, project_params) do
       {:ok, project} ->
         render(conn, "show.json", project: project)
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(ChangesetView, "error.json", changeset: changeset)
+        |> render(Api.ChangesetView, "error.json", changeset: changeset)
     end
   end
 
   def delete(conn, %{"id" => id}) do
-    project = Repo.get!(Project, id)
-
-    changeset = Project.changeset(project, %{applied_at: nil, completed_at: nil})
-
-    case Repo.update(changeset) do
-      {:ok, project} ->
-        send_resp(conn, :no_content, "")
-      {:error, _} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> render(ErrorView, "error.json", error: "Unable to delete project")
-    end
+    ProjectActions.delete(id)
+    send_resp(conn, :no_content, "")
   end
 end

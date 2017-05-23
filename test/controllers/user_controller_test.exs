@@ -22,12 +22,13 @@ defmodule Api.UserControllerTest do
 
   test "shows chosen resource", %{conn: conn} do
     %{id: id} = create_user
-    create_team(%{user_id: id, team_name: "awesome_team"})
+    create_team(%{user_id: id, name: "awesome team"})
 
     user = Repo.get!(User, id)
-    |> Repo.preload(:project)
+    |> Repo.preload(:team)
 
     conn = get conn, user_path(conn, :show, user)
+    
     assert json_response(conn, 200)["data"] == %{
       "id" => user.id,
       "email" => user.email,
@@ -41,8 +42,8 @@ defmodule Api.UserControllerTest do
       "twitter_handle" => user.twitter_handle,
       "bio" => user.bio,
       "team" => %{
-        "id" => user.project.id,
-        "team_name" => user.project.team_name
+        "id" => user.team.id,
+        "name" => user.team.name
       }
     }
   end

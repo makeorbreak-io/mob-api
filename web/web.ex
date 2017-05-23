@@ -34,11 +34,19 @@ defmodule Api.Web do
       use Phoenix.Controller
 
       alias Api.Repo
+
       import Ecto
       import Ecto.Query
-
       import Api.Router.Helpers
-      import Api.Gettext
+    end
+  end
+
+  def action do
+    quote do
+      alias Api.Repo
+
+      import Ecto
+      import Ecto.Query
     end
   end
 
@@ -46,16 +54,7 @@ defmodule Api.Web do
     quote do
       use Phoenix.View, root: "web/templates"
 
-      # Import convenience functions from controllers
-      import Phoenix.Controller, only: [
-        get_csrf_token: 0,
-        get_flash: 2,
-        view_module: 1
-      ]
-
       import Api.Router.Helpers
-      import Api.ErrorHelpers
-      import Api.Gettext
     end
   end
 
@@ -72,7 +71,6 @@ defmodule Api.Web do
       alias Api.Repo
       import Ecto
       import Ecto.Query
-      import Api.Gettext
     end
   end
 

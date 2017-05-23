@@ -6,8 +6,7 @@ defmodule Api.ProjectTest do
   @valid_attrs %{
     description: "some content",
     name: "some content",
-    technologies: "some content",
-    team_name: "awesome team"
+    technologies: ["elixir", "ruby"]
   }
   @invalid_attrs %{}
 
@@ -18,6 +17,11 @@ defmodule Api.ProjectTest do
 
   test "changeset with invalid attributes" do
     changeset = Project.changeset(%Project{}, @invalid_attrs)
+    refute changeset.valid?
+  end
+
+  test "changeset with no attributes" do
+    changeset = Project.changeset(%Project{})
     refute changeset.valid?
   end
 end

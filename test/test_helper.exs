@@ -3,7 +3,7 @@ ExUnit.start
 Ecto.Adapters.SQL.Sandbox.mode(Api.Repo, :manual)
 
 defmodule Api.TestHelper do
-  alias Api.{User, Project, Repo, SessionController}
+  alias Api.{User, Team, Repo, SessionController}
 
   @valid_user_attrs %{
     email: "johndoe@example.com",
@@ -11,7 +11,7 @@ defmodule Api.TestHelper do
     last_name: "doe",
     password: "thisisapassword"
   }
-  @valid_team_attrs %{team_name: "awesome team"}
+  @valid_team_attrs %{name: "awesome team"}
 
   def create_user(params \\ @valid_user_attrs) do
     %User{}
@@ -25,8 +25,8 @@ defmodule Api.TestHelper do
   end
 
   def create_team(params \\ @valid_team_attrs) do
-    %Project{}
-    |> Project.changeset(params)
+    %Team{}
+    |> Team.changeset(params)
     |> Repo.insert!
   end
 end
