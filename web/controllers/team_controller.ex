@@ -4,7 +4,7 @@ defmodule Api.TeamController do
 
   alias Api.TeamActions
 
-  plug :scrub_params, "team" when action in [:create]
+  plug :scrub_params, "team" when action in [:create, :update]
   plug Guardian.Plug.EnsureAuthenticated,
     [handler: Api.SessionController] when action in [:create, :update, :delete]
 
@@ -15,6 +15,8 @@ defmodule Api.TeamController do
   def create(conn, %{"team" => team_params}) do
     case TeamActions.create(conn, team_params) do
       {:ok, team} ->
+        team = Repo.preload(team, :users)
+
         conn
         |> put_status(:created)
         |> put_resp_header("location", team_path(conn, :show, team))
@@ -33,6 +35,7 @@ defmodule Api.TeamController do
   def update(conn, %{"id" => id, "team" => team_params}) do
     case TeamActions.update(id, team_params) do
       {:ok, team} ->
+        team = Repo.preload(team, :users)
         render(conn, "show.json", team: team)
       {:error, changeset} ->
         conn

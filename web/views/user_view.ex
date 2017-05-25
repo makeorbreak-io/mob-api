@@ -24,7 +24,16 @@ defmodule Api.UserView do
       employment_status: user.employment_status,
       college: user.college,
       company: user.company,
-      team: if user.team do render_one(user.team, TeamView, "team.json") end
+      team: if user.team do render_one(user.team, TeamView, "team_summary.json") end
+    }
+  end
+
+  def render("user_summary.json", %{user: user}) do
+    %{
+      id: user.id,
+      email: user.email,
+      first_name: user.first_name,
+      last_name: user.last_name
     }
   end
 end

@@ -4,7 +4,7 @@ defmodule Api.ProjectController do
   
   alias Api.ProjectActions
   
-  plug :scrub_params, "project" when action in [:create]
+  plug :scrub_params, "project" when action in [:create, :update]
   plug Guardian.Plug.EnsureAuthenticated,
     [handler: Api.SessionController] when action in [:create, :update, :delete]
 
