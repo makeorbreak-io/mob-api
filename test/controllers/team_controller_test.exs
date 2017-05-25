@@ -25,10 +25,13 @@ defmodule Api.TeamControllerTest do
 
   test "shows chosen resource", %{conn: conn} do
     team = Repo.insert! %Team{}
+    |> Repo.preload(:users)
+  
     conn = get conn, team_path(conn, :show, team)
     assert json_response(conn, 200)["data"] == %{
       "id" => team.id,
       "name" => team.name,
+      "members" => team.users
     }
   end
 

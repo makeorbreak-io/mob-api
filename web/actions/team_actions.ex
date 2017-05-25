@@ -9,6 +9,7 @@ defmodule Api.TeamActions do
 
   def get(id) do
     Repo.get!(Team, id)
+    |> Repo.preload(:users)
   end
 
   def create(conn, team_params) do

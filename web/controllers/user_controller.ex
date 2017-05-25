@@ -3,7 +3,7 @@ defmodule Api.UserController do
 
   alias Api.UserActions
 
-  plug :scrub_params, "user" when action in [:create]
+  plug :scrub_params, "user" when action in [:create, :update]
 
   def index(conn, _params) do
     render(conn, "index.json", users: UserActions.all)

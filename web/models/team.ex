@@ -1,6 +1,8 @@
 defmodule Api.Team do
   use Api.Web, :model
 
+  alias Api.{User, Project, Invite}
+
   @valid_attrs ~w(name user_id)
   @required_attrs ~w(name)a
 
@@ -9,8 +11,11 @@ defmodule Api.Team do
     timestamps()
 
     # Associations
-    belongs_to :user, Api.User
-    has_one :project, Api.Project
+    belongs_to :user, User
+    has_one :project, Project
+    has_many :invites, Invite
+
+    many_to_many :users, User, join_through: "users_teams"
   end
 
   @doc """

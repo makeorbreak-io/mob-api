@@ -4,6 +4,7 @@ defmodule Api.User do
   """
 
   use Api.Web, :model
+  alias Api.{Team, Invite}
   @derive {Poison.Encoder, only: [:id, :email, :first_name, :last_name]}
 
   alias Comeonin.Bcrypt
@@ -29,7 +30,11 @@ defmodule Api.User do
     field :password, :string, virtual: true
 
     # Associations
-    has_one :team, Api.Team
+    has_one :team, Team
+    has_many :invites, Invite, foreign_key: :host_id
+    has_many :invitations, Invite, foreign_key: :invitee_id
+
+    many_to_many :teams, Team, join_through: "users_teams"
   end
 
   @doc "Builds a changeset based on the `struct` and `params`."
