@@ -35,7 +35,7 @@ defmodule Api.TeamController do
   def update(conn, %{"id" => id, "team" => team_params}) do
     case TeamActions.update(id, team_params) do
       {:ok, team} ->
-        team = Repo.preload(team, :users)
+        team = Repo.preload(team, :users, :projects)
         render(conn, "show.json", team: team)
       {:error, changeset} ->
         conn

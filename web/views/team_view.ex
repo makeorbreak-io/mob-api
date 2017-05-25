@@ -1,7 +1,7 @@
 defmodule Api.TeamView do
   use Api.Web, :view
 
-  alias Api.{TeamView, UserView}
+  alias Api.{TeamView, UserView, ProjectView}
 
   def render("index.json", %{teams: teams}) do
     %{data: render_many(teams, TeamView, "team.json")}
@@ -15,7 +15,8 @@ defmodule Api.TeamView do
     %{
       id: team.id,
       name: team.name,
-      members: if team.users do render_many(team.users, UserView, "user_summary.json") end
+      members: if team.users do render_many(team.users, UserView, "user_summary.json") end,
+      project: if team.project do render_one(team.project, ProjectView, "project.json") end
     }
   end
 
