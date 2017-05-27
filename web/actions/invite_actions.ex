@@ -5,11 +5,12 @@ defmodule Api.InviteActions do
 
   def all do
     Repo.all(Invite)
+    |> Repo.preload([ :host, :team, :invitee ])
   end
 
   def get(id) do
     Repo.get!(Invite, id)
-    |> Repo.preload([:host, :team, :invitee])
+    |> Repo.preload([ :host, :team, :invitee ])
   end
 
   def create(conn, invite_params) do

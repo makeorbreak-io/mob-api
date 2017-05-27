@@ -5,6 +5,7 @@ defmodule Api.UserActions do
 
   def all do
     Repo.all(User)
+    |> Repo.preload(:team)
   end
 
   def get(id) do
