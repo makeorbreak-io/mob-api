@@ -5,10 +5,10 @@ defmodule Api.InviteController do
 
   plug :scrub_params, "invite" when action in [:create]
   plug Guardian.Plug.EnsureAuthenticated,
-    [handler: Api.SessionController] when action in [:create, :accept, :delete]
+    [handler: Api.SessionController] when action in [:index, :create, :accept, :delete]
 
   def index(conn, _params) do
-    render(conn, "index.json", invites: InviteActions.all)
+    render(conn, "index.json", invites: InviteActions.for_current_user(conn))
   end
 
   def create(conn, %{"invite" => invite_params}) do

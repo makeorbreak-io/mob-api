@@ -35,7 +35,7 @@ defmodule Api.InviteActions do
   def accept(id) do
     case change(id, %{accepted: true}) do
       {:ok, invite} ->
-        invite = Repo.preload(invite, [:team, :invitee])
+        invite = Repo.preload(invite, [:team, :invitee, :host])
         
         team = invite.team
         |> Repo.preload(:users)
@@ -53,5 +53,14 @@ defmodule Api.InviteActions do
   def delete(id) do
     invite = Repo.get!(Invite, id)
     Repo.delete!(invite)
+  end
+
+  def for_current_user(conn) do
+    current_user = Guardian.Plug.current_resource(conn)
+
+    Invite
+    |> where(invitee_id: ^current_user.id)
+    |> Repo.all
+    |> Repo.preload([ :host, :invitee, :team ])
   end
 end
