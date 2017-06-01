@@ -15,6 +15,7 @@ defmodule Api.TeamView do
     %{
       id: team.id,
       name: team.name,
+      owner: if team.user do render_one(team.user, UserView, "user_summary.json") end,
       members: if team.users do render_many(team.users, UserView, "user_summary.json") end,
       project: if team.project do render_one(team.project, ProjectView, "project.json") end,
       invites: if team.invites do render_many(team.invites, InviteView, "invite.json") end,

@@ -41,7 +41,7 @@ defmodule Api.InviteActions do
         |> Repo.preload(:users)
 
         changeset = Ecto.Changeset.change(team)
-        |> Ecto.Changeset.put_assoc(:users, invite.invitee)
+        |> Ecto.Changeset.put_assoc(:users, [ invite.invitee ])
 
         Repo.update(changeset)
 

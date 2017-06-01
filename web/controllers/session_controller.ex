@@ -9,9 +9,9 @@ defmodule Api.SessionController do
     %{id: id} = Plug.current_resource(conn)
 
     user = Repo.get!(User, id)
-    |> Repo.preload(:team)
+    |> Repo.preload([:team, invitations: [:host, :team, :invitee]])
 
-    render(conn, UserView, "show.json", user: user)
+    render(conn, UserView, "me.json", user: user)
   end
 
   def create(conn, %{"email" => email, "password" => password}) do

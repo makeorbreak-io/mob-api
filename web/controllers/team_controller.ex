@@ -15,7 +15,7 @@ defmodule Api.TeamController do
   def create(conn, %{"team" => team_params}) do
     case TeamActions.create(conn, team_params) do
       {:ok, team} ->
-        team = Repo.preload(team, [ :users, :project, :invites ])
+        team = Repo.preload(team, [ :user, :users, :project, :invites ])
 
         conn
         |> put_status(:created)
