@@ -14,7 +14,6 @@ defmodule Api.UserView do
   def render("user.json", %{user: user}) do
     %{
       id: user.id,
-      email: user.email,
       first_name: user.first_name,
       last_name: user.last_name,
       birthday: user.birthday,
@@ -32,7 +31,6 @@ defmodule Api.UserView do
   def render("user_summary.json", %{user: user}) do
     %{
       id: user.id,
-      email: user.email,
       first_name: user.first_name,
       last_name: user.last_name
     }
