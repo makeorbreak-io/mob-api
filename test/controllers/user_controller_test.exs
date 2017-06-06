@@ -31,7 +31,6 @@ defmodule Api.UserControllerTest do
     
     assert json_response(conn, 200)["data"] == %{
       "id" => user.id,
-      "email" => user.email,
       "first_name" => user.first_name,
       "last_name" => user.last_name,
       "birthday" => user.birthday,
