@@ -9,10 +9,7 @@ defmodule Api.TeamActions do
 
   def get(id) do
     Repo.get!(Team, id)
-    |> Repo.preload(:user)
-    |> Repo.preload(:users)
-    |> Repo.preload(:project)
-    |> Repo.preload(invites: [:host, :invitee, :team])
+    |> Repo.preload([:owner, :users, :project, invites: [:host, :invitee, :team]])
   end
 
   def create(conn, team_params) do

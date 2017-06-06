@@ -11,7 +11,7 @@ defmodule Api.Team do
     timestamps()
 
     # Associations
-    belongs_to :user, User
+    belongs_to :owner, User, foreign_key: :user_id
     has_one :project, Project
     has_many :invites, Invite
 

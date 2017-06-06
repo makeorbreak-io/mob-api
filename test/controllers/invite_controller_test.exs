@@ -18,8 +18,10 @@ defmodule Api.InviteControllerTest do
     }}
   end
 
-  test "lists all entries on index", %{conn: conn} do
-    conn = get conn, invite_path(conn, :index)
+  test "lists all entries on index", %{conn: conn, jwt: jwt} do
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> get(invite_path(conn, :index))
     assert json_response(conn, 200)["data"] == []
   end
 
