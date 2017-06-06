@@ -10,7 +10,7 @@ defmodule Api.User do
   alias Comeonin.Bcrypt
 
   @valid_attrs ~w(email first_name last_name password birthday employment_status college
-                  company github_handle twitter_handle bio)
+                  company github_handle twitter_handle linkedin_url bio)
 
   schema "users" do
     field :email, :string
@@ -23,6 +23,7 @@ defmodule Api.User do
     field :company, :string
     field :github_handle, :string
     field :twitter_handle, :string
+    field :linkedin_url, :string
     field :bio, :string
     timestamps()
 

@@ -40,6 +40,7 @@ defmodule Api.UserControllerTest do
       "company" => user.company,
       "github_handle" => user.github_handle,
       "twitter_handle" => user.twitter_handle,
+      "linkedin_url" => user.linkedin_url,
       "bio" => user.bio,
       "team" => %{
         "id" => user.team.id,
