@@ -39,19 +39,21 @@ defmodule Api.UserView do
 
   def render("me.json", %{user: user}) do
     %{
-      id: user.id,
-      email: user.email,
-      first_name: user.first_name,
-      last_name: user.last_name,
-      birthday: user.birthday,
-      bio: user.bio,
-      github_handle: user.github_handle,
-      twitter_handle: user.twitter_handle,
-      employment_status: user.employment_status,
-      college: user.college,
-      company: user.company,
-      team: if user.team do render_one(user.team, TeamView, "team_summary.json") end,
-      invitations: if user.invitations do render_many(user.invitations, InviteView, "invite.json") end,
+      data: %{
+        id: user.id,
+        email: user.email,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        birthday: user.birthday,
+        bio: user.bio,
+        github_handle: user.github_handle,
+        twitter_handle: user.twitter_handle,
+        employment_status: user.employment_status,
+        college: user.college,
+        company: user.company,
+        team: if user.team do render_one(user.team, TeamView, "team_summary.json") end,
+        invitations: if user.invitations do render_many(user.invitations, InviteView, "invite.json") end,
+      }
     }
   end
 end

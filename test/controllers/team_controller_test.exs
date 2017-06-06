@@ -25,13 +25,16 @@ defmodule Api.TeamControllerTest do
 
   test "shows chosen resource", %{conn: conn} do
     team = Repo.insert! %Team{}
-    |> Repo.preload(:users)
+    |> Repo.preload([:users, :project, :owner, :invites])
   
     conn = get conn, team_path(conn, :show, team)
     assert json_response(conn, 200)["data"] == %{
       "id" => team.id,
       "name" => team.name,
-      "members" => team.users
+      "members" => team.users,
+      "invites" => team.invites,
+      "owner" => team.owner,
+      "project" => team.project
     }
   end
 
@@ -46,8 +49,10 @@ defmodule Api.TeamControllerTest do
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> post(team_path(conn, :create), team: @valid_attrs)
 
-    assert json_response(conn, 201)["data"]["id"]
-    assert Repo.get_by(Team, @valid_attrs)
+    id = json_response(conn, 201)["data"]["id"]
+
+    assert id
+    assert Repo.get(Team, id)
   end
 
   test "doesn't create resource when request is invalid", %{conn: conn} do
