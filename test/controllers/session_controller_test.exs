@@ -35,6 +35,14 @@ defmodule Api.SessionControllerTest do
     assert response["data"]["id"] == user.id
   end
 
+  test "jwt checking returns 401 without token", %{conn: conn} do
+    response = conn    
+    |> get("api/me")
+    |> json_response(401)
+
+    assert response["error"] == "Authentication required"
+  end
+
   test "fails authorization", %{conn: conn} do
     create_user
 
