@@ -6,12 +6,17 @@ defmodule Api.SessionController do
   alias Guardian.Plug
 
   def me(conn, _params) do
-    %{id: id} = Plug.current_resource(conn)
+    case Plug.current_resource(conn) do
+      %{id: id} -> 
+        user = Repo.get!(User, id)
+        |> Repo.preload([:team, invitations: [:host, :team, :invitee]])
 
-    user = Repo.get!(User, id)
-    |> Repo.preload([:team, invitations: [:host, :team, :invitee]])
-
-    render(conn, UserView, "me.json", user: user)
+        render(conn, UserView, "me.json", user: user)
+      nil ->
+        conn
+        |> put_status(401)
+        |> render(ErrorView, "error.json", error: "Authentication required")
+    end
   end
 
   def create(conn, %{"email" => email, "password" => password}) do
