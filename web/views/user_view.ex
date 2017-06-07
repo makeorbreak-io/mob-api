@@ -4,7 +4,7 @@ defmodule Api.UserView do
   alias Api.{UserView, TeamView, InviteView}
 
   def render("index.json", %{users: users}) do
-    %{data: render_many(users, UserView, "user.json")}
+    %{data: render_many(users, UserView, "user_short.json")}
   end
 
   def render("show.json", %{user: user}) do
@@ -25,11 +25,11 @@ defmodule Api.UserView do
       employment_status: user.employment_status,
       college: user.college,
       company: user.company,
-      team: if user.team do render_one(user.team, TeamView, "team_summary.json") end
+      team: if user.team do render_one(user.team, TeamView, "team_short.json") end
     }
   end
 
-  def render("user_summary.json", %{user: user}) do
+  def render("user_short.json", %{user: user}) do
     %{
       id: user.id,
       first_name: user.first_name,
@@ -54,7 +54,7 @@ defmodule Api.UserView do
         employment_status: user.employment_status,
         college: user.college,
         company: user.company,
-        team: if user.team do render_one(user.team, TeamView, "team_summary.json") end,
+        team: if user.team do render_one(user.team, TeamView, "team_short.json") end,
         invitations: if user.invitations do render_many(user.invitations, InviteView, "invite.json") end,
       }
     }
