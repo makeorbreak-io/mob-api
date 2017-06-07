@@ -16,6 +16,7 @@ defmodule Api.UserView do
       id: user.id,
       first_name: user.first_name,
       last_name: user.last_name,
+      display_name: display_name(user),
       birthday: user.birthday,
       bio: user.bio,
       github_handle: user.github_handle,
@@ -32,7 +33,8 @@ defmodule Api.UserView do
     %{
       id: user.id,
       first_name: user.first_name,
-      last_name: user.last_name
+      last_name: user.last_name,
+      display_name: display_name(user)
     }
   end
 
@@ -43,6 +45,7 @@ defmodule Api.UserView do
         email: user.email,
         first_name: user.first_name,
         last_name: user.last_name,
+        display_name: display_name(user),
         birthday: user.birthday,
         bio: user.bio,
         github_handle: user.github_handle,
@@ -56,4 +59,8 @@ defmodule Api.UserView do
       }
     }
   end
+
+  def display_name(%{first_name: nil, last_name: nil, email: email}), do: List.first(String.split(email, "@", parts: 2))
+  def display_name(%{first_name: first_name, last_name: nil}), do: "#{first_name}"
+  def display_name(%{first_name: first_name, last_name: last_name}), do: "#{first_name} #{last_name}"
 end
