@@ -33,6 +33,7 @@ defmodule Api.UserControllerTest do
       "id" => user.id,
       "first_name" => user.first_name,
       "last_name" => user.last_name,
+      "display_name" => "#{user.first_name} #{user.last_name}",
       "birthday" => user.birthday,
       "employment_status" => user.employment_status,
       "college" => user.college,
@@ -46,6 +47,30 @@ defmodule Api.UserControllerTest do
         "name" => user.team.name
       }
     }
+  end
+
+  test "display name from email if there's no first and last name", %{conn: conn} do
+    user = create_user(%{first_name: nil, last_name: nil, email: "johndoe@example.com", password: "password"})
+
+    conn = get conn, user_path(conn, :show, user)
+
+    assert json_response(conn, 200)["data"]["display_name"] == "johndoe"
+  end
+
+  test "display_name from first name if there's no last name", %{conn: conn} do
+    user = create_user(%{first_name: "john", last_name: nil, email: "johndoe@example.com", password: "password"})
+
+    conn = get conn, user_path(conn, :show, user)
+
+    assert json_response(conn, 200)["data"]["display_name"] == "john"
+  end
+
+  test "display_name from first and last name if they're present", %{conn: conn} do
+    user = create_user(%{first_name: "john", last_name: "doe", email: "johndoe@example.com", password: "password"})
+
+    conn = get conn, user_path(conn, :show, user)
+
+    assert json_response(conn, 200)["data"]["display_name"] == "john doe"
   end
 
   test "renders page not found when id is nonexistent", %{conn: conn} do
