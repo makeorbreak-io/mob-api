@@ -98,8 +98,8 @@ defmodule Api.TeamControllerTest do
     assert json_response(conn, 422)["errors"] != %{}
   end
 
-  test "deletes chosen resource", %{conn: conn, jwt: jwt} do
-    team = Repo.insert! %Team{}
+  test "deletes chosen resource if user is it's owner", %{conn: conn, jwt: jwt, user: user} do
+    team = Repo.insert! %Team{user_id: user.id}
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")

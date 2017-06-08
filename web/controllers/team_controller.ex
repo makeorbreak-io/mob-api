@@ -45,7 +45,7 @@ defmodule Api.TeamController do
   end
 
   def delete(conn, %{"id" => id}) do
-    TeamActions.delete(id)
+    TeamActions.delete(conn, id)
     send_resp(conn, :no_content, "")
   end
 end

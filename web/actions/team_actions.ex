@@ -26,8 +26,23 @@ defmodule Api.TeamActions do
     Repo.update(changeset)
   end
 
-  def delete(id) do
-    team = Repo.get!(Team, id)
-    Repo.delete!(team)
+  def delete(conn, id) do
+    case Guardian.Plug.current_resource(conn) do
+      %{id: id} ->
+        team = Repo.get!(Team, id)
+        |> Repo.preload(:owner)
+
+        if team.owner.id == id do
+          Repo.delete!(team)
+        else
+          conn
+          |> put_status(401)
+          |> render(ErrorView, "error.json", error: "Unauthorized")
+        end
+      nil ->
+        conn
+        |> put_status(401)
+        |> render(ErrorView, "error.json", error: "Authentication required")
+    end
   end
 end
