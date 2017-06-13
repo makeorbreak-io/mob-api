@@ -15,7 +15,7 @@ defmodule Api.Team do
     has_one :project, Project
     has_many :invites, Invite
 
-    many_to_many :users, User, join_through: "users_teams"
+    many_to_many :members, User, join_through: "users_teams"
   end
 
   @doc """

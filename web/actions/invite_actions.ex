@@ -38,10 +38,10 @@ defmodule Api.InviteActions do
         invite = Repo.preload(invite, [:team, :invitee, :host])
         
         team = invite.team
-        |> Repo.preload(:users)
+        |> Repo.preload(:members)
 
         changeset = Ecto.Changeset.change(team)
-        |> Ecto.Changeset.put_assoc(:users, [ invite.invitee ])
+        |> Ecto.Changeset.put_assoc(:members, [ invite.invitee ])
 
         Repo.update(changeset)
 

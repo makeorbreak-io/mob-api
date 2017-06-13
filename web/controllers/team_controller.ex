@@ -15,7 +15,7 @@ defmodule Api.TeamController do
   def create(conn, %{"team" => team_params}) do
     case TeamActions.create(conn, team_params) do
       {:ok, team} ->
-        team = Repo.preload(team, [:owner, :users, :project, :invites])
+        team = Repo.preload(team, [:owner, :members, :project, :invites])
 
         conn
         |> put_status(:created)
@@ -35,7 +35,7 @@ defmodule Api.TeamController do
   def update(conn, %{"id" => id, "team" => team_params}) do
     case TeamActions.update(conn, id, team_params) do
       {:ok, team} ->
-        team = Repo.preload(team, [:owner, :users, :project, :invites])
+        team = Repo.preload(team, [:owner, :members, :project, :invites])
         render(conn, "show.json", team: team)
       {:error, changeset} ->
         conn
