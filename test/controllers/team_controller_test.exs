@@ -108,4 +108,16 @@ defmodule Api.TeamControllerTest do
     assert response(conn, 204)
     refute Repo.get(Team, team.id)
   end
+
+  test "doesn't delete resource if user isn't it's owner", %{conn: conn, jwt: jwt} do
+    owner = create_user(%{email: "user@example.com", password: "thisisapassword"})
+    team = Repo.insert! %Team{user_id: owner.id}
+
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> delete(team_path(conn, :delete, team))
+    
+    assert response(conn, 401)
+    assert Repo.get(Team, team.id)
+  end
 end

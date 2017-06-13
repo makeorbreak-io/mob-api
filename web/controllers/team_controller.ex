@@ -45,7 +45,13 @@ defmodule Api.TeamController do
   end
 
   def delete(conn, %{"id" => id}) do
-    TeamActions.delete(conn, id)
-    send_resp(conn, :no_content, "")
+    case TeamActions.delete(conn, id) do
+      {:ok} ->
+        send_resp(conn, :no_content, "")
+      {:error, error} ->
+        conn
+        |> put_status(401)
+        |> render(Api.ErrorView, "error.json", error: error)
+    end
   end
 end
