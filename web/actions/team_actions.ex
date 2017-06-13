@@ -19,11 +19,23 @@ defmodule Api.TeamActions do
     Repo.insert(changeset)
   end
 
-  def update(id, team_params) do
-    team = Repo.get!(Team, id)
-    changeset = Team.changeset(team, team_params)
+  def update(conn, id, team_params) do
+    case Guardian.Plug.current_resource(conn) do
+      %{id: user_id} ->
 
-    Repo.update(changeset)
+        team = Repo.get!(Team, id)
+        |> Repo.preload(:owner)
+
+        if team.owner.id == user_id do
+          changeset = Team.changeset(team, team_params)
+
+          Repo.update(changeset)
+        else
+          {:unauthorized}
+        end
+      nil ->
+        {:unauthenticated}
+    end
   end
 
   def delete(conn, id) do

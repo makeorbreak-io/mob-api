@@ -33,7 +33,7 @@ defmodule Api.TeamController do
   end
 
   def update(conn, %{"id" => id, "team" => team_params}) do
-    case TeamActions.update(id, team_params) do
+    case TeamActions.update(conn, id, team_params) do
       {:ok, team} ->
         team = Repo.preload(team, [:owner, :users, :project, :invites])
         render(conn, "show.json", team: team)
@@ -41,6 +41,14 @@ defmodule Api.TeamController do
         conn
         |> put_status(:unprocessable_entity)
         |> render(Api.ChangesetView, "error.json", changeset: changeset)
+      {:unauthenticated} ->
+        conn
+        |> put_status(401)
+        |> render(Api.ErrorView, "error.json", error: "Authentication required")
+      {:unauthorized} ->
+        conn
+        |> put_status(401)
+        |> render(Api.ErrorView, "error.json", error: "Unauthorized")
     end
   end
 

@@ -4,7 +4,7 @@ defmodule Api.TeamControllerTest do
   alias Api.Team
 
   @valid_attrs %{name: "some content"}
-  @invalid_attrs %{}
+  @invalid_attrs %{name: nil}
 
   setup %{conn: conn} do
     user = create_user
@@ -23,7 +23,7 @@ defmodule Api.TeamControllerTest do
     assert json_response(conn, 200)["data"] == []
   end
 
-  test "shows chosen resource", %{conn: conn} do
+  test "shows chosen team", %{conn: conn} do
     team = Repo.insert! %Team{}
     |> Repo.preload([:users, :project, :owner, :invites])
   
@@ -44,7 +44,7 @@ defmodule Api.TeamControllerTest do
     end
   end
 
-  test "creates resource when data and request are valid", %{conn: conn, jwt: jwt} do
+  test "creates team when data and request are valid", %{conn: conn, jwt: jwt} do
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> post(team_path(conn, :create), team: @valid_attrs)
@@ -55,13 +55,13 @@ defmodule Api.TeamControllerTest do
     assert Repo.get(Team, id)
   end
 
-  test "doesn't create resource when request is invalid", %{conn: conn} do
+  test "doesn't create team when request is invalid", %{conn: conn} do
     conn = post(conn, team_path(conn, :create), team: @valid_attrs)
 
     assert json_response(conn, 401)["error"] == "Authentication required"
   end
 
-  test "doesn't create resource when data is invalid", %{conn: conn, jwt: jwt} do
+  test "doesn't create team when data is invalid", %{conn: conn, jwt: jwt} do
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> post(team_path(conn, :create), team: @invalid_attrs)
@@ -69,7 +69,7 @@ defmodule Api.TeamControllerTest do
     assert json_response(conn, 422)["errors"] != %{}
   end
 
-  test "updates resource when data and request are valid", %{conn: conn, jwt: jwt, user: user} do
+  test "updates team when data and request are valid", %{conn: conn, jwt: jwt, user: user} do
     team = Repo.insert! %Team{user_id: user.id}
 
     conn = conn
@@ -80,25 +80,29 @@ defmodule Api.TeamControllerTest do
     assert Repo.get_by(Team, @valid_attrs)
   end
 
-  test "doesn't update resource when request is invalid", %{conn: conn} do
-    team = Repo.insert! %Team{}
+  test "doesn't update team when request is invalid", %{conn: conn, user: user} do
+    team = Repo.insert! %Team{user_id: user.id}
 
-    conn = put(conn, team_path(conn, :update, team), team: @valid_attrs)
+    conn = conn
+    |> put(team_path(conn, :update, team), team: @valid_attrs)
 
-    assert json_response(conn, 401)["errors"] != %{}
+    assert json_response(conn, 401)
+    assert json_response(conn, 401)["error"] == "Authentication required"
   end
 
-  test "doesn't update resource when data is invalid", %{conn: conn, jwt: jwt} do
-    team = Repo.insert! %Team{}
+  test "doesn't update team if user isn't its owner", %{conn: conn, jwt: jwt} do
+    owner = create_user(%{email: "user@example.com", password: "thisisapassword"})
+    team = Repo.insert! %Team{user_id: owner.id}
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
-    |> put(team_path(conn, :update, team), team: @invalid_attrs)
+    |> put(team_path(conn, :update, team), team: @valid_attrs)
 
-    assert json_response(conn, 422)["errors"] != %{}
+    assert json_response(conn, 401)
+    assert json_response(conn, 401)["error"] == "Unauthorized"
   end
 
-  test "deletes chosen resource if user is it's owner", %{conn: conn, jwt: jwt, user: user} do
+  test "deletes team if user is its owner", %{conn: conn, jwt: jwt, user: user} do
     team = Repo.insert! %Team{user_id: user.id}
 
     conn = conn
@@ -109,7 +113,7 @@ defmodule Api.TeamControllerTest do
     refute Repo.get(Team, team.id)
   end
 
-  test "doesn't delete resource if user isn't it's owner", %{conn: conn, jwt: jwt} do
+  test "doesn't delete team if user isn't it's owner", %{conn: conn, jwt: jwt} do
     owner = create_user(%{email: "user@example.com", password: "thisisapassword"})
     team = Repo.insert! %Team{user_id: owner.id}
 
