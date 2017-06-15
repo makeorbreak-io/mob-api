@@ -1,7 +1,7 @@
 defmodule Api.TeamActions do
   use Api.Web, :action
 
-  alias Api.Team
+  alias Api.{Team, User, TeamMember}
 
   def all do
     Repo.all(Team)
@@ -9,7 +9,7 @@ defmodule Api.TeamActions do
 
   def get(id) do
     Repo.get!(Team, id)
-    |> Repo.preload([:owner, :users, :project, invites: [:host, :invitee, :team]])
+    |> Repo.preload([:owner, :members, :project, invites: [:host, :invitee, :team]])
   end
 
   def create(conn, team_params) do
@@ -52,6 +52,32 @@ defmodule Api.TeamActions do
         end
       nil ->
         {:error, "Authentication required"}
+    end
+  end
+
+  def leave(conn, team_id, user_id) do
+    team = Repo.get(Team, team_id)
+    |> Repo.preload([:owner, :members])
+
+    case Repo.get(User, user_id) do
+      nil ->
+        {:error, "User not found"}
+      user ->
+        case Guardian.Plug.current_resource(conn) do
+          nil ->
+            {:error, "Authentication required"}
+          current_user ->
+            if current_user.id == team.owner.id || Enum.member?(team.members, current_user) do
+              case from(t in TeamMember, where: t.user_id == ^user.id and t.team_id == ^team.id) |> Repo.delete_all do
+                {1, nil} ->
+                  {:ok}
+                {0, nil} ->
+                  {:error, "User isn't a member of team"}
+              end
+            else
+              {:error, "Unauthorized"}
+            end
+        end
     end
   end
 end
