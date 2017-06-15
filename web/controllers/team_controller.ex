@@ -62,4 +62,15 @@ defmodule Api.TeamController do
         |> render(Api.ErrorView, "error.json", error: error)
     end
   end
+
+  def leave(conn, %{"id" => id, "user_id" => user_id}) do
+    case TeamActions.leave(conn, id, user_id) do
+      {:ok} ->
+        send_resp(conn, :no_content, "")
+      {:error, error} ->
+        conn
+        |> put_status(401)
+        |> render(Api.ErrorView, "error.json", error: error)
+    end
+  end
 end

@@ -19,5 +19,6 @@ defmodule Api.Router do
     post "/login", SessionController, :create
     put "/invites/:id/accept", InviteController, :accept
     delete "/logout", SessionController, :delete
+    delete "/teams/:id/leave", TeamController, :leave
   end
 end

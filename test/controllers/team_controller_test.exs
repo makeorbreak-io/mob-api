@@ -1,10 +1,10 @@
 defmodule Api.TeamControllerTest do
   use Api.ConnCase
 
-  alias Api.Team
+  alias Api.{Team, TeamMember}
 
   @valid_attrs %{name: "some content"}
-  @invalid_attrs %{name: nil}
+  @invalid_attrs %{name: ""}
 
   setup %{conn: conn} do
     user = create_user
@@ -90,6 +90,16 @@ defmodule Api.TeamControllerTest do
     assert json_response(conn, 401)["error"] == "Authentication required"
   end
 
+  test "doesn't update team when data is invalid", %{conn: conn, jwt: jwt, user: user} do
+    team = Repo.insert! %Team{user_id: user.id}
+
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> put(team_path(conn, :update, team), team: @invalid_attrs)
+
+    assert json_response(conn, 422)["errors"] != %{}
+  end
+
   test "doesn't update team if user isn't its owner", %{conn: conn, jwt: jwt} do
     owner = create_user(%{email: "user@example.com", password: "thisisapassword"})
     team = Repo.insert! %Team{user_id: owner.id}
@@ -121,7 +131,79 @@ defmodule Api.TeamControllerTest do
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> delete(team_path(conn, :delete, team))
     
-    assert response(conn, 401)
+    assert json_response(conn, 401)
     assert Repo.get(Team, team.id)
+  end
+
+  test "leave team works if triggered by team owner", %{conn: conn, jwt: jwt, user: user} do
+    team_member = create_user(%{email: "user@example.com", password: "thisisapassword"})
+    team = Repo.insert! %Team{user_id: user.id}
+    Repo.insert! %TeamMember{user_id: team_member.id, team_id: team.id}
+
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> delete(team_path(conn, :leave, team), user_id: team_member.id)
+    
+    assert response(conn, 204)
+  end
+
+  test "leave team works if triggered by own member", %{conn: conn, jwt: jwt, user: user} do
+    owner = create_user(%{email: "user@example.com", password: "thisisapassword"})
+    team = Repo.insert! %Team{user_id: owner.id}
+    Repo.insert! %TeamMember{user_id: user.id, team_id: team.id}
+
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> delete(team_path(conn, :leave, team), user_id: user.id)
+    
+    assert response(conn, 204)
+  end
+
+  test "leave team doesn't work if user isn't owner of team", %{conn: conn, jwt: jwt} do
+    team_member = create_user(%{email: "user@example.com", password: "thisisapassword"})
+    team = Repo.insert! %Team{user_id: team_member.id}
+    Repo.insert! %TeamMember{user_id: team_member.id, team_id: team.id}
+
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> delete(team_path(conn, :leave, team), user_id: team_member.id)
+    
+    assert response(conn, 401)
+    assert json_response(conn, 401)["error"] == "Unauthorized"
+  end
+
+  test "leave team doesn't work if user isn't in the DB", %{conn: conn, jwt: jwt, user: user} do
+    team = Repo.insert! %Team{user_id: user.id}
+    
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> delete(team_path(conn, :leave, team), user_id: Ecto.UUID.generate())
+    
+    assert response(conn, 401)
+    assert json_response(conn, 401)["error"] == "User not found"
+  end
+
+  test "leave team doesn't work if request isn't valid", %{conn: conn, user: user} do
+    team_member = create_user(%{email: "user@example.com", password: "thisisapassword"})
+    team = Repo.insert! %Team{user_id: user.id}
+    Repo.insert! %TeamMember{user_id: team_member.id, team_id: team.id}
+
+    conn = conn
+    |> delete(team_path(conn, :leave, team), user_id: team_member.id)
+    
+    assert response(conn, 401)
+    assert json_response(conn, 401)["error"] == "Authentication required"
+  end
+
+  test "leave team doesn't work if user isn't in the Team", %{conn: conn, jwt: jwt, user: user} do
+    random_user = create_user(%{email: "user@example.com", password: "thisisapassword"})
+    team = Repo.insert! %Team{user_id: user.id}
+    
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> delete(team_path(conn, :leave, team), user_id: random_user.id)
+    
+    assert response(conn, 401)
+    assert json_response(conn, 401)["error"] == "User isn't a member of team"
   end
 end

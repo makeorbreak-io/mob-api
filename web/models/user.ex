@@ -35,7 +35,7 @@ defmodule Api.User do
     has_many :invites, Invite, foreign_key: :host_id
     has_many :invitations, Invite, foreign_key: :invitee_id
 
-    many_to_many :teams, Team, join_through: "users_teams"
+    many_to_many :teams, Team, join_through: TeamMember
   end
 
   @doc "Builds a changeset based on the `struct` and `params`."

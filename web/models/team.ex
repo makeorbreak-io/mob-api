@@ -1,7 +1,7 @@
 defmodule Api.Team do
   use Api.Web, :model
 
-  alias Api.{User, Project, Invite}
+  alias Api.{User, Project, Invite, TeamMember}
 
   @valid_attrs ~w(name user_id)
   @required_attrs ~w(name)a
@@ -15,7 +15,7 @@ defmodule Api.Team do
     has_one :project, Project
     has_many :invites, Invite
 
-    many_to_many :members, User, join_through: "users_teams"
+    many_to_many :members, User, join_through: TeamMember
   end
 
   @doc """
