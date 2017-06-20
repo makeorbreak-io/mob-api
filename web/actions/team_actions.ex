@@ -55,7 +55,7 @@ defmodule Api.TeamActions do
     end
   end
 
-  def leave(conn, team_id, user_id) do
+  def remove(conn, team_id, user_id) do
     team = Repo.get(Team, team_id)
     |> Repo.preload([:owner, :members])
 
