@@ -42,7 +42,8 @@ defmodule Api.InviteControllerTest do
         "id" => user.id,
         "first_name" => user.first_name,
         "last_name" => user.last_name,
-        "display_name" => "#{user.first_name} #{user.last_name}"
+        "display_name" => "#{user.first_name} #{user.last_name}",
+        "gravatar_hash" => "fd876f8cd6a58277fc664d47ea10ad19"
       },
       "invitee" => nil,
       "open" => false

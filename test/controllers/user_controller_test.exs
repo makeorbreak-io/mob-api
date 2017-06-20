@@ -34,6 +34,7 @@ defmodule Api.UserControllerTest do
       "first_name" => user.first_name,
       "last_name" => user.last_name,
       "display_name" => "#{user.first_name} #{user.last_name}",
+      "gravatar_hash" => "fd876f8cd6a58277fc664d47ea10ad19",
       "birthday" => user.birthday,
       "employment_status" => user.employment_status,
       "college" => user.college,
