@@ -63,8 +63,8 @@ defmodule Api.TeamController do
     end
   end
 
-  def leave(conn, %{"id" => id, "user_id" => user_id}) do
-    case TeamActions.leave(conn, id, user_id) do
+  def remove(conn, %{"id" => id, "user_id" => user_id}) do
+    case TeamActions.remove(conn, id, user_id) do
       {:ok} ->
         send_resp(conn, :no_content, "")
       {:error, error} ->
