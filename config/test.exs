@@ -11,7 +11,9 @@ config :logger, level: :warn
 
 # Configure your database
 config :api, Api.Repo,
-  pool: Ecto.Adapters.SQL.Sandbox
+  pool: Ecto.Adapters.SQL.Sandbox,
+  adapter: Ecto.Adapters.Postgres,
+  url: "#{System.get_env("DB_URL")}-test"
 
 # Comeonin bcrypt test options
 config :comeonin, :bcrypt_log_rounds, 4
