@@ -1,7 +1,7 @@
 defmodule Api.InviteActions do
   use Api.Web, :action
 
-  alias Api.{Invite, Repo}
+  alias Api.{Invite, Repo, Mailer, Email}
 
   def all do
     Repo.all(Invite)
@@ -14,15 +14,24 @@ defmodule Api.InviteActions do
   end
 
   def create(conn, invite_params) do
-    current_user = Guardian.Plug.current_resource(conn)
-    |> Repo.preload(:team)
+    case Guardian.Plug.current_resource(conn) do
+      nil -> {:error, "Authentication required"}
+      user ->
+        user = Repo.preload(user, :team)
 
-    changeset = Invite.changeset(%Invite{
-      host_id: current_user.id,
-      team_id: current_user.team.id
-    }, invite_params)
+        changeset = Invite.changeset(%Invite{
+          host_id: user.id,
+          team_id: user.team.id
+        }, invite_params)
 
-    Repo.insert(changeset)
+        result = Repo.insert(changeset)
+
+        if invite_params["email"] do
+          Email.invite_email(invite_params["email"], user) |> Mailer.deliver_later
+        end
+
+        result
+    end
   end
 
   def change(id, invite_params) do
@@ -33,10 +42,9 @@ defmodule Api.InviteActions do
   end
 
   def accept(id) do
-    case change(id, %{accepted: true}) do
-      {:ok, invite} ->
-        invite = Repo.preload(invite, [:team, :invitee, :host])
-        
+    case get(id) do
+      {:error, error} -> {:error, error}
+      invite ->        
         team = invite.team
         |> Repo.preload(:members)
 
@@ -44,9 +52,7 @@ defmodule Api.InviteActions do
         |> Ecto.Changeset.put_assoc(:members, [ invite.invitee ])
 
         Repo.update(changeset)
-
-        {:ok, invite}
-      {:error, changeset} -> {:error, changeset}
+        Repo.delete(invite)
     end
   end
 

@@ -35,6 +35,10 @@ config :guardian, Guardian,
   secret_key: System.get_env("SECRET_KEY_BASE"),
   serializer: Api.GuardianSerializer
 
+# Bamboo configuration
+config :api, Api.Mailer,
+  adapter: Bamboo.LocalAdapter
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env}.exs"

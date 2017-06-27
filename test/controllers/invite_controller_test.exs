@@ -1,9 +1,9 @@
 defmodule Api.InviteControllerTest do
   use Api.ConnCase
 
-  alias Api.Invite
+  alias Api.{Invite, TeamMember}
 
-  @valid_attrs %{description: "some content"}
+  @valid_attrs %{description: "some content", email: "email@example.com"}
   @invalid_attrs %{}
 
   setup %{conn: conn} do
@@ -33,7 +33,6 @@ defmodule Api.InviteControllerTest do
     assert json_response(conn, 200)["data"] == %{
       "id" => invite.id,
       "description" => invite.description,
-      "accepted" => invite.accepted,
       "team" => %{
         "id" => team.id,
         "name" => team.name
@@ -58,6 +57,8 @@ defmodule Api.InviteControllerTest do
 
   test "creates resource when data and request are valid", %{conn: conn, jwt: jwt, user: user} do
     create_team(%{user_id: user.id, name: "awesome_team"})
+
+    Repo.preload(user, :team)
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
@@ -94,11 +95,11 @@ defmodule Api.InviteControllerTest do
     team = create_team(%{user_id: user.id, name: "awesome_team"})
     invite = create_invite(%{host_id: user.id, team_id: team.id, invitee_id: invitee.id})
 
-    conn = conn
+    conn
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> put(invite_path(conn, :accept, invite))
 
-    assert json_response(conn, 200)["data"]["accepted"] == true
+    assert Repo.get_by(TeamMember, %{team_id: team.id, user_id: invitee.id})
   end
 
   test "deletes chosen resource", %{conn: conn, jwt: jwt} do

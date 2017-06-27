@@ -45,13 +45,12 @@ defmodule Api.InviteController do
 
   def accept(conn, %{"id" => id}) do
     case InviteActions.accept(id) do
-      {:ok, invite} ->
-        invite = Repo.preload(invite, [:host, :team, :invitee])
-        render(conn, "show.json", invite: invite)
-      {:error, changeset} ->
+      {:ok, _} ->
+        send_resp(conn, :no_content, "")
+      {:error, error} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(Api.ChangesetView, "error.json", changeset: changeset)
+        |> render(Api.ErrorView, "error.json", error: error)
     end
   end
 
