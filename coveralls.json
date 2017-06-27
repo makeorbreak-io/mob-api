@@ -2,6 +2,7 @@
   "skip_files": [
     "lib/api.ex",
     "lib/api/endpoint.ex",
+    "lib/api/mailer.ex",
     "lib/api/repo.ex",
     "test/support/conn_case.ex",
     "test/support/model_case.ex",

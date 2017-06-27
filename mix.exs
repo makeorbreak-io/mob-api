@@ -29,6 +29,7 @@ defmodule Api.Mixfile do
     [
       mod: {Api, []},
       applications: [
+        :bamboo,
         :comeonin,
         :cowboy,
         :logger,
@@ -48,6 +49,7 @@ defmodule Api.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:bamboo, "~> 0.8"},
       {:comeonin, "~> 3.0"},
       {:cors_plug, "~> 1.2"},
       {:cowboy, "~> 1.0"},

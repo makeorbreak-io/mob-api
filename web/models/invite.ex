@@ -3,12 +3,13 @@ defmodule Api.Invite do
 
   alias Api.{User, Team}
 
-  @valid_attrs ~w(invitee_id team_id host_id description accepted open)
+  @valid_attrs ~w(invitee_id team_id host_id description open email)
 
   schema "invites" do
     field :open, :boolean, default: false
-    field :accepted, :boolean, default: false
     field :description, :string
+    field :email, :string
+    
     belongs_to :invitee, User, foreign_key: :invitee_id
     belongs_to :host, User, foreign_key: :host_id
     belongs_to :team, Team
