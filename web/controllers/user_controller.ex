@@ -1,7 +1,7 @@
 defmodule Api.UserController do
   use Api.Web, :controller
 
-  alias Api.UserActions
+  alias Api.{UserActions, SessionView, ChangesetView}
 
   plug :scrub_params, "user" when action in [:create, :update]
 
@@ -21,11 +21,11 @@ defmodule Api.UserController do
         conn
         |> put_status(:created)
         |> put_resp_header("location", user_path(conn, :show, user))
-        |> render(Api.SessionView, "session.json", data: %{jwt: jwt, user: user})
+        |> render(SessionView, "session.json", data: %{jwt: jwt, user: user})
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(Api.ChangesetView, "error.json", changeset: changeset)
+        |> render(ChangesetView, "error.json", changeset: changeset)
     end
   end
 
@@ -36,7 +36,7 @@ defmodule Api.UserController do
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(Api.ChangesetView, "error.json", changeset: changeset)
+        |> render(ChangesetView, "error.json", changeset: changeset)
     end
   end
 

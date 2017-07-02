@@ -57,7 +57,7 @@ defmodule Api.UserView do
         employment_status: user.employment_status,
         college: user.college,
         company: user.company,
-        team: if user.team do render_one(user.team, TeamView, "team_short.json") end,
+        team: if user.team do render_one(user.team, TeamView, "team_with_role.json") end,
         invitations: if user.invitations do render_many(user.invitations, InviteView, "invite.json") end,
       }
     }
