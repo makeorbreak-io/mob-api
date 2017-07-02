@@ -1,15 +1,15 @@
 defmodule Api.SessionController do
   use Api.Web, :controller
 
-  alias Api.{User, Repo, SessionView, ErrorView, UserView}
+  alias Api.{User, UserActions, Repo, SessionView, ErrorView, UserView}
   alias Comeonin.Bcrypt
   alias Guardian.Plug
 
   def me(conn, _params) do
     case Plug.current_resource(conn) do
       %{id: id} -> 
-        user = Repo.get!(User, id)
-        |> Repo.preload([:team, invitations: [:host, :team, :invitee]])
+        user = UserActions.get(id)
+        |> Repo.preload([invitations: [:host, :team, :invitee]])
 
         render(conn, UserView, "me.json", user: user)
       nil ->
