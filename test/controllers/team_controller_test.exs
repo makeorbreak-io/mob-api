@@ -195,7 +195,7 @@ defmodule Api.TeamControllerTest do
     assert json_response(conn, 401)["error"] == "Authentication required"
   end
 
-  test "remove membership doesn't work if user isn't in the Team", %{conn: conn, jwt: jwt, user: user} do
+  test "remove membership doesn't work if user isn't in the team", %{conn: conn, jwt: jwt, user: user} do
     random_user = create_user(%{email: "user@example.com", password: "thisisapassword"})
     team = Repo.insert! %Team{user_id: user.id}
     

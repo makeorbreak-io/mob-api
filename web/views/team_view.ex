@@ -1,14 +1,14 @@
 defmodule Api.TeamView do
   use Api.Web, :view
 
-  alias Api.{TeamView, UserView, ProjectView, InviteView}
+  alias Api.{UserView, ProjectView, InviteView}
 
   def render("index.json", %{teams: teams}) do
-    %{data: render_many(teams, TeamView, "team.json")}
+    %{data: render_many(teams, __MODULE__, "team.json")}
   end
 
   def render("show.json", %{team: team}) do
-    %{data: render_one(team, TeamView, "team.json")}
+    %{data: render_one(team, __MODULE__, "team.json")}
   end
 
   def render("team.json", %{team: team}) do
@@ -26,6 +26,14 @@ defmodule Api.TeamView do
     %{
       id: team.id,
       name: team.name
+    }
+  end
+
+  def render("team_with_role.json", %{team: team}) do
+    %{
+      id: team.id,
+      name: team.name,
+      role: team.role
     }
   end
 end

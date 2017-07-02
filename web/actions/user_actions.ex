@@ -9,8 +9,18 @@ defmodule Api.UserActions do
   end
 
   def get(id) do
-    Repo.get!(User, id)
-    |> Repo.preload(:team)
+    user = Repo.get!(User, id)
+    |> Repo.preload([:team, :memberships])
+
+    team = 
+    cond do
+      !is_nil(user.team) -> Map.merge(%{role: "owner"}, user.team)
+      !Enum.empty?(user.memberships) ->
+        Map.merge(%{role: "member"}, List.first(user.memberships))
+      true -> nil
+    end
+
+    Kernel.put_in(user.team, team)
   end
 
   def create(user_params) do
