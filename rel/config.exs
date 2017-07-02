@@ -38,11 +38,14 @@ end
 # If you have not set a default release, or selected one
 # when running `mix release`, the first release in the file
 # will be used by default
-
 release :api do
   set version: current_version(:api)
   set applications: [
-    :runtime_tools
+    :runtime_tools,
+    :cors_plug,
+    :elixir_make,
+    :guardian,
+    :phoenix_pubsub
   ]
 end
 
