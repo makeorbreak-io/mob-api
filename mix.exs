@@ -4,7 +4,7 @@ defmodule Api.Mixfile do
   def project do
     [
       app: :api,
-      version: "0.0.1",
+      version: "0.0.#{committed_at()}",
       elixir: "~> 1.2",
       elixirc_paths: elixirc_paths(Mix.env),
       compilers: [:phoenix] ++ Mix.compilers,
@@ -54,6 +54,7 @@ defmodule Api.Mixfile do
       {:cors_plug, "~> 1.2"},
       {:cowboy, "~> 1.0"},
       {:credo, "~> 0.7", only: [:dev, :test]},
+      {:distillery, "~> 1.4"},
       {:excoveralls, "~> 0.6", only: :test},
       {:guardian, "~> 0.14"},
       {:phoenix, "~> 1.2.1"},
@@ -88,5 +89,10 @@ defmodule Api.Mixfile do
         "phoenix.server"
       ]
     ]
+  end
+
+  @doc "Unix timestamp of the last commit."
+  def committed_at do
+    System.cmd("git", ~w[log -1 --date=short --pretty=format:%ct]) |> elem(0)
   end
 end

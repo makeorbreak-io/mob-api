@@ -19,3 +19,4 @@ You can find an example env file you can source in `share/env/env`
 | SECRET_KEY_BASE    | Secret key base         | All
 | MAILGUN_API_KEY    | Mailgun API credentials | Prod
 | MAILGUN_API_DOMAIN | Mailgun API credentials | Prod
+| HOST               | Server url              | Prod

@@ -13,8 +13,9 @@ use Mix.Config
 # which you typically run after static files are built.
 config :api, Api.Endpoint,
   http: [port: {:system, "PORT"}],
-  url: [host: "makeorbreak.portosummerofcode.com", port: 80],
-  cache_static_manifest: "priv/static/manifest.json"
+  root: ".",
+  server: true,
+  url: [host: System.get_env("HOST")]
 
 # Do not print debug messages in production
 config :logger, level: :info
@@ -53,9 +54,8 @@ config :api, Api.Mailer,
 #
 # If you are doing OTP releases, you need to instruct Phoenix
 # to start the server for all endpoints:
-#
-#     config :phoenix, :serve_endpoints, true
-#
+config :phoenix, :serve_endpoints, true
+
 # Alternatively, you can configure exactly which server to
 # start per endpoint:
 #
