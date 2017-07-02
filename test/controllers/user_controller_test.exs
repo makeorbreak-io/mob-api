@@ -1,7 +1,7 @@
 defmodule Api.UserControllerTest do
   use Api.ConnCase
 
-  alias Api.User
+  alias Api.{User, Team, TeamMember}
 
   @valid_attrs %{
     email: "johndoe@example.com",
@@ -15,17 +15,16 @@ defmodule Api.UserControllerTest do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
-  test "lists all entries on index", %{conn: conn} do
+  test "lists all users on index", %{conn: conn} do
     conn = get conn, user_path(conn, :index)
     assert json_response(conn, 200)["data"] == []
   end
 
-  test "shows chosen resource", %{conn: conn} do
+  test "shows user with owner role in team", %{conn: conn} do
     %{id: id} = create_user
-    create_team(%{user_id: id, name: "awesome team"})
+    team = create_team(%{user_id: id, name: "awesome team"})
 
     user = Repo.get!(User, id)
-    |> Repo.preload(:team)
 
     conn = get conn, user_path(conn, :show, user)
     
@@ -44,8 +43,39 @@ defmodule Api.UserControllerTest do
       "linkedin_url" => user.linkedin_url,
       "bio" => user.bio,
       "team" => %{
-        "id" => user.team.id,
-        "name" => user.team.name
+        "id" => team.id,
+        "name" => team.name,
+        "role" => "owner"
+      }
+    }
+  end
+
+  test "shows user with member role in team", %{conn: conn} do
+    owner = create_user(%{email: "user@example.com", password: "thisisapassword"})
+    team_member = create_user(%{email: "johndoe@example.com", first_name: "john", last_name: "doe", password: "thisisapassword"})
+    team = Repo.insert! %Team{user_id: owner.id, name: "awesome team"}
+    Repo.insert! %TeamMember{user_id: team_member.id, team_id: team.id}
+
+    conn = get conn, user_path(conn, :show, team_member)
+    
+    assert json_response(conn, 200)["data"] == %{
+      "id" => team_member.id,
+      "first_name" => team_member.first_name,
+      "last_name" => team_member.last_name,
+      "display_name" => "#{team_member.first_name} #{team_member.last_name}",
+      "gravatar_hash" => "fd876f8cd6a58277fc664d47ea10ad19",
+      "birthday" => team_member.birthday,
+      "employment_status" => team_member.employment_status,
+      "college" => team_member.college,
+      "company" => team_member.company,
+      "github_handle" => team_member.github_handle,
+      "twitter_handle" => team_member.twitter_handle,
+      "linkedin_url" => team_member.linkedin_url,
+      "bio" => team_member.bio,
+      "team" => %{
+        "id" => team.id,
+        "name" => team.name,
+        "role" => "member"
       }
     }
   end
@@ -80,7 +110,7 @@ defmodule Api.UserControllerTest do
     end
   end
 
-  test "creates and renders resource when data is valid", %{conn: conn} do
+  test "creates user when data is valid", %{conn: conn} do
     conn = post conn, user_path(conn, :create), user: @valid_attrs
     assert json_response(conn, 201)["data"]["user"]["id"]
     assert Repo.get_by(User, email: "johndoe@example.com")
@@ -91,20 +121,20 @@ defmodule Api.UserControllerTest do
     assert json_response(conn, 422)["errors"] != %{}
   end
 
-  test "updates and renders chosen resource when data is valid", %{conn: conn} do
+  test "updates user when data is valid", %{conn: conn} do
     user = Repo.insert! %User{}
     conn = put conn, user_path(conn, :update, user), user: @valid_attrs
     assert json_response(conn, 200)["data"]["id"]
     assert Repo.get_by(User, email: "johndoe@example.com")
   end
 
-  test "doesn't update chosen resource and renders errors when data is invalid", %{conn: conn} do
+  test "doesn't update user when data is invalid", %{conn: conn} do
     user = Repo.insert! %User{}
     conn = put conn, user_path(conn, :update, user), user: @invalid_attrs
     assert json_response(conn, 422)["errors"] != %{}
   end
 
-  test "deletes chosen resource", %{conn: conn} do
+  test "deletes user", %{conn: conn} do
     user = Repo.insert! %User{}
     conn = delete conn, user_path(conn, :delete, user)
     assert response(conn, 204)
