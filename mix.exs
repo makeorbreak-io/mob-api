@@ -4,7 +4,7 @@ defmodule Api.Mixfile do
   def project do
     [
       app: :api,
-      version: "0.0.#{committed_at}",
+      version: "0.0.#{committed_at()}",
       elixir: "~> 1.2",
       elixirc_paths: elixirc_paths(Mix.env),
       compilers: [:phoenix] ++ Mix.compilers,

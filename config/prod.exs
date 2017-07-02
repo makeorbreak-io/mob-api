@@ -15,7 +15,7 @@ config :api, Api.Endpoint,
   http: [port: {:system, "PORT"}],
   root: ".",
   server: true,
-  url: [host: "makeorbreak.portosummerofcode.com"]
+  url: [host: System.get_env("HOST")]
 
 # Do not print debug messages in production
 config :logger, level: :info
