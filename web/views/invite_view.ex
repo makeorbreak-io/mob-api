@@ -16,6 +16,7 @@ defmodule Api.InviteView do
       id: invite.id,
       open: invite.open,
       description: invite.description,
+      email: invite.email,
       host: if invite.host_id do render_one(invite.host, UserView, "user_short.json") end,
       invitee: if invite.invitee_id do render_one(invite.invitee, UserView, "user_short.json") end,
       team: if invite.team_id do render_one(invite.team, TeamView, "team_short.json") end
