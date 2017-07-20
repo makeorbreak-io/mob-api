@@ -45,7 +45,8 @@ defmodule Api.InviteControllerTest do
         "gravatar_hash" => "fd876f8cd6a58277fc664d47ea10ad19"
       },
       "invitee" => nil,
-      "open" => false
+      "open" => false,
+      "email" => nil,
     }
   end
 
