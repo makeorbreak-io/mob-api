@@ -1,5 +1,7 @@
 defmodule Api.Router do
   use Api.Web, :router
+  use Plug.ErrorHandler
+  use Sentry.Plug
 
   pipeline :api do
     plug :accepts, ["json"]
