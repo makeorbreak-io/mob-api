@@ -116,9 +116,19 @@ defmodule Api.UserControllerTest do
     assert Repo.get_by(User, email: "johndoe@example.com")
   end
 
-  test "doesn't create resource and renders errors when data is invalid", %{conn: conn} do
+  test "doesn't create user when data is invalid", %{conn: conn} do
     conn = post conn, user_path(conn, :create), user: @invalid_attrs
     assert json_response(conn, 422)["errors"] != %{}
+  end
+
+  test "associates invites with user on creation", %{conn: conn} do
+    owner = create_user(%{email: "user@example.com", password: "thisisapassword"})
+    team = create_team(%{user_id: owner.id, name: "awesome_team"})
+    create_invite(%{host_id: owner.id, team_id: team.id, email: "johndoe@example.com"})
+    post conn, user_path(conn, :create), user: @valid_attrs
+    team_member = Repo.get_by(User, email: "johndoe@example.com") |> Repo.preload(:invitations)
+
+    assert Enum.count(team_member.invitations) == 1
   end
 
   test "updates user when data is valid", %{conn: conn} do

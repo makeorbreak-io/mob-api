@@ -1,7 +1,7 @@
 defmodule Api.UserActions do
   use Api.Web, :action
 
-  alias Api.User
+  alias Api.{User, Invite}
 
   def all do
     Repo.all(User)
@@ -13,12 +13,12 @@ defmodule Api.UserActions do
     |> Repo.preload([:team, :memberships])
 
     team = 
-    cond do
-      !is_nil(user.team) -> Map.merge(%{role: "owner"}, user.team)
-      !Enum.empty?(user.memberships) ->
-        Map.merge(%{role: "member"}, List.first(user.memberships))
-      true -> nil
-    end
+      cond do
+        !is_nil(user.team) -> Map.merge(%{role: "owner"}, user.team)
+        !Enum.empty?(user.memberships) ->
+          Map.merge(%{role: "member"}, List.first(user.memberships))
+        true -> nil
+      end
 
     Kernel.put_in(user.team, team)
   end
@@ -26,7 +26,15 @@ defmodule Api.UserActions do
   def create(user_params) do
     changeset = User.registration_changeset(%User{}, user_params)
 
-    Repo.insert(changeset)
+    case Repo.insert(changeset) do
+      {:ok, user} ->
+        from(i in Invite, where: i.email == ^user.email, update: [
+          set: [invitee_id: ^user.id]
+        ]) |> Repo.update_all([])
+
+        {:ok, user}
+      {:error, changeset} -> {:error, changeset}
+    end
   end
 
   def update(id, user_params) do
