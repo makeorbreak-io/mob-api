@@ -35,7 +35,8 @@ defmodule Api.Mixfile do
         :logger,
         :phoenix,
         :phoenix_ecto,
-        :postgrex
+        :postgrex,
+        :sentry
       ]
     ]
   end
@@ -59,7 +60,8 @@ defmodule Api.Mixfile do
       {:guardian, "~> 0.14"},
       {:phoenix, "~> 1.2.1"},
       {:phoenix_ecto, "~> 3.0"},
-      {:postgrex, ">= 0.0.0"}
+      {:postgrex, ">= 0.0.0"},
+      {:sentry, "~> 5.0.1"}
     ]
   end
 
