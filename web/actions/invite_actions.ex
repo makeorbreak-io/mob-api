@@ -1,7 +1,7 @@
 defmodule Api.InviteActions do
   use Api.Web, :action
 
-  alias Api.{Invite, Repo, Mailer, Email}
+  alias Api.{Invite, Repo, Mailer, Email, TeamMember}
 
   def all do
     Repo.all(Invite)
@@ -42,17 +42,16 @@ defmodule Api.InviteActions do
   end
 
   def accept(id) do
-    case get(id) do
-      {:error, error} -> {:error, error}
-      invite ->        
-        team = invite.team
-        |> Repo.preload(:members)
+    case Repo.get(Invite, id) do
+      nil -> {:error, "Unable to accept invite"}
+      invite ->
+        changeset = TeamMember.changeset(%TeamMember{},
+          %{user_id: invite.invitee_id, team_id: invite.team_id})
 
-        changeset = Ecto.Changeset.change(team)
-        |> Ecto.Changeset.put_assoc(:members, [ invite.invitee ])
-
-        Repo.update(changeset)
-        Repo.delete(invite)
+        case Repo.insert(changeset) do
+          {:ok, _} -> Repo.delete(invite)
+          {:error, _} -> {:error, "Unable to create membership"}
+        end
     end
   end
 

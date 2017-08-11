@@ -1,7 +1,7 @@
 defmodule Api.InviteControllerTest do
   use Api.ConnCase
 
-  alias Api.{Invite, TeamMember}
+  alias Api.{Invite}
 
   @valid_attrs %{description: "some content", email: "email@example.com"}
   @invalid_attrs %{}
@@ -87,20 +87,23 @@ defmodule Api.InviteControllerTest do
   end
 
   test "membership is created when invitation is accepted", %{conn: conn, jwt: jwt, user: user} do
-    invitee = create_user(%{
+    host = create_user(%{
       email: "example@email.com",
       first_name: "Jane",
       last_name: "doe",
       password: "thisisapassword"
     })
-    team = create_team(%{user_id: user.id, name: "awesome_team"})
-    invite = create_invite(%{host_id: user.id, team_id: team.id, invitee_id: invitee.id})
+    team = create_team(%{user_id: host.id, name: "awesome_team"})
+    invite = create_invite(%{host_id: host.id, team_id: team.id, invitee_id: user.id})
 
     conn
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> put(invite_path(conn, :accept, invite))
 
-    assert Repo.get_by(TeamMember, %{team_id: team.id, user_id: invitee.id})
+    team = Repo.preload(team, :members)
+
+    assert Enum.count(team.members) == 1
+    assert List.first(team.members).id == user.id
   end
 
   test "deletes chosen resource", %{conn: conn, jwt: jwt} do
