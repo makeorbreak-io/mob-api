@@ -39,6 +39,12 @@ defmodule Api.SessionController do
     |> render(ErrorView, "error.json", error: "Authentication required")
   end
 
+  def unauthorized(conn, _params) do
+    conn
+    |> put_status(401)
+    |> render(ErrorView, "error.json", error: "Unauthorized")
+  end
+
   defp get_user(email) do
     Repo.get_by(User, email: String.downcase(email))
     |> Repo.preload(:team)
@@ -50,7 +56,8 @@ defmodule Api.SessionController do
   end
 
   defp handle_check_password(true, conn, user) do
-    {:ok, jwt, _full_claims} = Guardian.encode_and_sign(user, :token)
+    {:ok, jwt, _full_claims} =
+      Guardian.encode_and_sign(user, :token, perms: %{"#{user.role}": Guardian.Permissions.max})
 
     conn
     |> put_status(:created)

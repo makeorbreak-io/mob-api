@@ -22,5 +22,9 @@ defmodule Api.Router do
     put "/invites/:id/accept", InviteController, :accept
     delete "/logout", SessionController, :delete
     delete "/teams/:id/remove/:user_id", TeamController, :remove
+
+    scope "/admin", as: :admin do
+      resources "/users", Admin.UserController, only: [:index, :show]
+    end
   end
 end

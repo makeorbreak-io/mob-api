@@ -25,6 +25,7 @@ defmodule Api.User do
     field :twitter_handle, :string
     field :linkedin_url, :string
     field :bio, :string
+    field :role, :string, default: "participant"
     timestamps()
 
     # Virtual fields

@@ -19,6 +19,13 @@ defmodule Api.TestHelper do
     |> Repo.insert!
   end
 
+  def create_admin(params \\ @valid_user_attrs) do
+    user_params = Kernel.struct(User, Map.merge(params, %{role: "admin"}))
+    
+    user_params
+    |> Repo.insert!
+  end
+
   def create_team(params \\ @valid_team_attrs) do
     %Team{}
     |> Team.changeset(params)

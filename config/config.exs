@@ -33,7 +33,11 @@ config :guardian, Guardian,
   ttl: { 30, :days },
   verify_issuer: true, # optional
   secret_key: System.get_env("SECRET_KEY_BASE"),
-  serializer: Api.GuardianSerializer
+  serializer: Api.GuardianSerializer,
+  permissions: %{
+    admin: [:full],
+    participant: [:full]
+  }
 
 # Bamboo configuration
 config :api, Api.Mailer,

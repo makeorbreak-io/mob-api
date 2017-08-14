@@ -6,7 +6,7 @@ defmodule Api.TeamController do
 
   plug :scrub_params, "team" when action in [:create, :update]
   plug Guardian.Plug.EnsureAuthenticated,
-    [handler: Api.SessionController] when action in [:create, :update, :delete]
+    [handler: Api.SessionController] when action in [:create, :update, :delete, :remove]
 
   def index(conn, _params) do
     render(conn, "index.json", teams: TeamActions.all)
@@ -41,10 +41,6 @@ defmodule Api.TeamController do
         conn
         |> put_status(:unprocessable_entity)
         |> render(Api.ChangesetView, "error.json", changeset: changeset)
-      {:unauthenticated} ->
-        conn
-        |> put_status(401)
-        |> render(Api.ErrorView, "error.json", error: "Authentication required")
       {:unauthorized} ->
         conn
         |> put_status(401)
