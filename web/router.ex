@@ -25,6 +25,8 @@ defmodule Api.Router do
 
     scope "/admin", as: :admin do
       resources "/users", Admin.UserController, except: [:new, :edit, :create]
+
+      get "/stats", Admin.StatsController, :stats
     end
   end
 end
