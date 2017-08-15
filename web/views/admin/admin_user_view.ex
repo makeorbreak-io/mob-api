@@ -14,6 +14,8 @@ defmodule Api.Admin.UserView do
   def render("user.json", %{user: user}) do
     %{
       id: user.id,
+      email: user.email,
+      role: user.role,
       first_name: user.first_name,
       last_name: user.last_name,
       gravatar_hash: UserHelper.gravatar_hash(user),
@@ -26,7 +28,9 @@ defmodule Api.Admin.UserView do
       employment_status: user.employment_status,
       college: user.college,
       company: user.company,
-      team: if user.team do render_one(user.team, TeamView, "team_short.json") end
+      inserted_at: user.inserted_at,
+      updated_at: user.updated_at,
+      team: if user.team do render_one(user.team, TeamView, "team_with_role.json") end
     }
   end
 end

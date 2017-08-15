@@ -37,6 +37,19 @@ defmodule Api.UserActions do
     end
   end
 
+  def update(id, user_params, permissions) do
+    user = Repo.get!(User, id)
+    |> Repo.preload(:team)
+
+    changeset =
+      case permissions do
+        "admin" -> User.admin_changeset(user, user_params)
+        "participant" -> User.changeset(user, user_params)
+      end
+
+    Repo.update(changeset)
+  end
+
   def update(id, user_params) do
     user = Repo.get!(User, id)
     |> Repo.preload(:team)

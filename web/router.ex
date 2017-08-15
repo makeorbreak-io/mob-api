@@ -24,7 +24,7 @@ defmodule Api.Router do
     delete "/teams/:id/remove/:user_id", TeamController, :remove
 
     scope "/admin", as: :admin do
-      resources "/users", Admin.UserController, only: [:index, :show]
+      resources "/users", Admin.UserController, except: [:new, :edit, :create]
     end
   end
 end

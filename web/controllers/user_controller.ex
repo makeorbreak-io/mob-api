@@ -30,7 +30,7 @@ defmodule Api.UserController do
   end
 
   def update(conn, %{"id" => id, "user" => user_params}) do
-    case UserActions.update(id, user_params) do
+    case UserActions.update(id, user_params, "participant") do
       {:ok, user} ->
         render(conn, "show.json", user: user)
       {:error, changeset} ->

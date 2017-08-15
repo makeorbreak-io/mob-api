@@ -49,6 +49,15 @@ defmodule Api.User do
     |> unique_constraint(:email)
   end
 
+  def admin_changeset(struct, params \\ %{}) do
+    struct
+    |> cast(params, @valid_attrs ++ ["role"])
+    |> validate_required(~w(email)a)
+    |> validate_length(:email, min: 1, max: 255)
+    |> validate_format(:email, ~r/@/)
+    |> unique_constraint(:email)
+  end
+
   def registration_changeset(struct, params \\ %{}) do
     struct
     |> changeset(params)
