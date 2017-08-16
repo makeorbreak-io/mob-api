@@ -47,6 +47,7 @@ defmodule Api.UserView do
         email: user.email,
         first_name: user.first_name,
         last_name: user.last_name,
+        role: user.role,
         gravatar_hash: UserHelper.gravatar_hash(user),
         display_name: UserHelper.display_name(user),
         birthday: user.birthday,

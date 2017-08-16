@@ -20,38 +20,31 @@ defmodule Api.TeamActions do
   end
 
   def update(conn, id, team_params) do
-    case Guardian.Plug.current_resource(conn) do
-      %{id: user_id} ->
+    %{id: user_id} = Guardian.Plug.current_resource(conn)
 
-        team = Repo.get!(Team, id)
-        |> Repo.preload(:owner)
+    team = Repo.get!(Team, id)
+    |> Repo.preload(:owner)
 
-        if team.owner.id == user_id do
-          changeset = Team.changeset(team, team_params)
+    if team.owner.id == user_id do
+      changeset = Team.changeset(team, team_params)
 
-          Repo.update(changeset)
-        else
-          {:unauthorized}
-        end
-      nil ->
-        {:unauthenticated}
+      Repo.update(changeset)
+    else
+      {:unauthorized}
     end
   end
 
   def delete(conn, id) do
-    case Guardian.Plug.current_resource(conn) do
-      %{id: user_id} ->
-        team = Repo.get!(Team, id)
-        |> Repo.preload(:owner)
+    %{id: user_id} = Guardian.Plug.current_resource(conn)
+ 
+    team = Repo.get!(Team, id)
+    |> Repo.preload(:owner)
 
-        if team.owner.id == user_id do
-          Repo.delete!(team)
-          {:ok}
-        else
-          {:error, "Unauthorized"}
-        end
-      nil ->
-        {:error, "Authentication required"}
+    if team.owner.id == user_id do
+      Repo.delete!(team)
+      {:ok}
+    else
+      {:error, "Unauthorized"}
     end
   end
 
@@ -63,20 +56,17 @@ defmodule Api.TeamActions do
       nil ->
         {:error, "User not found"}
       user ->
-        case Guardian.Plug.current_resource(conn) do
-          nil ->
-            {:error, "Authentication required"}
-          current_user ->
-            if current_user.id == team.owner.id || Enum.member?(team.members, current_user) do
-              case from(t in TeamMember, where: t.user_id == ^user.id and t.team_id == ^team.id) |> Repo.delete_all do
-                {1, nil} ->
-                  {:ok}
-                {0, nil} ->
-                  {:error, "User isn't a member of team"}
-              end
-            else
-              {:error, "Unauthorized"}
-            end
+        current_user = Guardian.Plug.current_resource(conn)
+
+        if current_user.id == team.owner.id || Enum.member?(team.members, current_user) do
+          case from(t in TeamMember, where: t.user_id == ^user.id and t.team_id == ^team.id) |> Repo.delete_all do
+            {1, nil} ->
+              {:ok}
+            {0, nil} ->
+              {:error, "User isn't a member of team"}
+          end
+        else
+          {:error, "Unauthorized"}
         end
     end
   end

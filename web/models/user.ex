@@ -25,6 +25,7 @@ defmodule Api.User do
     field :twitter_handle, :string
     field :linkedin_url, :string
     field :bio, :string
+    field :role, :string, default: "participant"
     timestamps()
 
     # Virtual fields
@@ -42,6 +43,15 @@ defmodule Api.User do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @valid_attrs)
+    |> validate_required(~w(email)a)
+    |> validate_length(:email, min: 1, max: 255)
+    |> validate_format(:email, ~r/@/)
+    |> unique_constraint(:email)
+  end
+
+  def admin_changeset(struct, params \\ %{}) do
+    struct
+    |> cast(params, @valid_attrs ++ ["role"])
     |> validate_required(~w(email)a)
     |> validate_length(:email, min: 1, max: 255)
     |> validate_format(:email, ~r/@/)
