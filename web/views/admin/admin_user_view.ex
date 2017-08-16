@@ -30,7 +30,7 @@ defmodule Api.Admin.UserView do
       company: user.company,
       inserted_at: user.inserted_at,
       updated_at: user.updated_at,
-      team: if user.team do render_one(user.team, TeamView, "team_with_role.json") end
+      team: if user.team do render_one(user.team, TeamView, "team_short.json") end
     }
   end
 end
