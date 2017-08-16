@@ -77,8 +77,7 @@ defmodule Api.AdminUserControllerTest do
       "updated_at" => NaiveDateTime.to_iso8601(admin.updated_at),
       "team" => %{
         "id" => team.id,
-        "name" => team.name,
-        "role" => "owner"
+        "name" => team.name
       }
     }
   end
