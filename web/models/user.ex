@@ -10,7 +10,7 @@ defmodule Api.User do
   alias Comeonin.Bcrypt
 
   @valid_attrs ~w(email first_name last_name password birthday employment_status college
-                  company github_handle twitter_handle linkedin_url bio)
+                  company github_handle twitter_handle linkedin_url bio tshirt_size)
 
   schema "users" do
     field :email, :string
@@ -26,6 +26,7 @@ defmodule Api.User do
     field :linkedin_url, :string
     field :bio, :string
     field :role, :string, default: "participant"
+    field :tshirt_size, :string
     timestamps()
 
     # Virtual fields
