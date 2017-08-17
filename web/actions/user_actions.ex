@@ -39,7 +39,15 @@ defmodule Api.UserActions do
 
   def update(id, user_params, permissions) do
     user = Repo.get!(User, id)
-    |> Repo.preload(:team)
+    |> Repo.preload([ :team, :memberships ])
+
+    team = 
+      cond do
+        !is_nil(user.team) -> Map.merge(%{role: "owner"}, user.team)
+        !Enum.empty?(user.memberships) ->
+          Map.merge(%{role: "member"}, List.first(user.memberships))
+        true -> nil
+      end
 
     changeset =
       case permissions do
@@ -47,7 +55,8 @@ defmodule Api.UserActions do
         "participant" -> User.changeset(user, user_params)
       end
 
-    Repo.update(changeset)
+    { :ok, user } = Repo.update(changeset)
+    IO.puts inspect Kernel.put_in(user.team, team)
   end
 
   def update(id, user_params) do
