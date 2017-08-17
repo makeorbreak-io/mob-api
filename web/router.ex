@@ -16,6 +16,7 @@ defmodule Api.Router do
     resources "/teams", TeamController, except: [:new, :edit]
     resources "/users", UserController, except: [:new, :edit]
     resources "/invites", InviteController, except: [:new, :edit]
+    resources "/workshops", WorkshopController, only: [:index, :show]
 
     get "/me", SessionController, :me
     post "/login", SessionController, :create
@@ -25,6 +26,7 @@ defmodule Api.Router do
 
     scope "/admin", as: :admin do
       resources "/users", Admin.UserController, except: [:new, :edit, :create]
+      resources "/workshops", Admin.WorkshopController, except: [:new, :edit]
 
       get "/stats", Admin.StatsController, :stats
     end
