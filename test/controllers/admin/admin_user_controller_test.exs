@@ -78,7 +78,8 @@ defmodule Api.AdminUserControllerTest do
       "team" => %{
         "id" => team.id,
         "name" => team.name
-      }
+      },
+      "tshirt_size" => nil,
     }
   end
 
