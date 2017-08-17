@@ -55,8 +55,12 @@ defmodule Api.UserActions do
         "participant" -> User.changeset(user, user_params)
       end
 
-    { :ok, user } = Repo.update(changeset)
-    IO.puts inspect Kernel.put_in(user.team, team)
+    case Repo.update(changeset) do
+      {:ok, user} ->
+        user = Kernel.put_in(user.team, team)
+        {:ok, user}
+      {:error, changeset} -> {:error, changeset}
+    end
   end
 
   def update(id, user_params) do
