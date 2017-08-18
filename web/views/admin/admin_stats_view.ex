@@ -1,7 +1,7 @@
 defmodule Api.Admin.StatsView do
   use Api.Web, :view
 
-  def render("users_teams.json", %{stats: stats}) do
+  def render("stats.json", %{stats: stats}) do
     %{data: %{
         users: %{
           total: stats.users,
@@ -9,7 +9,8 @@ defmodule Api.Admin.StatsView do
         },
         teams: %{
           total: stats.teams
-        }
+        },
+        workshops: stats.workshops
       }
     }
   end
