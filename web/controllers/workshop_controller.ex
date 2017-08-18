@@ -4,11 +4,11 @@ defmodule Api.WorkshopController do
   alias Api.{WorkshopActions, ErrorView}
 
   def index(conn, _params) do
-    render(conn, "index.json", workshops: WorkshopActions.all)
+    render(conn, "index.json", workshops: WorkshopActions.all("participant"))
   end
 
   def show(conn, %{"id" => id}) do
-    render(conn, "show.json", workshop: WorkshopActions.get(id))
+    render(conn, "show.json", workshop: WorkshopActions.get(id, "participant"))
   end
 
   def join(conn, %{"id" => id}) do

@@ -4,13 +4,21 @@ defmodule Api.WorkshopActions do
   alias Api.{Workshop, WorkshopAttendance, Repo}
   import Ecto.Query
 
-  def all do
-    Repo.all(Workshop)
+  def all(permissions) do
+    workshops = Repo.all(Workshop)
+    case permissions do
+      "admin" -> Repo.preload(workshops, :attendees)
+      "participant" -> workshops
+    end
   end
 
-  def get(id) do
-    Repo.get_by!(Workshop, slug: id)
-    |> Repo.preload(:attendees)
+  def get(id, permissions) do
+    workshop = Repo.get_by!(Workshop, slug: id)
+    
+    case permissions do
+      "admin" -> Repo.preload(workshop, :attendees)
+      "participant" -> workshop
+    end
   end
 
   def create(workshop_params) do
