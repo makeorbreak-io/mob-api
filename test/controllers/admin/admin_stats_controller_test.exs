@@ -1,7 +1,7 @@
 defmodule Api.AdminStatsControllerTest do
   use Api.ConnCase
 
-  alias Api.{User}
+  alias Api.{User, WorkshopAttendance}
 
   setup %{conn: conn} do
     admin = create_admin
@@ -15,10 +15,19 @@ defmodule Api.AdminStatsControllerTest do
     }}
   end
 
-  test "users and teams statistics are correct", %{conn: conn, admin: admin, jwt: jwt} do
+  test "correct statistics are given", %{conn: conn, admin: admin, jwt: jwt} do
     Repo.insert!(%User{})
     Repo.insert!(%User{})
     create_team(%{user_id: admin.id, name: "awesome team"})
+    workshop = create_workshop
+    workshop_attendee = create_user(%{
+      email: "example@email.com",
+      first_name: "Jane",
+      last_name: "doe",
+      password: "thisisapassword"
+    })
+
+    Repo.insert! %WorkshopAttendance{user_id: workshop_attendee.id, workshop_id: workshop.id}
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
@@ -26,12 +35,20 @@ defmodule Api.AdminStatsControllerTest do
 
     assert json_response(conn, 200)["data"] == %{
       "users" => %{
-        "total" => 3,
-        "participants" => 2,
+        "participants" => 3,
+        "total" => 4
       },
       "teams" => %{
         "total" => 1
-      }
+      },
+      "workshops" => [
+        %{
+          "name" => workshop.name,
+          "slug" => workshop.slug,
+          "participants" => 1,
+          "participant_limit" => 1
+        }
+      ]
     }
   end
 end

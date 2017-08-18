@@ -8,6 +8,6 @@ defmodule Api.Admin.StatsController do
   plug EnsurePermissions, [handler: SessionController, admin: ~w(full)]
 
   def stats(conn, _params) do
-    render(conn, "users_teams.json", stats: StatsActions.users_and_teams)
+    render(conn, "stats.json", stats: StatsActions.stats)
   end
 end

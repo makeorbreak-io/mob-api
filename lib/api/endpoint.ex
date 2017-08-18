@@ -1,6 +1,10 @@
 defmodule Api.Endpoint do
   use Phoenix.Endpoint, otp_app: :api
 
+  if code_reloading? do
+    plug Phoenix.CodeReloader
+  end
+
   plug Plug.RequestId
   plug Plug.Logger
 

@@ -63,15 +63,6 @@ defmodule Api.UserActions do
     end
   end
 
-  def update(id, user_params) do
-    user = Repo.get!(User, id)
-    |> Repo.preload(:team)
-
-    changeset = User.changeset(user, user_params)
-
-    Repo.update(changeset)
-  end
-
   def delete(id) do
     user = Repo.get!(User, id)
     Repo.delete!(user)
