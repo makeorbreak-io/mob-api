@@ -10,6 +10,7 @@ defmodule Api.WorkshopActions do
 
   def get(id) do
     Repo.get_by!(Workshop, slug: id)
+    |> Repo.preload(:attendees)
   end
 
   def create(workshop_params) do

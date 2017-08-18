@@ -19,7 +19,10 @@ defmodule Api.Admin.WorkshopView do
       participant_limit: workshop.participant_limit,
       year: workshop.year,
       speaker_image: workshop.speaker_image,
-      banner_image: workshop.banner_image
+      banner_image: workshop.banner_image,
+      attendees: if Ecto.assoc_loaded?(workshop.attendees) do
+        render_many(workshop.attendees, UserView, "user_short.json")
+      end
     }
   end
 end

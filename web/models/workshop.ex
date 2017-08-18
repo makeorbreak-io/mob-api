@@ -1,7 +1,7 @@
 defmodule Api.Workshop do
   use Api.Web, :model
 
-  alias Api.{User}
+  alias Api.{User, WorkshopAttendance}
 
   @valid_attrs ~w(name slug summary description speaker participant_limit
     year speaker_image banner_image)

@@ -1,7 +1,7 @@
 defmodule Api.Admin.WorkshopControllerTest do
   use Api.ConnCase
 
-  alias Api.{Workshop, User,}
+  alias Api.{Workshop, User}
   
   @valid_attrs %{
     slug: "some-content",
@@ -59,7 +59,8 @@ defmodule Api.Admin.WorkshopControllerTest do
       "participant_limit" => workshop.participant_limit,
       "year" => workshop.year,
       "speaker_image" => workshop.speaker_image,
-      "banner_image" => workshop.banner_image
+      "banner_image" => workshop.banner_image,
+      "attendees" => []
     }
   end
 
