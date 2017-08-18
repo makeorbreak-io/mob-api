@@ -7,6 +7,8 @@ end
 defmodule Api.Workshop do
   use Api.Web, :model
 
+  alias Api.{User}
+
   @valid_attrs ~w(name slug summary description speaker participant_limit
     year speaker_image banner_image)
   @required_attrs ~w(name slug)a
@@ -22,8 +24,9 @@ defmodule Api.Workshop do
     field :year, :integer
     field :speaker_image, :string
     field :banner_image, :string
-
     timestamps()
+
+    many_to_many :attendees, User, join_through: WorkshopAttendance
   end
 
   @doc """

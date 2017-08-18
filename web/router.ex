@@ -23,6 +23,8 @@ defmodule Api.Router do
     put "/invites/:id/accept", InviteController, :accept
     delete "/logout", SessionController, :delete
     delete "/teams/:id/remove/:user_id", TeamController, :remove
+    post "/workshops/:id/join", WorkshopController, :join
+    delete "/workshops/:id/leave", WorkshopController, :leave
 
     scope "/admin", as: :admin do
       resources "/users", Admin.UserController, except: [:new, :edit, :create]

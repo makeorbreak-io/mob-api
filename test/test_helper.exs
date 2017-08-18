@@ -12,7 +12,11 @@ defmodule Api.TestHelper do
     password: "thisisapassword"
   }
   @valid_team_attrs %{name: "awesome team"}
-  @valid_workshop_attrs %{name: "awesome workshop", slug: "awesome-workshop"}
+  @valid_workshop_attrs %{
+    name: "awesome workshop",
+    slug: "awesome-workshop",
+    participant_limit: 1
+  }
 
   def create_user(params \\ @valid_user_attrs) do
     %User{}

@@ -6,13 +6,13 @@ defmodule Api.Repo.Migrations.CreateWorkshops do
       add :id, :uuid, primary_key: true
       add :slug, :string
       add :name, :string
-      add :summary, :string
-      add :description, :string
-      add :speaker, :string
+      add :summary, :text
+      add :description, :text
+      add :speaker, :text
       add :participant_limit, :integer
       add :year, :integer
-      add :speaker_image, :string
-      add :banner_image, :string
+      add :speaker_image, :text
+      add :banner_image, :text
 
       timestamps()
     end
