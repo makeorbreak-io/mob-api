@@ -9,18 +9,9 @@ defmodule Api.UserActions do
   end
 
   def get(id) do
-    user = Repo.get!(User, id)
+    Repo.get!(User, id)
     |> Repo.preload([:team, :memberships])
-
-    team = 
-      cond do
-        !is_nil(user.team) -> Map.merge(%{role: "owner"}, user.team)
-        !Enum.empty?(user.memberships) ->
-          Map.merge(%{role: "member"}, List.first(user.memberships))
-        true -> nil
-      end
-
-    Kernel.put_in(user.team, team)
+    |> add_team_role
   end
 
   def create(user_params) do
@@ -37,10 +28,28 @@ defmodule Api.UserActions do
     end
   end
 
-  def update(id, user_params, permissions) do
+  def update(conn, id, user_params) do
+    current_user = Guardian.Plug.current_resource(conn)
     user = Repo.get!(User, id)
-    |> Repo.preload([ :team, :memberships ])
 
+    user
+    |> Repo.preload([:team, :memberships])
+
+    changeset = apply(User, String.to_atom("#{current_user.role}_changeset"),
+      [user, user_params])
+
+    case Repo.update(changeset) do
+      {:ok, user} -> {:ok, add_team_role(user)}
+      {:error, changeset} -> {:error, changeset}
+    end
+  end
+
+  def delete(id) do
+    user = Repo.get!(User, id)
+    Repo.delete!(user)
+  end
+
+  defp add_team_role(user) do
     team = 
       cond do
         !is_nil(user.team) -> Map.merge(%{role: "owner"}, user.team)
@@ -49,22 +58,6 @@ defmodule Api.UserActions do
         true -> nil
       end
 
-    changeset =
-      case permissions do
-        "admin" -> User.admin_changeset(user, user_params)
-        "participant" -> User.changeset(user, user_params)
-      end
-
-    case Repo.update(changeset) do
-      {:ok, user} ->
-        user = Kernel.put_in(user.team, team)
-        {:ok, user}
-      {:error, changeset} -> {:error, changeset}
-    end
-  end
-
-  def delete(id) do
-    user = Repo.get!(User, id)
-    Repo.delete!(user)
+    Kernel.put_in(user.team, team)
   end
 end

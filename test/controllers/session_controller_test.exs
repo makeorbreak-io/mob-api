@@ -3,24 +3,53 @@ defmodule Api.SessionControllerTest do
 
   alias Api.{WorkshopAttendance}
 
-  test "creates a session", %{conn: conn} do
-    create_user
+  @valid_credentials %{
+    email: "johndoe@example.com",
+    password: "thisisapassword"
+  }
+  @invalid_credentials %{
+    email: "johndoe@example.com",
+    password: "wrong"
+  }
 
-    response = create_session(conn, "johndoe@example.com", "thisisapassword")
+  setup %{conn: conn} do
+    {:ok, conn: put_req_header(conn, "accept", "application/json")}
+  end
 
-    data = response["data"]
-    
-    assert data["jwt"]
-    assert data["user"]["id"]
-    assert data["user"]["email"]
+  test "user can login", %{conn: conn} do
+    user = create_user
+
+    conn = post(conn, session_path(conn, :create, @valid_credentials))
+
+    assert json_response(conn, 201)["data"]["user"] == %{
+      "bio" => user.bio,
+      "birthday" => user.birthday,
+      "college" => user.college,
+      "company" => user.company,
+      "display_name" => "#{user.first_name} #{user.last_name}",
+      "email" => user.email,
+      "employment_status" => nil,
+      "first_name" => user.first_name,
+      "github_handle" => nil,
+      "gravatar_hash" => "fd876f8cd6a58277fc664d47ea10ad19",
+      "id" => user.id,
+      "invitations" => [],
+      "last_name" => user.last_name,
+      "linkedin_url" => user.linkedin_url,
+      "role" => user.role,
+      "team" => nil,
+      "tshirt_size" => user.tshirt_size,
+      "twitter_handle" => user.twitter_handle,
+      "workshops" => []
+    }
   end
 
   test "deletes a session", %{conn: conn} do
-    create_user
-    session_response = create_session(conn, "johndoe@example.com", "thisisapassword")
+    user = create_user
+    {:ok, jwt, _} = Guardian.encode_and_sign(user)
 
     conn
-    |> put_req_header("authorization", "Bearer #{session_response["data"]["jwt"]}")
+    |> put_req_header("authorization", "Bearer #{jwt}")
     |> delete("/api/logout")
     |> json_response(200)
   end
@@ -30,10 +59,10 @@ defmodule Api.SessionControllerTest do
     workshop = create_workshop
     Repo.insert! %WorkshopAttendance{user_id: user.id, workshop_id: workshop.id}
 
-    response = create_session(conn, "johndoe@example.com", "thisisapassword")
+    {:ok, jwt, _} = Guardian.encode_and_sign(user)
     
     conn = conn
-    |> put_req_header("authorization", "Bearer #{response["data"]["jwt"]}")
+    |> put_req_header("authorization", "Bearer #{jwt}")
     |> get(session_path(conn, :me))
 
     assert json_response(conn, 200)["data"] == %{
@@ -64,19 +93,17 @@ defmodule Api.SessionControllerTest do
   end
 
   test "jwt checking returns 401 without token", %{conn: conn} do
-    response = conn    
-    |> get("api/me")
-    |> json_response(401)
+    conn = conn    
+    |> get(session_path(conn, :me))
 
-    assert response["error"] == "Authentication required"
+    assert json_response(conn, 401)["error"] == "Authentication required"
   end
 
   test "fails authorization", %{conn: conn} do
     create_user
 
-    conn = post conn, "/api/login", email: "johndoe@example.com", password: "wrong"
-    response = json_response(conn, 422)
+    conn = post(conn, session_path(conn, :create, @invalid_credentials))
    
-    assert response == %{"error" => "Unable to authenticate"} 
+    assert json_response(conn, 422)["error"] == "Wrong email or password"
   end
 end

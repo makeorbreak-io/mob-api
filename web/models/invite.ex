@@ -4,6 +4,7 @@ defmodule Api.Invite do
   alias Api.{User, Team}
 
   @valid_attrs ~w(invitee_id team_id host_id description open email)
+  @required_attrs ~w(host_id team_id)a
 
   schema "invites" do
     field :open, :boolean, default: false
@@ -23,5 +24,6 @@ defmodule Api.Invite do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @valid_attrs)
+    |> validate_required(@required_attrs)
   end
 end

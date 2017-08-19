@@ -41,7 +41,6 @@ defmodule Api.User do
     many_to_many :workshops, Workshop, join_through: WorkshopAttendance
   end
 
-  @doc "Builds a changeset based on the `struct` and `params`."
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @valid_attrs)
@@ -58,6 +57,11 @@ defmodule Api.User do
     |> validate_length(:email, min: 1, max: 255)
     |> validate_format(:email, ~r/@/)
     |> unique_constraint(:email)
+  end
+
+  def participant_changeset(struct, params \\ %{}) do
+    struct
+    |> changeset(params)
   end
 
   def registration_changeset(struct, params \\ %{}) do

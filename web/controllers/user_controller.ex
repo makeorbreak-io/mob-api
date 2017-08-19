@@ -4,6 +4,8 @@ defmodule Api.UserController do
   alias Api.{UserActions, SessionView, ChangesetView}
 
   plug :scrub_params, "user" when action in [:create, :update]
+  plug Guardian.Plug.EnsureAuthenticated,
+    [handler: Api.SessionController] when action in [:update]
 
   def index(conn, _params) do
     render(conn, "index.json", users: UserActions.all)
@@ -30,7 +32,7 @@ defmodule Api.UserController do
   end
 
   def update(conn, %{"id" => id, "user" => user_params}) do
-    case UserActions.update(id, user_params, "participant") do
+    case UserActions.update(conn, id, user_params) do
       {:ok, user} ->
         render(conn, "show.json", user: user)
       {:error, changeset} ->

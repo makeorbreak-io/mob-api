@@ -62,7 +62,7 @@ defmodule Api.SessionController do
   defp handle_check_password(false, conn, _user) do
     conn
     |> put_status(:unprocessable_entity)
-    |> render(ErrorView, "error.json", error: "Unable to authenticate")
+    |> render(ErrorView, "error.json", error: "Wrong email or password")
   end
 
   defp revoke_claims(conn) do

@@ -3,7 +3,7 @@ ExUnit.start
 Ecto.Adapters.SQL.Sandbox.mode(Api.Repo, :manual)
 
 defmodule Api.TestHelper do
-  alias Api.{User, Team, Repo, Invite, Workshop, SessionController}
+  alias Api.{User, Team, Repo, Invite, Workshop}
 
   @valid_user_attrs %{
     email: "johndoe@example.com",
@@ -47,10 +47,5 @@ defmodule Api.TestHelper do
     %Invite{}
     |> Invite.changeset(params)
     |> Repo.insert!
-  end
-
-  def create_session(conn, email, password) do
-    SessionController.create(conn, %{"email" => email, "password" => password})
-    |> Phoenix.ConnTest.json_response(201)
   end
 end
