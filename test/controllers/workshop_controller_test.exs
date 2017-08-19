@@ -16,8 +16,25 @@ defmodule Api.WorkshopControllerTest do
   end
 
   test "lists all entries on index", %{conn: conn} do
+    workshop = create_workshop
+
     conn = get conn, workshop_path(conn, :index)
-    assert json_response(conn, 200)["data"] == []
+    assert json_response(conn, 200)["data"] == [
+      %{
+        "slug" => workshop.slug,
+        "name" => workshop.name,
+        "summary" => workshop.summary,
+        "description" => workshop.description,
+        "speaker" => workshop.speaker,
+        "participants" => 0,
+        "participant_limit" => workshop.participant_limit,
+        "year" => workshop.year,
+        "speaker_image" => workshop.speaker_image,
+        "banner_image" => workshop.banner_image,
+        "short_speaker" => workshop.short_speaker,
+        "short_date" => workshop.short_date
+      }
+    ]
   end
 
   test "shows chosen workshop", %{conn: conn} do
@@ -30,10 +47,13 @@ defmodule Api.WorkshopControllerTest do
       "summary" => workshop.summary,
       "description" => workshop.description,
       "speaker" => workshop.speaker,
+      "participants" => 0,
       "participant_limit" => workshop.participant_limit,
       "year" => workshop.year,
       "speaker_image" => workshop.speaker_image,
-      "banner_image" => workshop.banner_image
+      "banner_image" => workshop.banner_image,
+      "short_speaker" => workshop.short_speaker,
+      "short_date" => workshop.short_date
     }
   end
 
