@@ -15,7 +15,7 @@ defmodule Api.Router do
     resources "/projects", ProjectController, except: [:new, :edit]
     resources "/teams", TeamController, except: [:new, :edit]
     resources "/users", UserController, except: [:new, :edit]
-    resources "/invites", InviteController, except: [:new, :edit]
+    resources "/invites", InviteController, except: [:new, :edit, :update]
     resources "/workshops", WorkshopController, only: [:index, :show]
 
     get "/me", SessionController, :me

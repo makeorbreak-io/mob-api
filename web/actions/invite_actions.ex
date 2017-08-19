@@ -3,47 +3,41 @@ defmodule Api.InviteActions do
 
   alias Api.{Invite, Repo, Mailer, Email, TeamMember}
 
-  def all do
-    Repo.all(Invite)
-    |> Repo.preload([ :host, :team, :invitee ])
+  def for_current_user(conn) do
+    current_user = Guardian.Plug.current_resource(conn)
+
+    Invite
+    |> where(invitee_id: ^current_user.id)
+    |> Repo.all
+    |> Repo.preload([:host, :invitee, :team])
   end
 
   def get(id) do
     Repo.get!(Invite, id)
-    |> Repo.preload([ :host, :team, :invitee ])
+    |> Repo.preload([:host, :team, :invitee])
   end
 
   def create(conn, invite_params) do
-    case Guardian.Plug.current_resource(conn) do
-      nil -> {:error, "Authentication required"}
-      user ->
-        user = Repo.preload(user, :team)
+    user = Guardian.Plug.current_resource(conn)
+    |> Repo.preload(:team)
 
-        changeset = Invite.changeset(%Invite{
-          host_id: user.id,
-          team_id: user.team.id
-        }, invite_params)
+    changeset = Invite.changeset(%Invite{
+      host_id: user.id,
+      team_id: if user.team do user.team.id end
+    }, invite_params)
 
-        result = Repo.insert(changeset)
+    result = Repo.insert(changeset)
 
-        if invite_params["email"] do
-          Email.invite_email(invite_params["email"], user) |> Mailer.deliver_later
-        end
-
-        result
+    if invite_params["email"] do
+      Email.invite_email(invite_params["email"], user) |> Mailer.deliver_later
     end
-  end
 
-  def change(id, invite_params) do
-    invite = Repo.get!(Invite, id)
-    changeset = Invite.changeset(invite, invite_params)
-
-    Repo.update(changeset)
+    result
   end
 
   def accept(id) do
     case Repo.get(Invite, id) do
-      nil -> {:error, "Unable to accept invite"}
+      nil -> {:error, "Invite not found"}
       invite ->
         changeset = TeamMember.changeset(%TeamMember{},
           %{user_id: invite.invitee_id, team_id: invite.team_id})
@@ -58,14 +52,5 @@ defmodule Api.InviteActions do
   def delete(id) do
     invite = Repo.get!(Invite, id)
     Repo.delete!(invite)
-  end
-
-  def for_current_user(conn) do
-    current_user = Guardian.Plug.current_resource(conn)
-
-    Invite
-    |> where(invitee_id: ^current_user.id)
-    |> Repo.all
-    |> Repo.preload([ :host, :invitee, :team ])
   end
 end

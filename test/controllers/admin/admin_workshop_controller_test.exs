@@ -110,7 +110,7 @@ defmodule Api.Admin.WorkshopControllerTest do
     assert json_response(conn, 422)["errors"] != %{}
   end
 
-  test "updates workshop", %{conn: conn, jwt: jwt} do
+  test "updates workshop if data is valid", %{conn: conn, jwt: jwt} do
     workshop = create_workshop
 
     conn = conn
@@ -119,6 +119,16 @@ defmodule Api.Admin.WorkshopControllerTest do
 
     assert json_response(conn, 200)["data"]["slug"]
     assert Repo.get_by(Workshop, slug: "awesome-workshop")
+  end
+
+  test "doesn't update workshop if data is invalid", %{conn: conn, jwt: jwt} do
+    workshop = create_workshop
+
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> put(admin_workshop_path(conn, :update, workshop), workshop: %{slug: nil})
+
+    assert json_response(conn, 422)["errors"] != %{}
   end
 
   test "deletes chosen workshop", %{conn: conn, jwt: jwt} do

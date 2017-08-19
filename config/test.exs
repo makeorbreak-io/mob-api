@@ -15,6 +15,10 @@ config :api, Api.Repo,
   adapter: Ecto.Adapters.Postgres,
   url: "#{System.get_env("DB_URL")}-test"
 
+# Bamboo test configuration
+config :api, Api.Mailer,
+  adapter: Bamboo.TestAdapter
+
 # Comeonin bcrypt test options
 config :comeonin, :bcrypt_log_rounds, 4
 config :comeonin, :pbkdf2_rounds, 1

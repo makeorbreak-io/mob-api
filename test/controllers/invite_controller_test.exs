@@ -1,10 +1,8 @@
 defmodule Api.InviteControllerTest do
   use Api.ConnCase
+  use Bamboo.Test, shared: true
 
-  alias Api.{Invite}
-
-  @valid_attrs %{description: "some content", email: "email@example.com"}
-  @invalid_attrs %{}
+  alias Api.{Invite, Email}
 
   setup %{conn: conn} do
     user = create_user
@@ -18,14 +16,49 @@ defmodule Api.InviteControllerTest do
     }}
   end
 
-  test "lists all entries on index", %{conn: conn, jwt: jwt} do
+  test "lists all invites", %{conn: conn, jwt: jwt, user: user} do
+    host = create_user(%{
+      email: "example@email.com",
+      first_name: "Jane",
+      last_name: "doe",
+      password: "thisisapassword"
+    })
+    team = create_team(%{user_id: host.id, name: "awesome_team"})
+    invite = create_invite(%{host_id: host.id, team_id: team.id, invitee_id: user.id})
+
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> get(invite_path(conn, :index))
-    assert json_response(conn, 200)["data"] == []
+
+    assert json_response(conn, 200)["data"] == [%{
+      "description" => invite.description,
+      "email" => invite.email,
+      "host" => %{
+        "display_name" => "#{host.first_name} #{host.last_name}",
+        "first_name" => host.first_name,
+        "gravatar_hash" => "8455938a1db5c475a87d76edacb6284e",
+        "id" => host.id,
+        "last_name" => host.last_name,
+        "tshirt_size" => host.tshirt_size
+      },
+      "id" => invite.id,
+      "invitee" => %{
+        "display_name" => "#{user.first_name} #{user.last_name}",
+        "first_name" => user.first_name,
+        "gravatar_hash" => "fd876f8cd6a58277fc664d47ea10ad19",
+        "id" => user.id,
+        "last_name" => user.last_name,
+        "tshirt_size" => user.tshirt_size
+      },
+      "open" => invite.open,
+      "team" => %{
+        "id" => team.id,
+        "name" => team.name
+      }
+    }]
   end
 
-  test "shows chosen resource", %{conn: conn, user: user} do
+  test "shows chosen invite", %{conn: conn, user: user} do
     team = create_team(%{user_id: user.id, name: "awesome_team"})
     invite = create_invite(%{host_id: user.id, team_id: team.id})
 
@@ -57,34 +90,41 @@ defmodule Api.InviteControllerTest do
     end
   end
 
-  test "creates resource when data and request are valid", %{conn: conn, jwt: jwt, user: user} do
+  test "creates invite when data and request are valid", %{conn: conn, jwt: jwt, user: user} do
+    invitee = create_user(%{
+      email: "example@email.com",
+      first_name: "Jane",
+      last_name: "doe",
+      password: "thisisapassword"
+    })
     create_team(%{user_id: user.id, name: "awesome_team"})
-
-    Repo.preload(user, :team)
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
-    |> post(invite_path(conn, :create), invite: @valid_attrs)
+    |> post(invite_path(conn, :create, invite: %{invitee_id: invitee.id}))
 
     assert json_response(conn, 201)["data"]["id"]
     assert Repo.get(Invite, json_response(conn, 201)["data"]["id"])
   end
 
-  test "doesn't create resource when request is invalid", %{conn: conn} do
-    conn = post(conn, invite_path(conn, :create), invite: @valid_attrs)
-
-    assert json_response(conn, 401)["error"] == "Authentication required"
-  end
-
-  test "updates resource when data and request are valid", %{conn: conn, jwt: jwt} do
-    invite = Repo.insert! %Invite{}
+  test "creates invite and sends email", %{conn: conn, jwt: jwt, user: user} do
+    create_team(%{user_id: user.id, name: "awesome_team"})
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
-    |> put(invite_path(conn, :update, invite), invite: @valid_attrs)
+    |> post(invite_path(conn, :create, invite: %{email: "user@example.org"}))
 
-    assert json_response(conn, 200)["data"]["id"]
-    assert Repo.get(Invite, json_response(conn, 200)["data"]["id"])
+    assert json_response(conn, 201)["data"]["id"]
+    assert Repo.get(Invite, json_response(conn, 201)["data"]["id"])
+    assert_delivered_email Email.invite_email("user@example.org", user)
+  end
+
+  test "doesn't create invite when data is invalid", %{conn: conn, jwt: jwt} do
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> post(invite_path(conn, :create), invite: %{})
+
+    assert json_response(conn, 422)["errors"] != %{}
   end
 
   test "membership is created when invitation is accepted", %{conn: conn, jwt: jwt, user: user} do
@@ -105,6 +145,14 @@ defmodule Api.InviteControllerTest do
 
     assert Enum.count(team.members) == 1
     assert List.first(team.members).id == user.id
+  end
+
+  test "membership isn't created if invitation doesn't exist", %{conn: conn, jwt: jwt} do
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> put(invite_path(conn, :accept, %Invite{id: Ecto.UUID.generate()}))
+
+    assert json_response(conn, 422)["error"] == "Invite not found"
   end
 
   test "deletes chosen resource", %{conn: conn, jwt: jwt} do

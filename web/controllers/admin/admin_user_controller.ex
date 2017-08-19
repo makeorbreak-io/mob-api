@@ -17,7 +17,7 @@ defmodule Api.Admin.UserController do
   end
 
   def update(conn, %{"id" => id, "user" => user_params}) do
-    case UserActions.update(id, user_params, "admin") do
+    case UserActions.update(conn, id, user_params) do
       {:ok, user} ->
         render(conn, "show.json", user: user)
       {:error, changeset} ->

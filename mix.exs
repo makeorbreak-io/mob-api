@@ -56,7 +56,7 @@ defmodule Api.Mixfile do
       {:cowboy, "~> 1.0"},
       {:credo, "~> 0.7", only: [:dev, :test]},
       {:distillery, "~> 1.4"},
-      {:excoveralls, "~> 0.6", only: :test},
+      {:excoveralls, "~> 0.7", only: :test},
       {:guardian, "~> 0.14"},
       {:phoenix, "~> 1.2.1"},
       {:phoenix_ecto, "~> 3.0"},

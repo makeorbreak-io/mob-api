@@ -136,15 +136,33 @@ defmodule Api.UserControllerTest do
 
   test "updates user when data is valid", %{conn: conn} do
     user = Repo.insert! %User{}
-    conn = put conn, user_path(conn, :update, user), user: @valid_attrs
+    {:ok, jwt, _} = Guardian.encode_and_sign(user)
+
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> put(user_path(conn, :update, user), user: @valid_attrs)
+
     assert json_response(conn, 200)["data"]["id"]
     assert Repo.get_by(User, email: "johndoe@example.com")
   end
 
   test "doesn't update user when data is invalid", %{conn: conn} do
     user = Repo.insert! %User{}
-    conn = put conn, user_path(conn, :update, user), user: @invalid_attrs
+    {:ok, jwt, _} = Guardian.encode_and_sign(user)
+   
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> put(user_path(conn, :update, user), user: @invalid_attrs)
+
     assert json_response(conn, 422)["errors"] != %{}
+  end
+
+  test "doesn't update user when user is unauthenticated", %{conn: conn} do
+    user = Repo.insert! %User{}
+   
+    conn = put(conn, user_path(conn, :update, user), user: @invalid_attrs)
+
+    assert json_response(conn, 401)["error"] == "Authentication required"
   end
 
   test "deletes user", %{conn: conn} do
