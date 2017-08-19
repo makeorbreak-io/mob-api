@@ -4,7 +4,7 @@ defmodule Api.Workshop do
   alias Api.{User, WorkshopAttendance}
 
   @valid_attrs ~w(name slug summary description speaker participant_limit
-    year speaker_image banner_image)
+    year speaker_image banner_image short_date short_speaker)
   @required_attrs ~w(name slug)a
 
   @derive {Phoenix.Param, key: :slug}
@@ -19,6 +19,8 @@ defmodule Api.Workshop do
     field :year, :integer
     field :speaker_image, :string
     field :banner_image, :string
+    field :short_speaker, :string
+    field :short_date, :string
     timestamps()
 
     many_to_many :attendees, User, join_through: WorkshopAttendance

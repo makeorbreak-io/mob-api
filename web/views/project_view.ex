@@ -2,11 +2,11 @@ defmodule Api.ProjectView do
   use Api.Web, :view
 
   def render("index.json", %{projects: projects}) do
-    %{data: render_many(projects, Api.ProjectView, "project.json")}
+    %{data: render_many(projects, __MODULE__, "project.json")}
   end
 
   def render("show.json", %{project: project}) do
-    %{data: render_one(project, Api.ProjectView, "project.json")}
+    %{data: render_one(project, __MODULE__, "project.json")}
   end
 
   def render("project.json", %{project: project}) do

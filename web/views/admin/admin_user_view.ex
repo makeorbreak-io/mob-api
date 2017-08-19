@@ -30,7 +30,8 @@ defmodule Api.Admin.UserView do
       company: user.company,
       inserted_at: user.inserted_at,
       updated_at: user.updated_at,
-      team: if user.team do render_one(user.team, TeamView, "team_short.json") end,
+      team: if Ecto.assoc_loaded?(user.team) do
+        render_one(user.team, TeamView, "team_short.json") end,
       tshirt_size: user.tshirt_size,
     }
   end

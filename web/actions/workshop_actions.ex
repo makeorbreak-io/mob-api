@@ -4,34 +4,40 @@ defmodule Api.WorkshopActions do
   alias Api.{Workshop, WorkshopAttendance, Repo}
   import Ecto.Query
 
-  def all(permissions) do
-    workshops = Repo.all(Workshop)
-    case permissions do
-      "admin" -> Repo.preload(workshops, :attendees)
-      "participant" -> workshops
-    end
+  def all do
+    Repo.all(Workshop)
+    |> Repo.preload(:attendees)
+    |> Enum.map(fn(workshop) ->
+      Map.put(workshop, :participants, Enum.count(workshop.attendees))
+    end)
   end
 
-  def get(id, permissions) do
+  def get(id) do
     workshop = Repo.get_by!(Workshop, slug: id)
-    
-    case permissions do
-      "admin" -> Repo.preload(workshop, :attendees)
-      "participant" -> workshop
-    end
+    |> Repo.preload(:attendees)
+
+    Map.put(workshop, :participants, Enum.count(workshop.attendees))
   end
 
   def create(workshop_params) do
     changeset = Workshop.changeset(%Workshop{}, workshop_params)
 
-    Repo.insert(changeset)
+    case Repo.insert(changeset) do
+      {:ok, workshop} -> {:ok, Map.put(workshop, :participants, 0)}
+      {:error, changeset} -> {:error, changeset}
+    end
   end
 
   def update(id, workshop_params) do
     workshop = Repo.get_by!(Workshop, slug: id)
     changeset = Workshop.changeset(workshop, workshop_params)
 
-    Repo.update(changeset)
+    case Repo.update(changeset) do
+      {:ok, workshop} ->
+        workshop = workshop |> Repo.preload(:attendees)
+        {:ok, Map.put(workshop, :participants, Enum.count(workshop.attendees))}
+      {:error, changeset} -> {:error, changeset}
+    end
   end
 
   def delete(id) do

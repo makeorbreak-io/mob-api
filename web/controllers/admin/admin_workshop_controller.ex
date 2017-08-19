@@ -9,11 +9,11 @@ defmodule Api.Admin.WorkshopController do
   plug EnsurePermissions, [handler: SessionController, admin: ~w(full)]
 
   def index(conn, _params) do
-    render(conn, "index.json", workshops: WorkshopActions.all("admin"))
+    render(conn, "index.json", workshops: WorkshopActions.all)
   end
 
   def show(conn, %{"id" => id}) do
-    render(conn, "show.json", workshop: WorkshopActions.get(id, "admin"))
+    render(conn, "show.json", workshop: WorkshopActions.get(id))
   end
 
   def create(conn, %{"workshop" => workshop_params}) do

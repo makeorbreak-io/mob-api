@@ -6,7 +6,7 @@ defmodule Api.WorkshopAttendance do
   schema "users_workshops" do
     belongs_to :user, User
     belongs_to :workshop, Workshop
-    timestamps
+    timestamps()
   end
 
   def changeset(struct, params \\ %{}) do

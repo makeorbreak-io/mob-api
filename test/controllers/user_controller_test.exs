@@ -114,6 +114,7 @@ defmodule Api.UserControllerTest do
 
   test "creates user when data is valid", %{conn: conn} do
     conn = post conn, user_path(conn, :create), user: @valid_attrs
+
     assert json_response(conn, 201)["data"]["user"]["id"]
     assert Repo.get_by(User, email: "johndoe@example.com")
   end

@@ -22,11 +22,29 @@ defmodule Api.Admin.WorkshopControllerTest do
   end
 
   test "endpoints are availale for admin users", %{conn: conn, jwt: jwt} do
+    workshop = create_workshop
+
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> get(admin_workshop_path(conn, :index))
 
-    assert json_response(conn, 200)["data"] == []
+    assert json_response(conn, 200)["data"] == [
+      %{
+        "slug" => workshop.slug,
+        "name" => workshop.name,
+        "summary" => workshop.summary,
+        "description" => workshop.description,
+        "speaker" => workshop.speaker,
+        "participants" => 0,
+        "participant_limit" => workshop.participant_limit,
+        "year" => workshop.year,
+        "speaker_image" => workshop.speaker_image,
+        "banner_image" => workshop.banner_image,
+        "short_speaker" => workshop.short_speaker,
+        "short_date" => workshop.short_date,
+        "attendees" => []
+      }
+    ]
   end
 
   test "endpoints are locked for non admin users", %{conn: conn} do
@@ -56,10 +74,13 @@ defmodule Api.Admin.WorkshopControllerTest do
       "summary" => workshop.summary,
       "description" => workshop.description,
       "speaker" => workshop.speaker,
+      "participants" => 0,
       "participant_limit" => workshop.participant_limit,
       "year" => workshop.year,
       "speaker_image" => workshop.speaker_image,
       "banner_image" => workshop.banner_image,
+      "short_speaker" => workshop.short_speaker,
+      "short_date" => workshop.short_date,
       "attendees" => []
     }
   end
@@ -90,7 +111,7 @@ defmodule Api.Admin.WorkshopControllerTest do
   end
 
   test "updates workshop", %{conn: conn, jwt: jwt} do
-    workshop = Repo.insert!(%Workshop{} |> Map.merge(@valid_attrs))
+    workshop = create_workshop
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
