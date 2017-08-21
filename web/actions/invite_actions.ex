@@ -1,6 +1,8 @@
 defmodule Api.InviteActions do
   use Api.Web, :action
 
+  @slack_token Application.get_env(:api, :slack_token)
+
   alias Api.{Invite, Repo, Mailer, Email, TeamMember}
 
   def for_current_user(conn) do
@@ -52,5 +54,14 @@ defmodule Api.InviteActions do
   def delete(id) do
     invite = Repo.get!(Invite, id)
     Repo.delete!(invite)
+  end
+
+  def invite_to_slack(email) do
+    invite_url = "https://portosummerofcode.slack.com/api/users.admin.invite?token=#{@slack_token}&email=#{email}"
+    headers = %{"Content-Type" => "application/x-www-form-urlencoded"}
+
+    {:ok, response} = HTTPoison.post(invite_url, "", headers)
+    
+    Poison.decode! response.body
   end
 end

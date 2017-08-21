@@ -21,6 +21,7 @@ defmodule Api.Router do
     get "/me", SessionController, :me
     post "/login", SessionController, :create
     put "/invites/:id/accept", InviteController, :accept
+    post "/invites/invite_to_slack", InviteController, :invite_to_slack
     delete "/logout", SessionController, :delete
     delete "/teams/:id/remove/:user_id", TeamController, :remove
     post "/workshops/:id/join", WorkshopController, :join
