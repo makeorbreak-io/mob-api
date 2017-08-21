@@ -21,3 +21,4 @@ You can find an example env file you can source in `share/env/env`
 | MAILGUN_API_DOMAIN | Mailgun API credentials | Prod
 | HOST               | Server url              | Prod
 | SENTRY_DSN         | Sentry.io project url   | Prod
+| SLACK_TOKEN        | Slack API access token  | Prod

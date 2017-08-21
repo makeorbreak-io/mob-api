@@ -46,4 +46,14 @@ defmodule Api.InviteController do
     InviteActions.delete(id)
     send_resp(conn, :no_content, "")
   end
+
+  def invite_to_slack(conn, %{"email" => email}) do
+    case InviteActions.invite_to_slack(email) do
+      %{"ok" => true} -> send_resp(conn, :created, "")
+      %{"ok" => false, "error" => error} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(Api.ErrorView, "error.json", error: error)
+    end
+  end
 end
