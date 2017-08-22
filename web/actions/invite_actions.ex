@@ -2,6 +2,12 @@ defmodule Api.InviteActions do
   use Api.Web, :action
 
   @slack_token Application.get_env(:api, :slack_token)
+  @slack_error_codes %{
+    already_invited: "was already invited",
+    already_in_team: "is already in the team",
+    missing_scope: "couldn't be invited at this time",
+    invalid_email: "isn't valid"
+  }
 
   alias Api.{Invite, Repo, Mailer, Email, TeamMember}
 
@@ -62,6 +68,11 @@ defmodule Api.InviteActions do
 
     {:ok, response} = HTTPoison.post(invite_url, "", headers)
     
-    Poison.decode! response.body
+    case Poison.decode! response.body do
+      %{"ok" => true} -> {:ok, true}
+      %{"ok" => false, "error" => error} ->
+        error_message = Map.get(@slack_error_codes, String.to_atom(error))
+        {:error, %{"email" => [error_message]}}
+    end
   end
 end
