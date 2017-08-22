@@ -1,7 +1,7 @@
 defmodule Api.SessionControllerTest do
   use Api.ConnCase
 
-  alias Api.{Team, WorkshopAttendance}
+  alias Api.{WorkshopAttendance}
 
   @valid_credentials %{
     email: "johndoe@example.com",
@@ -18,7 +18,7 @@ defmodule Api.SessionControllerTest do
 
   test "user can login", %{conn: conn} do
     user = create_user
-    team = Repo.insert! %Team{user_id: user.id, name: "awesome team"}
+    team = create_team(user)
 
     conn = post(conn, session_path(conn, :create, @valid_credentials))
 
@@ -42,9 +42,14 @@ defmodule Api.SessionControllerTest do
         "name" => team.name,
         "applied" => team.applied,
         "id" => team.id,
-        "invites" => nil,
-        "members" => [],
-        "owner" => nil,
+        "invites" => [],
+        "members" => [%{
+          "id" => user.id,
+          "display_name" => "#{user.first_name} #{user.last_name}",
+          "gravatar_hash" => "fd876f8cd6a58277fc664d47ea10ad19",
+          "role" => "owner"
+        }],
+        "role" => "owner",
         "project" => nil
       },
       "tshirt_size" => user.tshirt_size,
@@ -65,7 +70,7 @@ defmodule Api.SessionControllerTest do
 
   test "jwt checking works", %{conn: conn} do
     user = create_user
-    team = Repo.insert! %Team{user_id: user.id, name: "awesome team"}
+    team = create_team(user)
     workshop = create_workshop
     Repo.insert! %WorkshopAttendance{user_id: user.id, workshop_id: workshop.id}
 
@@ -91,12 +96,17 @@ defmodule Api.SessionControllerTest do
       "linkedin_url" => user.linkedin_url,
       "bio" => user.bio,
       "team" => %{
+        "role" => "owner",
         "name" => team.name,
         "applied" => team.applied,
         "id" => team.id,
-        "invites" => nil,
-        "members" => [],
-        "owner" => nil,
+        "invites" => [],
+        "members" => [%{
+          "id" => user.id,
+          "display_name" => "#{user.first_name} #{user.last_name}",
+          "gravatar_hash" => "fd876f8cd6a58277fc664d47ea10ad19",
+          "role" => "owner"
+        }],
         "project" => nil
       },
       "invitations" => [],

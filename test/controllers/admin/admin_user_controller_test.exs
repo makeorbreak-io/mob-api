@@ -26,14 +26,38 @@ defmodule Api.AdminUserControllerTest do
   end
 
   test "endpoints are availale for admin users", %{conn: conn, admin: admin, jwt: jwt} do
+    team = create_team(admin)
+
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> get(admin_user_path(conn, :index))
 
-    assert json_response(conn, 200)
-    result = List.first(json_response(conn, 200)["data"])
-
-    assert result["id"]== admin.id
+    assert json_response(conn, 200)["data"] == [%{
+      "id" => admin.id,
+      "first_name" => admin.first_name,
+      "last_name" => admin.last_name,
+      "email" => admin.email,
+      "role" => admin.role,
+      "display_name" => "#{admin.first_name} #{admin.last_name}",
+      "gravatar_hash" => "fd876f8cd6a58277fc664d47ea10ad19",
+      "birthday" => admin.birthday,
+      "employment_status" => admin.employment_status,
+      "college" => admin.college,
+      "company" => admin.company,
+      "github_handle" => admin.github_handle,
+      "twitter_handle" => admin.twitter_handle,
+      "linkedin_url" => admin.linkedin_url,
+      "bio" => admin.bio,
+      "inserted_at" => NaiveDateTime.to_iso8601(admin.inserted_at),
+      "updated_at" => NaiveDateTime.to_iso8601(admin.updated_at),
+      "team" => %{
+        "id" => team.id,
+        "name" => team.name,
+        "applied" => team.applied,
+        "role" => "owner",
+      },
+      "tshirt_size" => nil,
+    }]
   end
 
   test "endpoints are locked for non admin users", %{conn: conn} do
@@ -51,7 +75,7 @@ defmodule Api.AdminUserControllerTest do
   end
 
   test "shows user", %{conn: conn, admin: admin, jwt: jwt} do
-    team = create_team(%{user_id: admin.id, name: "awesome team"})
+    team = create_team(admin)
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
@@ -77,7 +101,9 @@ defmodule Api.AdminUserControllerTest do
       "updated_at" => NaiveDateTime.to_iso8601(admin.updated_at),
       "team" => %{
         "id" => team.id,
-        "name" => team.name
+        "name" => team.name,
+        "applied" => team.applied,
+        "role" => "owner",
       },
       "tshirt_size" => nil,
     }

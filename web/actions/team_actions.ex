@@ -9,38 +9,52 @@ defmodule Api.TeamActions do
 
   def get(id) do
     Repo.get!(Team, id)
-    |> Repo.preload([:owner, :members, :project, invites: [:host, :invitee, :team]])
+    |> Repo.preload([:project, members: [:user], invites: [:host, :invitee, :team]])
   end
 
   def create(conn, team_params) do
     current_user = Guardian.Plug.current_resource(conn)
-    changeset = Team.changeset(%Team{user_id: current_user.id}, team_params)
+    changeset = Team.changeset(%Team{}, team_params)
 
-    Repo.insert(changeset)
+    case Repo.insert(changeset) do
+      {:ok, team} ->
+        Repo.insert! %TeamMember{user_id: current_user.id, team_id: team.id, role: "owner"}
+
+        team = team
+        |> Repo.preload([:project, :invites, members: [:user]])
+
+        {:ok, team}
+      {:error, changeset} -> {:error, changeset}
+    end
   end
 
   def update(conn, id, team_params) do
-    %{id: user_id} = Guardian.Plug.current_resource(conn)
+    user = Guardian.Plug.current_resource(conn)
 
     team = Repo.get!(Team, id)
-    |> Repo.preload(:owner)
 
-    if team.owner.id == user_id do
+    if is_team_member?(team, user) do
       changeset = Team.changeset(team, team_params)
 
-      Repo.update(changeset)
+      case Repo.update(changeset) do
+        {:ok, team} ->
+          team = team
+          |> Repo.preload([:project, :invites, members: [:user]])
+
+          {:ok, team}
+        {:error, changeset} -> {:error, changeset}
+      end
     else
       {:unauthorized}
     end
   end
 
   def delete(conn, id) do
-    %{id: user_id} = Guardian.Plug.current_resource(conn)
+    user = Guardian.Plug.current_resource(conn)
  
     team = Repo.get!(Team, id)
-    |> Repo.preload(:owner)
 
-    if team.owner.id == user_id do
+    if is_team_member?(team, user) do
       Repo.delete!(team)
       {:ok}
     else
@@ -49,8 +63,7 @@ defmodule Api.TeamActions do
   end
 
   def remove(conn, team_id, user_id) do
-    team = Repo.get(Team, team_id)
-    |> Repo.preload([:owner, :members])
+    team = Repo.get!(Team, team_id)
 
     case Repo.get(User, user_id) do
       nil ->
@@ -58,7 +71,7 @@ defmodule Api.TeamActions do
       user ->
         current_user = Guardian.Plug.current_resource(conn)
 
-        if current_user.id == team.owner.id || Enum.member?(team.members, current_user) do
+        if is_team_member?(team, current_user) do
           case from(t in TeamMember, where: t.user_id == ^user.id and t.team_id == ^team.id) |> Repo.delete_all do
             {1, nil} ->
               {:ok}
@@ -69,5 +82,14 @@ defmodule Api.TeamActions do
           {:error, "Unauthorized"}
         end
     end
+  end
+
+  defp is_team_member?(team, user) do
+    team = team
+    |> Repo.preload([:members])
+
+    Enum.any?(team.members, fn(member) ->
+      member.user_id == user.id
+    end)
   end
 end

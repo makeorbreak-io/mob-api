@@ -19,8 +19,8 @@ defmodule Api.AdminStatsControllerTest do
     Repo.insert! %User{}
     Repo.insert! %User{}
     team_owner = Repo.insert! %User{}
-    create_team(%{user_id: admin.id, name: "awesome team"})
-    create_team(%{user_id: team_owner.id, name: "awesome team", applied: true})
+    create_team(admin)
+    create_team(team_owner, %{applied: true, name: "awesome team"})
     workshop = create_workshop
     workshop_attendee = create_user(%{
       email: "example@email.com",

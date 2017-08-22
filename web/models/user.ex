@@ -4,7 +4,7 @@ defmodule Api.User do
   """
 
   use Api.Web, :model
-  alias Api.{Team, Invite, TeamMember, Workshop, WorkshopAttendance}
+  alias Api.{Invite, TeamMember, Workshop, WorkshopAttendance}
   @derive {Poison.Encoder, only: [:id, :email, :first_name, :last_name]}
 
   alias Comeonin.Bcrypt
@@ -33,11 +33,10 @@ defmodule Api.User do
     field :password, :string, virtual: true
 
     # Associations
-    has_one :team, Team
     has_many :invites, Invite, foreign_key: :host_id
     has_many :invitations, Invite, foreign_key: :invitee_id
+    has_many :teams, TeamMember, foreign_key: :user_id
 
-    many_to_many :memberships, Team, join_through: TeamMember
     many_to_many :workshops, Workshop, join_through: WorkshopAttendance
   end
 

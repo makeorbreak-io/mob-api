@@ -1,7 +1,7 @@
 defmodule Api.TeamView do
   use Api.Web, :view
 
-  alias Api.{UserView, ProjectView, InviteView}
+  alias Api.{ProjectView, InviteView, TeamMemberView}
 
   def render("index.json", %{teams: teams}) do
     %{data: render_many(teams, __MODULE__, "team.json")}
@@ -16,10 +16,8 @@ defmodule Api.TeamView do
       id: team.id,
       name: team.name,
       applied: team.applied,
-      owner: if Ecto.assoc_loaded?(team.owner) do
-        render_one(team.owner, UserView, "user_short.json") end,
       members: if Ecto.assoc_loaded?(team.members) do
-        render_many(team.members, UserView, "user_short.json") end,
+        render_many(team.members, TeamMemberView, "member_user.json", as: :membership) end,
       project: if Ecto.assoc_loaded?(team.project) do
         render_one(team.project, ProjectView, "project.json") end,
       invites: if Ecto.assoc_loaded?(team.invites) do
@@ -31,15 +29,6 @@ defmodule Api.TeamView do
     %{
       id: team.id,
       name: team.name
-    }
-  end
-
-  def render("team_with_role.json", %{team: team}) do
-    %{
-      id: team.id,
-      name: team.name,
-      role: team.role,
-      applied: team.applied
     }
   end
 end

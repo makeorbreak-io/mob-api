@@ -23,7 +23,7 @@ defmodule Api.InviteControllerTest do
       last_name: "doe",
       password: "thisisapassword"
     })
-    team = create_team(%{user_id: host.id, name: "awesome_team"})
+    team = create_team(host)
     invite = create_invite(%{host_id: host.id, team_id: team.id, invitee_id: user.id})
 
     conn = conn
@@ -59,7 +59,7 @@ defmodule Api.InviteControllerTest do
   end
 
   test "shows chosen invite", %{conn: conn, user: user} do
-    team = create_team(%{user_id: user.id, name: "awesome_team"})
+    team = create_team(user)
     invite = create_invite(%{host_id: user.id, team_id: team.id})
 
     conn = get conn, invite_path(conn, :show, invite)
@@ -97,7 +97,7 @@ defmodule Api.InviteControllerTest do
       last_name: "doe",
       password: "thisisapassword"
     })
-    create_team(%{user_id: user.id, name: "awesome_team"})
+    create_team(user)
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
@@ -108,7 +108,7 @@ defmodule Api.InviteControllerTest do
   end
 
   test "creates invite and sends email", %{conn: conn, jwt: jwt, user: user} do
-    create_team(%{user_id: user.id, name: "awesome_team"})
+    create_team(user)
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
@@ -134,7 +134,7 @@ defmodule Api.InviteControllerTest do
       last_name: "doe",
       password: "thisisapassword"
     })
-    team = create_team(%{user_id: host.id, name: "awesome_team"})
+    team = create_team(host)
     invite = create_invite(%{host_id: host.id, team_id: team.id, invitee_id: user.id})
 
     conn
@@ -143,8 +143,7 @@ defmodule Api.InviteControllerTest do
 
     team = Repo.preload(team, :members)
 
-    assert Enum.count(team.members) == 1
-    assert List.first(team.members).id == user.id
+    assert Enum.count(team.members) == 2
   end
 
   test "membership isn't created if invitation doesn't exist", %{conn: conn, jwt: jwt} do

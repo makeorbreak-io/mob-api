@@ -9,7 +9,7 @@ defmodule Api.InviteActions do
     invalid_email: "isn't valid"
   }
 
-  alias Api.{Invite, Repo, Mailer, Email, TeamMember}
+  alias Api.{Invite, Repo, Mailer, Email, TeamMember, UserActions}
 
   def for_current_user(conn) do
     current_user = Guardian.Plug.current_resource(conn)
@@ -27,11 +27,11 @@ defmodule Api.InviteActions do
 
   def create(conn, invite_params) do
     user = Guardian.Plug.current_resource(conn)
-    |> Repo.preload(:team)
+    |> UserActions.add_current_team
 
     changeset = Invite.changeset(%Invite{
       host_id: user.id,
-      team_id: if user.team do user.team.id end
+      team_id: if user.team do user.team.team_id end
     }, invite_params)
 
     result = Repo.insert(changeset)
