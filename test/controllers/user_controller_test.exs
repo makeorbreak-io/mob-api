@@ -45,6 +45,7 @@ defmodule Api.UserControllerTest do
       "team" => %{
         "id" => team.id,
         "name" => team.name,
+        "applied" => team.applied,
         "role" => "owner"
       },
       "tshirt_size" => nil,
@@ -76,6 +77,7 @@ defmodule Api.UserControllerTest do
       "team" => %{
         "id" => team.id,
         "name" => team.name,
+        "applied" => team.applied,
         "role" => "member"
       },
       "tshirt_size" => nil,
