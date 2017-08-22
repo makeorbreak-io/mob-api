@@ -16,9 +16,11 @@ defmodule Api.AdminStatsControllerTest do
   end
 
   test "correct statistics are given", %{conn: conn, admin: admin, jwt: jwt} do
-    Repo.insert!(%User{})
-    Repo.insert!(%User{})
+    Repo.insert! %User{}
+    Repo.insert! %User{}
+    team_owner = Repo.insert! %User{}
     create_team(%{user_id: admin.id, name: "awesome team"})
+    create_team(%{user_id: team_owner.id, name: "awesome team", applied: true})
     workshop = create_workshop
     workshop_attendee = create_user(%{
       email: "example@email.com",
@@ -35,11 +37,12 @@ defmodule Api.AdminStatsControllerTest do
 
     assert json_response(conn, 200)["data"] == %{
       "users" => %{
-        "participants" => 3,
-        "total" => 4
+        "participants" => 4,
+        "total" => 5
       },
       "teams" => %{
-        "total" => 1
+        "total" => 2,
+        "applied" => 1
       },
       "workshops" => [
         %{

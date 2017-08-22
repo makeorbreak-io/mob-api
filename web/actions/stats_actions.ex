@@ -5,6 +5,7 @@ defmodule Api.StatsActions do
 
   def stats do
     participant_query = from u in "users", where: u.role == "participant"
+    applied_teams_query = from t in "teams", where: t.applied == true
 
     workshops = Repo.all(Workshop)
 
@@ -24,7 +25,10 @@ defmodule Api.StatsActions do
     %{
       users: Repo.aggregate(User, :count, :id),
       participants: Repo.aggregate(participant_query, :count, :id),
-      teams: Repo.aggregate(Team, :count, :id),
+      teams: %{
+        total: Repo.aggregate(Team, :count, :id),
+        applied: Repo.aggregate(applied_teams_query, :count, :id)
+      },
       workshops: workshop_stats
     }
   end
