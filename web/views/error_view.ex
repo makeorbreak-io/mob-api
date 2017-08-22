@@ -10,6 +10,7 @@ defmodule Api.ErrorView do
   end
 
   def render("error.json", %{error: error}), do: %{error: error}
+  def render("errors.json", %{error: error}), do: %{errors: error}
 
   # In case no render clause matches or no
   # template is found, let's render it as 500

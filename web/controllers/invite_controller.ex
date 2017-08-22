@@ -49,11 +49,11 @@ defmodule Api.InviteController do
 
   def invite_to_slack(conn, %{"email" => email}) do
     case InviteActions.invite_to_slack(email) do
-      %{"ok" => true} -> send_resp(conn, :created, "")
-      %{"ok" => false, "error" => error} ->
+      {:ok, _} -> send_resp(conn, :created, "")
+      {:error, error} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(Api.ErrorView, "error.json", error: error)
+        |> render(Api.ErrorView, "errors.json", error: error)
     end
   end
 end
