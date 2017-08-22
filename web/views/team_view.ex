@@ -38,7 +38,8 @@ defmodule Api.TeamView do
     %{
       id: team.id,
       name: team.name,
-      role: team.role
+      role: team.role,
+      applied: team.applied
     }
   end
 end
