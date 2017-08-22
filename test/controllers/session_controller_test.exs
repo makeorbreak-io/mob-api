@@ -1,7 +1,7 @@
 defmodule Api.SessionControllerTest do
   use Api.ConnCase
 
-  alias Api.{WorkshopAttendance}
+  alias Api.{Team, WorkshopAttendance}
 
   @valid_credentials %{
     email: "johndoe@example.com",
@@ -18,6 +18,7 @@ defmodule Api.SessionControllerTest do
 
   test "user can login", %{conn: conn} do
     user = create_user
+    team = Repo.insert! %Team{user_id: user.id, name: "awesome team"}
 
     conn = post(conn, session_path(conn, :create, @valid_credentials))
 
@@ -37,7 +38,15 @@ defmodule Api.SessionControllerTest do
       "last_name" => user.last_name,
       "linkedin_url" => user.linkedin_url,
       "role" => user.role,
-      "team" => nil,
+      "team" => %{
+        "name" => team.name,
+        "applied" => team.applied,
+        "id" => team.id,
+        "invites" => nil,
+        "members" => [],
+        "owner" => nil,
+        "project" => nil
+      },
       "tshirt_size" => user.tshirt_size,
       "twitter_handle" => user.twitter_handle,
       "workshops" => []
@@ -56,6 +65,7 @@ defmodule Api.SessionControllerTest do
 
   test "jwt checking works", %{conn: conn} do
     user = create_user
+    team = Repo.insert! %Team{user_id: user.id, name: "awesome team"}
     workshop = create_workshop
     Repo.insert! %WorkshopAttendance{user_id: user.id, workshop_id: workshop.id}
 
@@ -80,7 +90,15 @@ defmodule Api.SessionControllerTest do
       "twitter_handle" => user.twitter_handle,
       "linkedin_url" => user.linkedin_url,
       "bio" => user.bio,
-      "team" => nil,
+      "team" => %{
+        "name" => team.name,
+        "applied" => team.applied,
+        "id" => team.id,
+        "invites" => nil,
+        "members" => [],
+        "owner" => nil,
+        "project" => nil
+      },
       "invitations" => [],
       "role" => user.role,
       "tshirt_size" => nil,

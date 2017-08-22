@@ -65,7 +65,7 @@ defmodule Api.UserView do
       college: user.college,
       company: user.company,
       team: if Ecto.assoc_loaded?(user.team) do
-        render_one(user.team, TeamView, "team_with_role.json") end,
+        render_one(user.team, TeamView, "team.json") end,
       invitations: if Ecto.assoc_loaded?(user.invitations) do
         render_many(user.invitations, InviteView, "invite.json") end,
       tshirt_size: user.tshirt_size,
