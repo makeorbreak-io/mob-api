@@ -9,7 +9,7 @@ defmodule Api.SessionController do
     case Plug.current_resource(conn) do
       %{id: id} -> 
         user = UserActions.get(id)
-        |> Repo.preload([:workshops, invitations: [:host, :team, :invitee]])
+        |> Repo.preload([:workshops, team: [:members], invitations: [:host, :team, :invitee]])
 
         render(conn, UserView, "me.json", user: user)
       nil ->
@@ -21,7 +21,7 @@ defmodule Api.SessionController do
 
   def create(conn, %{"email" => email, "password" => password}) do
     user =  Repo.get_by(User, email: String.downcase(email))
-    |> Repo.preload([:workshops, invitations: [:host, :team, :invitee]])
+    |> Repo.preload([:workshops, team: [:members], invitations: [:host, :team, :invitee]])
 
     user
     |> check_password(password)
