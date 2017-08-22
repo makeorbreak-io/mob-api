@@ -8,7 +8,8 @@ defmodule Api.Admin.StatsView do
           participants: stats.participants
         },
         teams: %{
-          total: stats.teams
+          total: stats.teams.total,
+          applied: stats.teams.applied
         },
         workshops: stats.workshops
       }
