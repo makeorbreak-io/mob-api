@@ -15,6 +15,7 @@ defmodule Api.TeamView do
     %{
       id: team.id,
       name: team.name,
+      applied: team.applied,
       owner: if Ecto.assoc_loaded?(team.owner) do
         render_one(team.owner, UserView, "user_short.json") end,
       members: if Ecto.assoc_loaded?(team.members) do

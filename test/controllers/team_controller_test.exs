@@ -31,6 +31,7 @@ defmodule Api.TeamControllerTest do
     assert json_response(conn, 200)["data"] == %{
       "id" => team.id,
       "name" => team.name,
+      "applied" => team.applied,
       "members" => team.members,
       "invites" => team.invites,
       "owner" => team.owner,
