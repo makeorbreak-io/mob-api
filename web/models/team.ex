@@ -9,7 +9,6 @@ defmodule Api.Team do
   schema "teams" do
     field :name, :string
     field :applied, :boolean, default: false
-    field :user_id, :binary_id
     timestamps()
 
     # Associations

@@ -125,7 +125,7 @@ defmodule Api.TeamControllerTest do
       password: "thisisapassword"
     })
     team = create_team(user)
-    invite = create_invite(%{host_id: user.id, team_id: team.id, invitee_id: invitee.id})
+    create_invite(%{host_id: user.id, team_id: team.id, invitee_id: invitee.id})
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
