@@ -6,7 +6,10 @@ defmodule Api.InviteActions do
     already_invited: "was already invited",
     already_in_team: "is already in the team",
     missing_scope: "couldn't be invited at this time",
-    invalid_email: "isn't valid"
+    invalid_email: "isn't valid",
+    channel_not_found: "couldn't join inexistent channel",
+    user_disabled: "account has been deactivated",
+    sent_recently: "was invited recently"
   }
 
   alias Api.{Invite, Repo, Mailer, Email, TeamMember, UserActions}
