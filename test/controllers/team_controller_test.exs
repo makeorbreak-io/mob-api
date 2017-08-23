@@ -118,7 +118,14 @@ defmodule Api.TeamControllerTest do
   end
 
   test "deletes team if user is a member", %{conn: conn, jwt: jwt, user: user} do
+    invitee = create_user(%{
+      email: "example@email.com",
+      first_name: "Jane",
+      last_name: "doe",
+      password: "thisisapassword"
+    })
     team = create_team(user)
+    invite = create_invite(%{host_id: user.id, team_id: team.id, invitee_id: invitee.id})
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")

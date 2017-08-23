@@ -13,10 +13,9 @@ defmodule Api.Team do
     timestamps()
 
     # Associations
-    has_one :project, Project
-    has_many :invites, Invite
-
-    has_many :members, TeamMember, foreign_key: :team_id
+    has_one :project, Project, on_delete: :delete_all
+    has_many :invites, Invite, on_delete: :delete_all
+    has_many :members, TeamMember, foreign_key: :team_id, on_delete: :delete_all
   end
 
   @doc """
