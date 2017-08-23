@@ -1,17 +1,15 @@
 defmodule Api.UserActions do
   use Api.Web, :action
 
-  alias Api.{User, Invite}
+  alias Api.{User, UserActions, Invite}
 
   def all do
-    Repo.all(User)
-    |> Repo.preload(:team)
+    Enum.map(Repo.all(User), fn(user) -> UserActions.add_current_team(user) end)
   end
 
   def get(id) do
     Repo.get!(User, id)
-    |> Repo.preload([:team, :memberships])
-    |> add_team_role
+    |> add_current_team
   end
 
   def create(user_params) do
@@ -23,7 +21,7 @@ defmodule Api.UserActions do
           set: [invitee_id: ^user.id]
         ]) |> Repo.update_all([])
 
-        {:ok, user}
+        {:ok, add_current_team(user)}
       {:error, changeset} -> {:error, changeset}
     end
   end
@@ -32,14 +30,11 @@ defmodule Api.UserActions do
     current_user = Guardian.Plug.current_resource(conn)
     user = Repo.get!(User, id)
 
-    user
-    |> Repo.preload([:team, :memberships])
-
     changeset = apply(User, String.to_atom("#{current_user.role}_changeset"),
       [user, user_params])
 
     case Repo.update(changeset) do
-      {:ok, user} -> {:ok, add_team_role(user)}
+      {:ok, user} -> {:ok, add_current_team(user)}
       {:error, changeset} -> {:error, changeset}
     end
   end
@@ -49,15 +44,23 @@ defmodule Api.UserActions do
     Repo.delete!(user)
   end
 
-  defp add_team_role(user) do
-    team = 
-      cond do
-        !is_nil(user.team) -> Map.merge(%{role: "owner"}, user.team)
-        !Enum.empty?(user.memberships) ->
-          Map.merge(%{role: "member"}, List.first(user.memberships))
-        true -> nil
-      end
+  def add_current_team(user) do
+    user = user
+    |> Repo.preload([
+      :workshops,
+      invitations: [:host, :team, :invitee],
+      teams: [
+        team: [
+          :invites,
+          :project,
+          members: [:user]
+        ]
+      ]
+    ])
 
-    Kernel.put_in(user.team, team)
+    # Change this condition when year are added to teams
+    membership = List.first(user.teams)
+
+    Map.put(user, :team, membership)
   end
 end

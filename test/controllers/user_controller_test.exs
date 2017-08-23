@@ -1,7 +1,7 @@
 defmodule Api.UserControllerTest do
   use Api.ConnCase
 
-  alias Api.{User, Team, TeamMember}
+  alias Api.{User, TeamMember}
 
   @valid_attrs %{
     email: "johndoe@example.com",
@@ -16,15 +16,21 @@ defmodule Api.UserControllerTest do
   end
 
   test "lists all users on index", %{conn: conn} do
+    user = create_user
     conn = get conn, user_path(conn, :index)
-    assert json_response(conn, 200)["data"] == []
+    assert json_response(conn, 200)["data"] == [%{
+      "display_name" => "#{user.first_name} #{user.last_name}",
+      "gravatar_hash" => "fd876f8cd6a58277fc664d47ea10ad19",
+      "first_name" => user.first_name,
+      "last_name" => user.last_name,
+      "id" => user.id,
+      "tshirt_size" => user.tshirt_size
+    }]
   end
 
   test "shows user with owner role in team", %{conn: conn} do
-    %{id: id} = create_user
-    team = create_team(%{user_id: id, name: "awesome team"})
-
-    user = Repo.get!(User, id)
+    user = create_user
+    team = create_team(user)
 
     conn = get conn, user_path(conn, :show, user)
     
@@ -42,20 +48,20 @@ defmodule Api.UserControllerTest do
       "twitter_handle" => user.twitter_handle,
       "linkedin_url" => user.linkedin_url,
       "bio" => user.bio,
+      "tshirt_size" => nil,
       "team" => %{
         "id" => team.id,
         "name" => team.name,
         "applied" => team.applied,
         "role" => "owner"
-      },
-      "tshirt_size" => nil,
+      }
     }
   end
 
   test "shows user with member role in team", %{conn: conn} do
     owner = create_user(%{email: "user@example.com", password: "thisisapassword"})
     team_member = create_user(%{email: "johndoe@example.com", first_name: "john", last_name: "doe", password: "thisisapassword"})
-    team = Repo.insert! %Team{user_id: owner.id, name: "awesome team"}
+    team = create_team(owner)
     Repo.insert! %TeamMember{user_id: team_member.id, team_id: team.id}
 
     conn = get conn, user_path(conn, :show, team_member)
@@ -128,7 +134,7 @@ defmodule Api.UserControllerTest do
 
   test "associates invites with user on creation", %{conn: conn} do
     owner = create_user(%{email: "user@example.com", password: "thisisapassword"})
-    team = create_team(%{user_id: owner.id, name: "awesome_team"})
+    team = create_team(owner)
     create_invite(%{host_id: owner.id, team_id: team.id, email: "johndoe@example.com"})
     post conn, user_path(conn, :create), user: @valid_attrs
     team_member = Repo.get_by(User, email: "johndoe@example.com") |> Repo.preload(:invitations)

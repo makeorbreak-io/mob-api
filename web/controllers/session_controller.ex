@@ -9,7 +9,8 @@ defmodule Api.SessionController do
     case Plug.current_resource(conn) do
       %{id: id} -> 
         user = UserActions.get(id)
-        |> Repo.preload([:workshops, team: [:members], invitations: [:host, :team, :invitee]])
+        |> Repo.preload([:workshops, invitations: [:host, :team, :invitee]])
+        |> UserActions.add_current_team
 
         render(conn, UserView, "me.json", user: user)
       nil ->
@@ -21,7 +22,7 @@ defmodule Api.SessionController do
 
   def create(conn, %{"email" => email, "password" => password}) do
     user =  Repo.get_by(User, email: String.downcase(email))
-    |> Repo.preload([:workshops, team: [:members], invitations: [:host, :team, :invitee]])
+    |> UserActions.add_current_team
 
     user
     |> check_password(password)
@@ -59,6 +60,7 @@ defmodule Api.SessionController do
     |> put_status(:created)
     |> render(SessionView, "session.json", data: %{jwt: jwt, user: user})
   end
+
   defp handle_check_password(false, conn, _user) do
     conn
     |> put_status(:unprocessable_entity)
