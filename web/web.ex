@@ -54,6 +54,8 @@ defmodule Api.Web do
     quote do
       use Phoenix.View, root: "web/templates"
 
+      use Phoenix.HTML
+
       import Api.Router.Helpers
     end
   end

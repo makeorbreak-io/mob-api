@@ -15,7 +15,7 @@ config :api, Api.Repo,
   adapter: Ecto.Adapters.Postgres,
   url: "#{System.get_env("DB_URL")}-test"
 
-# Bamboo test configuration
+# Bamboo configuration
 config :api, Api.Mailer,
   adapter: Bamboo.TestAdapter
 

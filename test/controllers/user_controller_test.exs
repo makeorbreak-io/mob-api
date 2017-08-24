@@ -1,7 +1,8 @@
 defmodule Api.UserControllerTest do
   use Api.ConnCase
+  use Bamboo.Test, shared: true
 
-  alias Api.{User, TeamMember}
+  alias Api.{User, TeamMember, Email}
 
   @valid_attrs %{
     email: "johndoe@example.com",
@@ -124,7 +125,10 @@ defmodule Api.UserControllerTest do
     conn = post conn, user_path(conn, :create), user: @valid_attrs
 
     assert json_response(conn, 201)["data"]["user"]["id"]
-    assert Repo.get_by(User, email: "johndoe@example.com")
+    user = Repo.get_by(User, email: "johndoe@example.com")
+
+    assert user
+    assert_delivered_email Email.registration_email(user)
   end
 
   test "doesn't create user when data is invalid", %{conn: conn} do
