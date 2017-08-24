@@ -33,11 +33,11 @@ defmodule Api.User do
     field :password, :string, virtual: true
 
     # Associations
-    has_many :invites, Invite, foreign_key: :host_id #, on_delete: :delete_all
-    has_many :invitations, Invite, foreign_key: :invitee_id #, on_delete: :delete_all
-    has_many :teams, TeamMember, foreign_key: :user_id #, on_delete: :delete_all
+    has_many :invites, Invite, foreign_key: :host_id, on_delete: :delete_all
+    has_many :invitations, Invite, foreign_key: :invitee_id, on_delete: :delete_all
+    has_many :teams, TeamMember, foreign_key: :user_id, on_delete: :delete_all
 
-    many_to_many :workshops, Workshop, join_through: WorkshopAttendance #, on_delete: :delete_all
+    many_to_many :workshops, Workshop, join_through: WorkshopAttendance, on_delete: :delete_all
   end
 
   def changeset(struct, params \\ %{}) do
