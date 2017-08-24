@@ -39,9 +39,20 @@ defmodule Api.UserActions do
     end
   end
 
-  def delete(id) do
+  def delete(conn, id) do
+    current_user = Guardian.Plug.current_resource(conn)
     user = Repo.get!(User, id)
-    Repo.delete!(user)
+
+    if user == current_user do
+      Repo.delete(user)
+    else
+      {:unauthorized}
+    end
+  end
+
+  def delete_any(id) do
+    user = Repo.get!(User, id)
+    Repo.delete(user)
   end
 
   def add_current_team(user) do

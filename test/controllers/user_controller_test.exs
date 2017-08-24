@@ -173,10 +173,39 @@ defmodule Api.UserControllerTest do
     assert json_response(conn, 401)["error"] == "Authentication required"
   end
 
-  test "deletes user", %{conn: conn} do
+  test "deletes user if the request is made by that user", %{conn: conn} do
     user = Repo.insert! %User{}
-    conn = delete conn, user_path(conn, :delete, user)
+    {:ok, jwt, _} = Guardian.encode_and_sign(user)
+
+    create_team(user)
+
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> delete(user_path(conn, :delete, user))
+
     assert response(conn, 204)
     refute Repo.get(User, user.id)
   end
+
+  test "doesnt' delete user if the request is made by other user", %{conn: conn} do
+    user = Repo.insert! %User{}
+    {:ok, jwt, _} = Guardian.encode_and_sign(user)
+
+    random_user = Repo.insert! %User{}
+
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> delete(user_path(conn, :delete, random_user))
+
+    assert json_response(conn, 401)
+    assert json_response(conn, 401)["error"] == "Unauthorized"
+  end
+
+  test "doesn't delete when request is unauthenticated", %{conn: conn} do
+    user = Repo.insert! %User{}
+   
+    conn = delete(conn, user_path(conn, :delete, user))
+
+    assert json_response(conn, 401)["error"] == "Authentication required"
+  end  
 end

@@ -28,7 +28,13 @@ defmodule Api.Admin.UserController do
   end
 
   def delete(conn, %{"id" => id}) do
-    UserActions.delete(id)
-    send_resp(conn, :no_content, "")
+    case UserActions.delete_any(id) do
+      {:ok, _} ->
+        send_resp(conn, :no_content, "")
+      {:error, changeset} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(ChangesetView, "error.json", changeset: changeset)
+    end
   end
 end

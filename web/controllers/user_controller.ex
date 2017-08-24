@@ -5,7 +5,7 @@ defmodule Api.UserController do
 
   plug :scrub_params, "user" when action in [:create, :update]
   plug Guardian.Plug.EnsureAuthenticated,
-    [handler: Api.SessionController] when action in [:update]
+    [handler: Api.SessionController] when action in [:update, :delete]
 
   def index(conn, _params) do
     render(conn, "index.json", users: UserActions.all)
@@ -43,7 +43,17 @@ defmodule Api.UserController do
   end
 
   def delete(conn, %{"id" => id}) do
-    UserActions.delete(id)
-    send_resp(conn, :no_content, "")
+    case UserActions.delete(conn, id) do
+      {:ok, _} ->
+        send_resp(conn, :no_content, "")
+      {:error, changeset} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(Api.ChangesetView, "error.json", changeset: changeset)
+      {:unauthorized} ->
+        conn
+        |> put_status(401)
+        |> render(Api.ErrorView, "error.json", error: "Unauthorized")
+    end
   end
 end

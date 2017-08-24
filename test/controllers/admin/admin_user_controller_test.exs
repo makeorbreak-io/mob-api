@@ -1,7 +1,7 @@
 defmodule Api.AdminUserControllerTest do
   use Api.ConnCase
 
-  alias Api.{User}
+  alias Api.{User, WorkshopAttendance}
 
   @valid_attrs %{
     email: "user@example.com",
@@ -134,6 +134,9 @@ defmodule Api.AdminUserControllerTest do
 
   test "deletes user", %{conn: conn, jwt: jwt} do
     user = Repo.insert! %User{}
+    create_team(user)
+    workshop = create_workshop
+    Repo.insert! %WorkshopAttendance{user_id: user.id, workshop_id: workshop.id}
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
