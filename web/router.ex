@@ -9,6 +9,10 @@ defmodule Api.Router do
     plug Guardian.Plug.LoadResource
   end
 
+  if Mix.env == :dev do
+    forward "/sent_emails", Bamboo.EmailPreviewPlug
+  end
+
   scope "/api", Api do
     pipe_through :api
 

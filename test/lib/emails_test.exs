@@ -11,6 +11,20 @@ defmodule Api.EmailsTest do
     email = Email.invite_email(user, host)
 
     assert email.to == user
-    assert email.subject == "#{UserHelper.display_name(host)} invited you to join a team in Make or Break"
+    assert email.subject == "Join #{UserHelper.display_name(host)}'s team in this year's Make or Break!"
+  end
+
+  test "registration email" do
+    user = create_user(%{
+      email: "user@example.com", 
+      password: "thisisapassword",
+      first_name: "Random",
+      last_name: "User"
+      })
+
+    email = Email.registration_email(user)
+
+    assert email.to == user
+    assert email.subject == "Make or Break - You are almost there!"
   end
 end

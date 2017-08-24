@@ -1,7 +1,7 @@
 defmodule Api.UserActions do
   use Api.Web, :action
 
-  alias Api.{User, UserActions, Invite}
+  alias Api.{User, UserActions, Invite, Email, Mailer}
 
   def all do
     Enum.map(Repo.all(User), fn(user) -> UserActions.add_current_team(user) end)
@@ -20,6 +20,8 @@ defmodule Api.UserActions do
         from(i in Invite, where: i.email == ^user.email, update: [
           set: [invitee_id: ^user.id]
         ]) |> Repo.update_all([])
+
+        Email.registration_email(user) |> Mailer.deliver_later
 
         {:ok, add_current_team(user)}
       {:error, changeset} -> {:error, changeset}
