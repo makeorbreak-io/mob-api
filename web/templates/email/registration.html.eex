@@ -20,12 +20,12 @@
     <p style="box-sizing:border-box;font-style:normal;font-variant:normal;font-weight:normal;font-size:16px;font-family:Helvetica,Arial,sans-serif;line-height:normal;color:#808080;margin-top:20px;margin-bottom:20px;margin-right:auto;margin-left:auto;max-width:600px;" >To attend our amazing workshops, follow the links and click in the button at the bottom:</p>
 
     <ul style="box-sizing:border-box;width:100%;padding-top:0;padding-bottom:40px;padding-right:40px;padding-left:40px;font-style:normal;font-variant:normal;font-weight:normal;font-size:16px;font-family:Helvetica,Arial,sans-serif;line-height:normal;color:#808080;margin-top:20px;margin-bottom:20px;margin-right:auto;margin-left:auto;max-width:600px;" >
-      <li style="box-sizing:border-box;" ><a href="https://makeorbreak.portosummerofcode.com/#workshop-iot" style="box-sizing:border-box;color:#5d00f3;text-decoration:underline;" >My First Game with Unity3D 🎮</a></li>
-      <li style="box-sizing:border-box;" ><a href="https://makeorbreak.portosummerofcode.com/#workshop-iot" style="box-sizing:border-box;color:#5d00f3;text-decoration:underline;" >Introduction to 3D Printing and Parametric Design 🔩</a></li>
+      <li style="box-sizing:border-box;" ><a href="https://makeorbreak.portosummerofcode.com/#workshop-unity3d-gamedev" style="box-sizing:border-box;color:#5d00f3;text-decoration:underline;" >My First Game with Unity3D 🎮</a></li>
+      <li style="box-sizing:border-box;" ><a href="https://makeorbreak.portosummerofcode.com/#workshop-3d-printing" style="box-sizing:border-box;color:#5d00f3;text-decoration:underline;" >Introduction to 3D Printing and Parametric Design 🔩</a></li>
       <li style="box-sizing:border-box;" ><a href="https://makeorbreak.portosummerofcode.com/#workshop-iot" style="box-sizing:border-box;color:#5d00f3;text-decoration:underline;" >Introduction to the Arduino ecosystem and the Internet of Things 💡</a></li>
-      <li style="box-sizing:border-box;" ><a href="https://makeorbreak.portosummerofcode.com/#workshop-iot" style="box-sizing:border-box;color:#5d00f3;text-decoration:underline;" >A Server From Scratch — A DevOps Primer 🖥️</a></li>
-      <li style="box-sizing:border-box;" ><a href="https://makeorbreak.portosummerofcode.com/#workshop-iot" style="box-sizing:border-box;color:#5d00f3;text-decoration:underline;" >Should Coders Design? 📝</a></li>
-      <li style="box-sizing:border-box;" ><a href="https://makeorbreak.portosummerofcode.com/#workshop-iot" style="box-sizing:border-box;color:#5d00f3;text-decoration:underline;" >Hitchhiker’s Guide to Hardware Maintenance ✨</a></li>
+      <li style="box-sizing:border-box;" ><a href="https://makeorbreak.portosummerofcode.com/#workshop-devops" style="box-sizing:border-box;color:#5d00f3;text-decoration:underline;" >A Server From Scratch — A DevOps Primer 🖥️</a></li>
+      <li style="box-sizing:border-box;" ><a href="https://makeorbreak.portosummerofcode.com/#workshop-design" style="box-sizing:border-box;color:#5d00f3;text-decoration:underline;" >Should Coders Design? 📝</a></li>
+      <li style="box-sizing:border-box;" ><a href="https://makeorbreak.portosummerofcode.com/#workshop-hardware-maintenance" style="box-sizing:border-box;color:#5d00f3;text-decoration:underline;" >Hitchhiker’s Guide to Hardware Maintenance ✨</a></li>
     </ul>
 
     <p style="box-sizing:border-box;font-style:normal;font-variant:normal;font-weight:normal;font-size:16px;font-family:Helvetica,Arial,sans-serif;line-height:normal;color:#808080;margin-top:20px;margin-bottom:20px;margin-right:auto;margin-left:auto;max-width:600px;" >Additionally, you can expect a welcome pack full of goodies, <a href="https://makeorbreak.portosummerofcode.com/#prizes" style="box-sizing:border-box;color:#5d00f3;text-decoration:underline;" >prizes for the winners</a>, free food and drinks, video games, board games, and a lot of fun!</p>
@@ -37,4 +37,3 @@
     </p>
   </td>
 </tr>
-
