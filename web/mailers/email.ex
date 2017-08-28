@@ -22,6 +22,28 @@ defmodule Api.Email do
     |> render("registration.html")
   end
 
+  def joined_hackathon_email(recipient, team) do
+    base_email
+    |> to(recipient)
+    |> subject("Welcome to the Make or Break hackathon!")
+    |> put_html_layout({Api.LayoutView, "email.html"})
+    |> assign(:title, "Welcome to the Make or Break hackathon!")
+    |> assign(:name, UserHelper.display_name(recipient))
+    |> assign(:team_name, team.name)
+    |> render("hackathon.html")
+  end
+
+  def joined_workshop_email(recipient, workshop) do
+    base_email
+    |> to(recipient)
+    |> subject("You have applied to #{workshop.name}")
+    |> put_html_layout({Api.LayoutView, "email.html"})
+    |> assign(:title, "You have applied to #{workshop.name}")
+    |> assign(:name, UserHelper.display_name(recipient))
+    |> assign(:workshop, workshop)
+    |> render("workshop.html")
+  end
+
   defp base_email do
     # Here you can set a default from, default headers, etc.
     new_email

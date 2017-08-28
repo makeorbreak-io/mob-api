@@ -3,6 +3,9 @@ defmodule Api.WorkshopController do
 
   alias Api.{WorkshopActions, ErrorView}
 
+  plug Guardian.Plug.EnsureAuthenticated,
+    [handler: Api.SessionController] when action in [:join, :leave]
+
   def index(conn, _params) do
     render(conn, "index.json", workshops: WorkshopActions.all)
   end

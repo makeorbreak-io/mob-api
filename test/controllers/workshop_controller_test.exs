@@ -1,7 +1,8 @@
 defmodule Api.WorkshopControllerTest do
   use Api.ConnCase
+  use Bamboo.Test, shared: true
 
-  alias Api.{WorkshopAttendance}
+  alias Api.{WorkshopAttendance, Email}
 
   setup %{conn: conn} do
     user = create_user
@@ -57,7 +58,7 @@ defmodule Api.WorkshopControllerTest do
     }
   end
 
-  test "user can join workshops if there are vacancies", %{conn: conn, jwt: jwt} do
+  test "user can join workshops if there are vacancies", %{conn: conn, jwt: jwt, user: user} do
     workshop = create_workshop
 
     conn = conn
@@ -65,6 +66,7 @@ defmodule Api.WorkshopControllerTest do
     |> post(workshop_path(conn, :join, workshop))
 
     assert response(conn, 201)
+    assert_delivered_email Email.joined_workshop_email(user, workshop)
   end
 
   test "user can't join workshop if it's full", %{conn: conn, jwt: jwt} do

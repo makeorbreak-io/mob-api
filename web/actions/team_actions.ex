@@ -1,7 +1,7 @@
 defmodule Api.TeamActions do
   use Api.Web, :action
 
-  alias Api.{Team, User, TeamMember}
+  alias Api.{Team, User, TeamMember, Email, Mailer}
 
   def all do
     Repo.all(Team)
@@ -31,19 +31,14 @@ defmodule Api.TeamActions do
   def update(conn, id, team_params) do
     user = Guardian.Plug.current_resource(conn)
 
-    team = Repo.get!(Team, id)
+    team = get(id)
 
     if is_team_member?(team, user) do
       changeset = Team.changeset(team, team_params)
 
-      case Repo.update(changeset) do
-        {:ok, team} ->
-          team = team
-          |> Repo.preload([:project, :invites, members: [:user]])
+      email_if_applying(team, changeset)
 
-          {:ok, team}
-        {:error, changeset} -> {:error, changeset}
-      end
+      Repo.update(changeset)
     else
       {:unauthorized}
     end
@@ -98,5 +93,16 @@ defmodule Api.TeamActions do
     Enum.any?(team.members, fn(member) ->
       member.user_id == user.id
     end)
+  end
+
+  defp email_if_applying(team, changeset) do
+    applied_change = Map.has_key?(changeset.changes, :applied)
+    applied_true = Map.get(changeset.changes, :applied) == true
+
+    if applied_change and applied_true do
+      Enum.map(team.members, fn(member) ->
+        Email.joined_hackathon_email(member.user, team) |> Mailer.deliver_later
+      end)
+    end
   end
 end
