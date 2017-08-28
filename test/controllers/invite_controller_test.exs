@@ -2,7 +2,7 @@ defmodule Api.InviteControllerTest do
   use Api.ConnCase
   use Bamboo.Test, shared: true
 
-  alias Api.{Invite, Email}
+  alias Api.{Invite, Email, TeamMember}
 
   setup %{conn: conn} do
     user = create_user
@@ -124,7 +124,24 @@ defmodule Api.InviteControllerTest do
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> post(invite_path(conn, :create), invite: %{})
 
-    assert json_response(conn, 422)["errors"] != %{}
+    assert json_response(conn, 422)["error"] == "Couldn't make changes to your team"
+  end
+
+  test "doesn't create invite if user limit is reached", %{conn: conn, jwt: jwt, user: user} do
+    team = create_team(user)
+
+    member1 = create_user(%{email: "user1@example.com", password: "thisisapassword"})
+    member2 = create_user(%{email: "user2@example.com", password: "thisisapassword"})
+
+    Repo.insert! %TeamMember{user_id: member1.id, team_id: team.id}
+    Repo.insert! %TeamMember{user_id: member2.id, team_id: team.id}
+    create_invite(%{host_id: user.id, team_id: team.id})
+
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> post(invite_path(conn, :create, invite: %{email: "user3@example.org"}))
+
+    assert json_response(conn, 422)["error"] == "Team user limit reached"
   end
 
   test "membership is created when invitation is accepted", %{conn: conn, jwt: jwt, user: user} do

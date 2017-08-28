@@ -24,6 +24,14 @@ defmodule Api.InviteController do
         conn
         |> put_status(:unprocessable_entity)
         |> render(Api.ChangesetView, "error.json", changeset: changeset)
+      {:usr_limit_reached} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(Api.ErrorView, "error.json", error: "Team user limit reached")
+      {:usr_no_team} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(Api.ErrorView, "error.json", error: "Couldn't make changes to your team")
     end
   end
 
