@@ -3,10 +3,10 @@
 </tr>
 <tr style="box-sizing:border-box;" >
   <td class="body" style="box-sizing:border-box;font-style:normal;font-variant:normal;font-weight:normal;font-size:16px;font-family:Helvetica,Arial,sans-serif;line-height:normal;" >
-    <p style="box-sizing:border-box;font-style:normal;font-variant:normal;font-weight:normal;font-size:16px;font-family:Helvetica,Arial,sans-serif;line-height:normal;color:#808080;margin-top:20px;margin-bottom:20px;margin-right:auto;margin-left:auto;max-width:600px;" >Hello,</p>
+    <p style="box-sizing:border-box;font-style:normal;font-variant:normal;font-weight:normal;font-size:16px;font-family:Helvetica,Arial,sans-serif;line-height:normal;color:#808080;margin-top:20px;margin-bottom:20px;margin-right:auto;margin-left:auto;max-width:600px;" >Hello <%= @name %>,</p>
     <p style="box-sizing:border-box;font-style:normal;font-variant:normal;font-weight:normal;font-size:16px;font-family:Helvetica,Arial,sans-serif;line-height:normal;color:#808080;margin-top:20px;margin-bottom:20px;margin-right:auto;margin-left:auto;max-width:600px;" ><%= @host_name %> has invited you to join their team in this year's Make or Break competition.</p>
 
-    <p style="box-sizing:border-box;font-style:normal;font-variant:normal;font-weight:normal;font-size:16px;font-family:Helvetica,Arial,sans-serif;line-height:normal;color:#808080;margin-top:20px;margin-bottom:20px;margin-right:auto;margin-left:auto;max-width:600px;" >Head over to <a href="https://makeorbreak.portosummerofcode.com" style="box-sizing:border-box;color:#5d00f3;text-decoration:underline;" >makeorbreak.portosummerofcode.com</a> and sign up as <%= @email %> to accept the invitation! Registrations end on September 2nd.</p>
+    <p style="box-sizing:border-box;font-style:normal;font-variant:normal;font-weight:normal;font-size:16px;font-family:Helvetica,Arial,sans-serif;line-height:normal;color:#808080;margin-top:20px;margin-bottom:20px;margin-right:auto;margin-left:auto;max-width:600px;" >Head over to <a href="https://makeorbreak.portosummerofcode.com" style="box-sizing:border-box;color:#5d00f3;text-decoration:underline;" >makeorbreak.portosummerofcode.com</a> and sign-in as <%= @email %> to accept the invitation and join your friends in this year's Make or Break.</p>
 
 
     <p style="box-sizing:border-box;font-style:normal;font-variant:normal;font-weight:normal;font-size:16px;font-family:Helvetica,Arial,sans-serif;line-height:normal;color:#808080;margin-top:20px;margin-bottom:20px;margin-right:auto;margin-left:auto;max-width:600px;" >

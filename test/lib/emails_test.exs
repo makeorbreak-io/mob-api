@@ -5,12 +5,11 @@ defmodule Api.EmailsTest do
   alias Api.{Email, UserHelper}
 
   test "invite email" do
-    user = create_user(%{email: "user@example.com", password: "thisisapassword"})
     host = create_user(%{email: "host@example.com", password: "thisisapassword"})
 
-    email = Email.invite_email(user, host)
+    email = Email.invite_email("email@example.com", host)
 
-    assert email.to == user
+    assert email.to == "email@example.com"
     assert email.subject == "Join #{UserHelper.display_name(host)}'s team in this year's Make or Break!"
   end
 
