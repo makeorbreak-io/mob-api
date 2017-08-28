@@ -71,12 +71,19 @@ defmodule Api.TeamActions do
       user ->
         current_user = Guardian.Plug.current_resource(conn)
 
+        query = from(t in TeamMember, where:
+          t.user_id == ^user.id and t.team_id == ^team.id)
+
         if is_team_member?(team, current_user) do
-          case from(t in TeamMember, where: t.user_id == ^user.id and t.team_id == ^team.id) |> Repo.delete_all do
-            {1, nil} ->
-              {:ok}
-            {0, nil} ->
-              {:error, "User isn't a member of team"}
+          if !team.applied do
+            case Repo.delete_all(query) do
+              {1, nil} ->
+                {:ok}
+              {0, _} ->
+                {:error, "User isn't a member of team"}
+            end
+          else
+            {:error, "Can't remove users after applying to the event"}       
           end
         else
           {:error, "Unauthorized"}
