@@ -159,7 +159,7 @@ defmodule Api.TeamControllerTest do
     assert response(conn, 204)
   end
 
-  test "remove membership works if triggered by own member", %{conn: conn, jwt: jwt, user: user} do
+  test "remove membership works if triggered by team member", %{conn: conn, jwt: jwt, user: user} do
     owner = create_user(%{email: "user@example.com", password: "thisisapassword"})
     team = create_team(owner)
     Repo.insert! %TeamMember{user_id: user.id, team_id: team.id}
@@ -219,5 +219,19 @@ defmodule Api.TeamControllerTest do
     
     assert response(conn, 401)
     assert json_response(conn, 401)["error"] == "User isn't a member of team"
+  end
+
+
+  test "remove membership doesn't work if team is applied", %{conn: conn, jwt: jwt, user: user} do
+    member = create_user(%{email: "user@example.com", password: "thisisapassword"})
+    team = create_team(user, %{name: "awesome team", applied: true})
+    Repo.insert! %TeamMember{user_id: member.id, team_id: team.id}
+    
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> delete(team_path(conn, :remove, team, member.id))
+    
+    assert response(conn, 401)
+    assert json_response(conn, 401)["error"] == "Can't remove users after applying to the event"
   end
 end
