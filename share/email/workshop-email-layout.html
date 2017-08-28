@@ -104,31 +104,14 @@
       <td class="title"><%= @title %></td>
     </tr>
     <tr>
-      <td class="body">
-        <p>Hello,</p>
-        <p><%= host_name %> wants you to join his/her team in this year's Make or Break.</p>
-
-        <p>Make or Break is the successor to Porto Summer of Code, and we changed a few things:</p>
-
+      <td>
+        <p>Hello <%= @name %>,</p>
+        <p>You have just confirmed your presence in the Make or Break workshop:</p>
         <ul>
-          <li>A 48 hours hackathon with a hack fair in the last day</li>
-          <li>The hack fair will have all participants test and vote on the best projects</li>
+          <li><%= @workshop.name %></li>
         </ul>
 
-        <p>We also have 6 fantastic workshops for you:</p>
-
-        <ul>
-          <li><a href="https://makeorbreak.portosummerofcode.com/#workshop-iot">My First Game with Unity3D 🎮</a></li>
-          <li><a href="https://makeorbreak.portosummerofcode.com/#workshop-iot">Introduction to 3D Printing and Parametric Design 🔩</a></li>
-          <li><a href="https://makeorbreak.portosummerofcode.com/#workshop-iot">Introduction to the Arduino ecosystem and the Internet of Things 💡</a></li>
-          <li><a href="https://makeorbreak.portosummerofcode.com/#workshop-iot">A Server From Scratch — A DevOps Primer 🖥️</a></li>
-          <li><a href="https://makeorbreak.portosummerofcode.com/#workshop-iot">Should Coders Design? 📝</a></li>
-          <li><a href="https://makeorbreak.portosummerofcode.com/#workshop-iot">Hitchhiker’s Guide to Hardware Maintenance ✨</a></li>
-        </ul>
-
-        <p>Additionally, you can expect a welcome pack full of goodies, <a href="https://makeorbreak.portosummerofcode.com/#prizes">prizes for the winners</a>, free food and drinks, video games, board games, and a lot of fun!</p>
-
-        <p>Head over to <a href="https://makeorbreak.portosummerofcode.com">makeorbreak.portosummerofcode.com</a> and sign up now! Registrations end on September 2nd.</p>
+        <p>If, for some reason, you can’t attend the workshop, you should leave the workshop as soon as possible, by visiting the workshop page <a href="https://makeorbreak.portosummerofcode.com/#workshop-#{<%= @workshop.slug %>}">here</a></p>
 
 
         <p>
@@ -166,4 +149,3 @@
   </table>
 </body>
 </html>
-

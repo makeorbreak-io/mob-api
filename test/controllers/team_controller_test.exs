@@ -1,7 +1,8 @@
 defmodule Api.TeamControllerTest do
   use Api.ConnCase
+  use Bamboo.Test, shared: true
 
-  alias Api.{Team, TeamMember}
+  alias Api.{Team, TeamMember, Email}
 
   @valid_attrs %{name: "some content"}
   @invalid_attrs %{name: ""}
@@ -83,6 +84,23 @@ defmodule Api.TeamControllerTest do
 
     assert json_response(conn, 200)["data"]["id"]
     assert Repo.get_by(Team, @valid_attrs)
+  end
+
+  test "sends emails to team members when team applies", %{conn: conn, jwt: jwt, user: user} do
+    member1 = create_user(%{email: "user1@example.com", password: "thisisapassword"})
+    member2 = create_user(%{email: "user2@example.com", password: "thisisapassword"})
+    team = create_team(user)
+    Repo.insert! %TeamMember{user_id: member1.id, team_id: team.id}
+    Repo.insert! %TeamMember{user_id: member2.id, team_id: team.id}
+
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> put(team_path(conn, :update, team), team: %{applied: true, name: "team"})
+
+    assert json_response(conn, 200)["data"]["id"]
+    assert_delivered_email Email.joined_hackathon_email(user, team)
+    assert_delivered_email Email.joined_hackathon_email(member1, team)
+    assert_delivered_email Email.joined_hackathon_email(member2, team)
   end
 
   test "doesn't update team when request is invalid", %{conn: conn, user: user} do

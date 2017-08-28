@@ -45,13 +45,9 @@ defmodule Api.InviteActions do
           team_id: user.team.team_id,
         }, invite_params)
 
-        result = Repo.insert(changeset)
+        maybe_invite_by_email(changeset, user)
 
-        if invite_params["email"] do
-          Email.invite_email(invite_params["email"], user) |> Mailer.deliver_later
-        end
-
-        result
+        Repo.insert(changeset)
       else
         {:usr_limit_reached}
       end
@@ -90,6 +86,14 @@ defmodule Api.InviteActions do
       %{"ok" => false, "error" => error} ->
         error_message = Map.get(@slack_error_codes, String.to_atom(error))
         {:error, %{"email" => [error_message]}}
+    end
+  end
+
+  defp maybe_invite_by_email(changeset, user) do
+    if Map.has_key?(changeset.changes, :email) do
+      Map.get(changeset.changes, :email)
+      |> Email.invite_email(user)
+      |> Mailer.deliver_later
     end
   end
 end
