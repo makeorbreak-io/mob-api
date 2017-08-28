@@ -13,7 +13,7 @@ defmodule Api.InviteActions do
   }
   @team_user_limit Application.get_env(:api, :team_user_limit)
 
-  alias Api.{Invite, Repo, Mailer, Email, TeamMember, UserActions}
+  alias Api.{Invite, Repo, Mailer, Email, TeamMember, UserActions, User}
 
   def for_current_user(conn) do
     current_user = Guardian.Plug.current_resource(conn)
@@ -45,7 +45,7 @@ defmodule Api.InviteActions do
           team_id: user.team.team_id,
         }, invite_params)
 
-        maybe_invite_by_email(changeset, user)
+        send_invite_email(changeset, user)
 
         Repo.insert(changeset)
       else
@@ -89,11 +89,16 @@ defmodule Api.InviteActions do
     end
   end
 
-  defp maybe_invite_by_email(changeset, user) do
-    if Map.has_key?(changeset.changes, :email) do
-      Map.get(changeset.changes, :email)
-      |> Email.invite_email(user)
-      |> Mailer.deliver_later
+  defp send_invite_email(changeset, host) do
+    cond do
+      Map.has_key?(changeset.changes, :email) ->
+        Map.get(changeset.changes, :email)
+        |> Email.invite_email(host)
+        |> Mailer.deliver_later
+      Map.has_key?(changeset.changes, :invitee_id) ->
+        Repo.get(User, Map.get(changeset.changes, :invitee_id))
+        |> Email.invite_notification_email(host)
+        |> Mailer.deliver_later
     end
   end
 end

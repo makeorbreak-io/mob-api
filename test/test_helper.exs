@@ -15,7 +15,8 @@ defmodule Api.TestHelper do
   @valid_workshop_attrs %{
     name: "awesome workshop",
     slug: "awesome-workshop",
-    participant_limit: 1
+    participant_limit: 1,
+    short_date: "SUNDAY 10TH — 10:30"
   }
 
   def create_user(params \\ @valid_user_attrs) do

@@ -119,6 +119,24 @@ defmodule Api.InviteControllerTest do
     assert_delivered_email Email.invite_email("user@example.org", user)
   end
 
+  test "creates invite and sends email notification", %{conn: conn, jwt: jwt, user: user} do
+    create_team(user)
+    random_user = create_user(%{
+      email: "user@email.com",
+      first_name: "Jane",
+      last_name: "Doe",
+      password: "thisisapassword"
+    })
+
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> post(invite_path(conn, :create, invite: %{invitee_id: random_user.id}))
+
+    assert json_response(conn, 201)["data"]["id"]
+    assert Repo.get(Invite, json_response(conn, 201)["data"]["id"])
+    assert_delivered_email Email.invite_notification_email(random_user, user)
+  end
+
   test "doesn't create invite when data is invalid", %{conn: conn, jwt: jwt} do
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")

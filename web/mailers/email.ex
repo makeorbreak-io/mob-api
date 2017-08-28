@@ -9,7 +9,20 @@ defmodule Api.Email do
     |> put_html_layout({Api.LayoutView, "email.html"})
     |> assign(:title, "Join #{UserHelper.display_name(host)}'s team in this year's Make or Break")
     |> assign(:host_name, UserHelper.display_name(host))
+    |> assign(:email, recipient)
     |> render("invite.html")
+  end
+
+  def invite_notification_email(recipient, host) do
+    base_email
+    |> to(recipient)
+    |> subject("Join #{UserHelper.display_name(host)}'s team in this year's Make or Break!")
+    |> put_html_layout({Api.LayoutView, "email.html"})
+    |> assign(:title, "Join #{UserHelper.display_name(host)}'s team in this year's Make or Break")
+    |> assign(:host_name, UserHelper.display_name(host))
+    |> assign(:name, UserHelper.display_name(recipient))
+    |> assign(:email, recipient.email)
+    |> render("invite_notification.html")
   end
 
   def registration_email(recipient) do
@@ -47,6 +60,6 @@ defmodule Api.Email do
   defp base_email do
     # Here you can set a default from, default headers, etc.
     new_email
-    |> from("info@portosummerofcode.com")
+    |> from({"Porto Summer of Code", "info@portosummerofcode.com"})
   end
 end
