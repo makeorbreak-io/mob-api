@@ -14,9 +14,10 @@ defmodule Api.InviteActions do
   @team_user_limit Application.get_env(:api, :team_user_limit)
 
   alias Api.{Invite, Repo, Mailer, Email, TeamMember, UserActions, User}
+  alias Guardian.{Plug}
 
   def for_current_user(conn) do
-    current_user = Guardian.Plug.current_resource(conn)
+    current_user = Plug.current_resource(conn)
 
     Invite
     |> where(invitee_id: ^current_user.id)
@@ -30,7 +31,7 @@ defmodule Api.InviteActions do
   end
 
   def create(conn, invite_params) do
-    user = Guardian.Plug.current_resource(conn)
+    user = Plug.current_resource(conn)
     |> UserActions.add_current_team
 
     if user.team do
@@ -80,7 +81,7 @@ defmodule Api.InviteActions do
     headers = %{"Content-Type" => "application/x-www-form-urlencoded"}
 
     {:ok, response} = HTTPoison.post(invite_url, "", headers)
-    
+
     case Poison.decode! response.body do
       %{"ok" => true} -> {:ok, true}
       %{"ok" => false, "error" => error} ->
@@ -99,6 +100,7 @@ defmodule Api.InviteActions do
         Repo.get(User, Map.get(changeset.changes, :invitee_id))
         |> Email.invite_notification_email(host)
         |> Mailer.deliver_later
+      true -> nil
     end
   end
 end

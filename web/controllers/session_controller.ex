@@ -3,21 +3,19 @@ defmodule Api.SessionController do
 
   alias Api.{User, UserActions, Repo, SessionView, ErrorView, UserView}
   alias Comeonin.Bcrypt
-  alias Guardian.Plug
+  alias Guardian.{Plug, Permissions}
+
+  plug Guardian.Plug.EnsureAuthenticated,
+    [handler: Api.ErrorController] when action in [:me]
 
   def me(conn, _params) do
-    case Plug.current_resource(conn) do
-      %{id: id} -> 
-        user = UserActions.get(id)
-        |> Repo.preload([:workshops, invitations: [:host, :team, :invitee]])
-        |> UserActions.add_current_team
+    %{id: id} = Plug.current_resource(conn)
 
-        render(conn, UserView, "me.json", user: user)
-      nil ->
-        conn
-        |> put_status(401)
-        |> render(ErrorView, "error.json", error: "Authentication required")
-    end
+    user = UserActions.get(id)
+    |> Repo.preload([:workshops, invitations: [:host, :team, :invitee]])
+    |> UserActions.add_current_team
+
+    render(conn, UserView, "me.json", user: user)
   end
 
   def create(conn, %{"email" => email, "password" => password}) do
@@ -35,18 +33,6 @@ defmodule Api.SessionController do
     |> render(SessionView, "session.json", data: %{})
   end
 
-  def unauthenticated(conn, _params) do
-    conn
-    |> put_status(401)
-    |> render(ErrorView, "error.json", error: "Authentication required")
-  end
-
-  def unauthorized(conn, _params) do
-    conn
-    |> put_status(401)
-    |> render(ErrorView, "error.json", error: "Unauthorized")
-  end
-
   defp check_password(nil, _password), do: false
   defp check_password(user, password) do
     Bcrypt.checkpw(password, user.password_hash)
@@ -54,7 +40,7 @@ defmodule Api.SessionController do
 
   defp handle_check_password(true, conn, user) do
     {:ok, jwt, _full_claims} =
-      Guardian.encode_and_sign(user, :token, perms: %{"#{user.role}": Guardian.Permissions.max})
+      Guardian.encode_and_sign(user, :token, perms: %{"#{user.role}": Permissions.max})
 
     conn
     |> put_status(:created)
@@ -74,6 +60,7 @@ defmodule Api.SessionController do
 
     token
     |> Guardian.revoke!(claims)
+
     conn
   end
 end

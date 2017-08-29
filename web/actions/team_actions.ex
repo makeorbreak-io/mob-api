@@ -2,6 +2,7 @@ defmodule Api.TeamActions do
   use Api.Web, :action
 
   alias Api.{Team, User, TeamMember, Email, Mailer}
+  alias Guardian.{Plug}
 
   def all do
     Repo.all(Team)
@@ -13,7 +14,7 @@ defmodule Api.TeamActions do
   end
 
   def create(conn, team_params) do
-    current_user = Guardian.Plug.current_resource(conn)
+    current_user = Plug.current_resource(conn)
     changeset = Team.changeset(%Team{}, team_params)
 
     case Repo.insert(changeset) do
@@ -29,7 +30,7 @@ defmodule Api.TeamActions do
   end
 
   def update(conn, id, team_params) do
-    user = Guardian.Plug.current_resource(conn)
+    user = Plug.current_resource(conn)
 
     team = get(id)
 
@@ -45,15 +46,14 @@ defmodule Api.TeamActions do
   end
 
   def delete(conn, id) do
-    user = Guardian.Plug.current_resource(conn)
- 
+    user = Plug.current_resource(conn)
+
     team = Repo.get!(Team, id)
 
     if is_team_member?(team, user) do
-      Repo.delete!(team)
-      {:ok}
+      Repo.delete(team)
     else
-      {:error, "Unauthorized"}
+      {:unauthorized}
     end
   end
 
@@ -64,24 +64,24 @@ defmodule Api.TeamActions do
       nil ->
         {:error, "User not found"}
       user ->
-        current_user = Guardian.Plug.current_resource(conn)
+        current_user = Plug.current_resource(conn)
 
         query = from(t in TeamMember, where:
           t.user_id == ^user.id and t.team_id == ^team.id)
 
         if is_team_member?(team, current_user) do
-          if !team.applied do
+          if team.applied do
+            {:error, "Can't remove users after applying to the event"}
+          else
             case Repo.delete_all(query) do
               {1, nil} ->
                 {:ok}
               {0, _} ->
                 {:error, "User isn't a member of team"}
             end
-          else
-            {:error, "Can't remove users after applying to the event"}       
           end
         else
-          {:error, "Unauthorized"}
+          {:unauthorized}
         end
     end
   end

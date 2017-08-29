@@ -10,7 +10,7 @@ defmodule Api.Invite do
     field :open, :boolean, default: false
     field :description, :string
     field :email, :string
-    
+
     belongs_to :invitee, User, foreign_key: :invitee_id
     belongs_to :host, User, foreign_key: :host_id
     belongs_to :team, Team

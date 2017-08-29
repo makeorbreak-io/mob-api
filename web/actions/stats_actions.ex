@@ -11,7 +11,7 @@ defmodule Api.StatsActions do
 
     workshop_stats = Enum.map(workshops, fn(workshop) ->
       query = from w in "users_workshops", where: w.workshop_id == type(^workshop.id, Ecto.UUID)
-      
+
       attendees_count = Repo.aggregate(query, :count, :workshop_id)
 
       %{

@@ -2,6 +2,7 @@ defmodule Api.UserActions do
   use Api.Web, :action
 
   alias Api.{User, UserActions, Invite, Email, Mailer}
+  alias Guardian.{Plug}
 
   def all do
     Enum.map(Repo.all(User), fn(user) -> UserActions.add_current_team(user) end)
@@ -29,7 +30,7 @@ defmodule Api.UserActions do
   end
 
   def update(conn, id, user_params) do
-    current_user = Guardian.Plug.current_resource(conn)
+    current_user = Plug.current_resource(conn)
     user = Repo.get!(User, id)
 
     changeset = apply(User, String.to_atom("#{current_user.role}_changeset"),
@@ -42,7 +43,7 @@ defmodule Api.UserActions do
   end
 
   def delete(conn, id) do
-    current_user = Guardian.Plug.current_resource(conn)
+    current_user = Plug.current_resource(conn)
     user = Repo.get!(User, id)
 
     if user == current_user do

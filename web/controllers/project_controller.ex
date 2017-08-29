@@ -1,12 +1,12 @@
 defmodule Api.ProjectController do
 
   use Api.Web, :controller
-  
-  alias Api.ProjectActions
-  
+
+  alias Api.{ProjectActions, ErrorController}
+
   plug :scrub_params, "project" when action in [:create, :update]
   plug Guardian.Plug.EnsureAuthenticated,
-    [handler: Api.SessionController] when action in [:create, :update, :delete]
+    [handler: Api.ErrorController] when action in [:create, :update, :delete]
 
   def index(conn, _params) do
     render(conn, "index.json", projects: ProjectActions.all)
@@ -19,10 +19,7 @@ defmodule Api.ProjectController do
         |> put_status(:created)
         |> put_resp_header("location", project_path(conn, :show, project))
         |> render("show.json", project: project)
-      {:error, changeset} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> render(Api.ChangesetView, "error.json", changeset: changeset)
+      {:error, changeset} -> ErrorController.changeset_error(conn, changeset)
     end
   end
 
@@ -32,12 +29,8 @@ defmodule Api.ProjectController do
 
   def update(conn, %{"id" => id, "project" => project_params}) do
     case ProjectActions.update(id, project_params) do
-      {:ok, project} ->
-        render(conn, "show.json", project: project)
-      {:error, changeset} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> render(Api.ChangesetView, "error.json", changeset: changeset)
+      {:ok, project} -> render(conn, "show.json", project: project)
+      {:error, changeset} -> ErrorController.changeset_error(conn, changeset)
     end
   end
 

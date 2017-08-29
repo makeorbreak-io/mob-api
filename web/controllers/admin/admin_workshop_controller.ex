@@ -1,12 +1,12 @@
 defmodule Api.Admin.WorkshopController do
   use Api.Web, :controller
 
-  alias Api.{WorkshopActions, SessionController, ChangesetView}
+  alias Api.{WorkshopActions, ErrorController}
   alias Guardian.Plug.{EnsureAuthenticated, EnsurePermissions}
 
   plug :scrub_params, "workshop" when action in [:create, :update]
-  plug EnsureAuthenticated, [handler: SessionController]
-  plug EnsurePermissions, [handler: SessionController, admin: ~w(full)]
+  plug EnsureAuthenticated, [handler: ErrorController]
+  plug EnsurePermissions, [handler: ErrorController, admin: ~w(full)]
 
   def index(conn, _params) do
     render(conn, "index.json", workshops: WorkshopActions.all)
@@ -23,10 +23,7 @@ defmodule Api.Admin.WorkshopController do
         |> put_status(:created)
         |> put_resp_header("location", workshop_path(conn, :show, workshop))
         |> render("show.json", workshop: workshop)
-      {:error, changeset} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> render(ChangesetView, "error.json", changeset: changeset)
+      {:error, changeset} -> ErrorController.changeset_error(conn, changeset)
     end
   end
 
@@ -34,10 +31,7 @@ defmodule Api.Admin.WorkshopController do
     case WorkshopActions.update(id, workshop_params) do
       {:ok, workshop} ->
         render(conn, "show.json", workshop: workshop)
-      {:error, changeset} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> render(ChangesetView, "error.json", changeset: changeset)
+      {:error, changeset} -> ErrorController.changeset_error(conn, changeset)
     end
   end
 

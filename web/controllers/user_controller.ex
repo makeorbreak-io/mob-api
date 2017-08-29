@@ -1,11 +1,11 @@
 defmodule Api.UserController do
   use Api.Web, :controller
 
-  alias Api.{UserActions, SessionView, ChangesetView}
+  alias Api.{UserActions, SessionView, ErrorController}
 
   plug :scrub_params, "user" when action in [:create, :update]
   plug Guardian.Plug.EnsureAuthenticated,
-    [handler: Api.SessionController] when action in [:update, :delete]
+    [handler: Api.ErrorController] when action in [:update, :delete]
 
   def index(conn, _params) do
     render(conn, "index.json", users: UserActions.all)
@@ -24,10 +24,7 @@ defmodule Api.UserController do
         |> put_status(:created)
         |> put_resp_header("location", user_path(conn, :show, user))
         |> render(SessionView, "session.json", data: %{jwt: jwt, user: user})
-      {:error, changeset} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> render(ChangesetView, "error.json", changeset: changeset)
+      {:error, changeset} -> ErrorController.changeset_error(conn, changeset)
     end
   end
 
@@ -35,25 +32,15 @@ defmodule Api.UserController do
     case UserActions.update(conn, id, user_params) do
       {:ok, user} ->
         render(conn, "show.json", user: user)
-      {:error, changeset} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> render(ChangesetView, "error.json", changeset: changeset)
+      {:error, changeset} -> ErrorController.changeset_error(conn, changeset)
     end
   end
 
   def delete(conn, %{"id" => id}) do
     case UserActions.delete(conn, id) do
-      {:ok, _} ->
-        send_resp(conn, :no_content, "")
-      {:error, changeset} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> render(Api.ChangesetView, "error.json", changeset: changeset)
-      {:unauthorized} ->
-        conn
-        |> put_status(401)
-        |> render(Api.ErrorView, "error.json", error: "Unauthorized")
+      {:ok, _} -> send_resp(conn, :no_content, "")
+      {:error, changeset} -> ErrorController.changeset_error(conn, changeset)
+      {:unauthorized} -> ErrorController.unauthorized(conn, nil)
     end
   end
 end
