@@ -1,5 +1,4 @@
 defmodule Api.TeamController do
-
   use Api.Web, :controller
 
   alias Api.{TeamActions, ErrorController}

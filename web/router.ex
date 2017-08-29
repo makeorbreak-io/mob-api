@@ -34,8 +34,10 @@ defmodule Api.Router do
     scope "/admin", as: :admin do
       resources "/users", Admin.UserController, except: [:new, :edit, :create]
       resources "/workshops", Admin.WorkshopController, except: [:new, :edit]
+      resources "/teams", Admin.TeamController, except: [:new, :edit, :create]
 
       get "/stats", Admin.StatsController, :stats
+      delete "/teams/:id/remove/:user_id", Admin.TeamController, :remove
     end
   end
 end

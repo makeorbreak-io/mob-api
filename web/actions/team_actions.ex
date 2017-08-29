@@ -6,6 +6,7 @@ defmodule Api.TeamActions do
 
   def all do
     Repo.all(Team)
+    |> Repo.preload([:project, members: [:user], invites: [:host, :invitee, :team]])
   end
 
   def get(id) do
@@ -35,11 +36,9 @@ defmodule Api.TeamActions do
     team = get(id)
 
     if is_team_member?(team, user) do
-      changeset = Team.changeset(team, team_params)
-
-      email_if_applying(team, changeset)
-
-      Repo.update(changeset)
+      Team.changeset(team, team_params)
+      |> email_if_applying(team)
+      |> Repo.update
     else
       {:unauthorized}
     end
@@ -50,10 +49,9 @@ defmodule Api.TeamActions do
 
     team = Repo.get!(Team, id)
 
-    if is_team_member?(team, user) do
-      Repo.delete(team)
-    else
-      {:unauthorized}
+    case is_team_member?(team, user) do
+      true -> Repo.delete(team)
+      false -> {:unauthorized}
     end
   end
 
@@ -74,7 +72,7 @@ defmodule Api.TeamActions do
             {:error, "Can't remove users after applying to the event"}
           else
             case Repo.delete_all(query) do
-              {1, nil} ->
+              {1, _} ->
                 {:ok}
               {0, _} ->
                 {:error, "User isn't a member of team"}
@@ -82,6 +80,36 @@ defmodule Api.TeamActions do
           end
         else
           {:unauthorized}
+        end
+    end
+  end
+
+  def update_any(id, team_params) do
+    team = get(id)
+    
+    Team.changeset(team, team_params)
+    |> email_if_applying(team)
+    |> Repo.update
+  end
+
+  def delete_any(id) do
+    team = Repo.get!(Team, id)
+    Repo.delete(team)
+  end
+
+  def remove_any(team_id, user_id) do
+    case Repo.get(User, user_id) do
+      nil ->
+        {:error, "User not found"}
+      user ->
+        query = from(t in TeamMember, where:
+          t.user_id == ^user.id and t.team_id == ^team_id)
+
+        case Repo.delete_all(query) do
+          {1, nil} ->
+            {:ok}
+          {0, _} ->
+            {:error, "User isn't a member of team"}
         end
     end
   end
@@ -95,7 +123,7 @@ defmodule Api.TeamActions do
     end)
   end
 
-  defp email_if_applying(team, changeset) do
+  defp email_if_applying(changeset, team) do
     applied_change = Map.has_key?(changeset.changes, :applied)
     applied_true = Map.get(changeset.changes, :applied) == true
 
@@ -104,5 +132,7 @@ defmodule Api.TeamActions do
         Email.joined_hackathon_email(member.user, team) |> Mailer.deliver_later
       end)
     end
+
+    changeset
   end
 end
