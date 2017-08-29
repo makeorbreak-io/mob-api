@@ -1,10 +1,10 @@
-defmodule Api.TeamView do
+defmodule Api.Admin.TeamView do
   use Api.Web, :view
 
   alias Api.{ProjectView, InviteView, TeamMemberView}
 
   def render("index.json", %{teams: teams}) do
-    %{data: render_many(teams, __MODULE__, "team_with_project.json")}
+    %{data: render_many(teams, __MODULE__, "team.json")}
   end
 
   def render("show.json", %{team: team}) do
@@ -22,23 +22,6 @@ defmodule Api.TeamView do
         render_one(team.project, ProjectView, "project.json") end,
       invites: if Ecto.assoc_loaded?(team.invites) do
         render_many(team.invites, InviteView, "invite.json") end,
-    }
-  end
-
-  def render("team_short.json", %{team: team}) do
-    %{
-      id: team.id,
-      name: team.name
-    }
-  end
-
-  def render("team_with_project.json", %{team: team}) do
-    %{
-      id: team.id,
-      name: team.name,
-      applied: team.applied,
-      project: if Ecto.assoc_loaded?(team.project) do
-        render_one(team.project, ProjectView, "project.json") end,
     }
   end
 end
