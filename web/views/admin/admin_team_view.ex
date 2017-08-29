@@ -16,6 +16,7 @@ defmodule Api.Admin.TeamView do
       id: team.id,
       name: team.name,
       applied: team.applied,
+      prize_preference: team.prize_preference,
       members: if Ecto.assoc_loaded?(team.members) do
         render_many(team.members, TeamMemberView, "member_user.json", as: :membership) end,
       project: if Ecto.assoc_loaded?(team.project) do

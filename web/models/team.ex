@@ -3,12 +3,13 @@ defmodule Api.Team do
 
   alias Api.{Project, Invite, TeamMember}
 
-  @valid_attrs ~w(name applied)
+  @valid_attrs ~w(name applied prize_preference)
   @required_attrs ~w(name)a
 
   schema "teams" do
     field :name, :string
     field :applied, :boolean, default: false
+    field :prize_preference, {:array, :string}
     timestamps()
 
     # Associations

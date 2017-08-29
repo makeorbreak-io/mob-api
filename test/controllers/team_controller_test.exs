@@ -33,6 +33,7 @@ defmodule Api.TeamControllerTest do
       "id" => team.id,
       "name" => team.name,
       "applied" => team.applied,
+      "prize_preference" => team.prize_preference,
       "members" => [%{
         "id" => user.id,
         "role" => "owner",
