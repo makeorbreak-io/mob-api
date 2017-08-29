@@ -2,6 +2,7 @@ defmodule Api.WorkshopActions do
   use Api.Web, :action
 
   alias Api.{Workshop, WorkshopAttendance, Repo, Email, Mailer}
+  alias Guardian.{Plug}
   import Ecto.Query
 
   def all do
@@ -46,7 +47,7 @@ defmodule Api.WorkshopActions do
   end
 
   def join(conn, id) do
-    user = Guardian.Plug.current_resource(conn)
+    user = Plug.current_resource(conn)
     workshop = Repo.get_by!(Workshop, slug: id)
 
     query = from w in "users_workshops", where: w.workshop_id == type(^workshop.id, Ecto.UUID)
@@ -68,13 +69,13 @@ defmodule Api.WorkshopActions do
   end
 
   def leave(conn, id) do
-    user = Guardian.Plug.current_resource(conn)
+    user = Plug.current_resource(conn)
     workshop = Repo.get_by!(Workshop, slug: id)
 
     query = from(w in "users_workshops",
       where: w.workshop_id == type(^workshop.id, Ecto.UUID)
         and w.user_id == type(^user.id, Ecto.UUID))
-    
+
     case Repo.delete_all(query) do
       {1, nil} ->
         {:ok}

@@ -1,4 +1,4 @@
-# Api
+# API
 
 ## Setup guide
 To start your Phoenix app:

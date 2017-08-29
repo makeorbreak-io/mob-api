@@ -1,11 +1,11 @@
 defmodule Api.InviteController do
   use Api.Web, :controller
 
-  alias Api.InviteActions
+  alias Api.{InviteActions, ErrorController, ErrorView}
 
   plug :scrub_params, "invite" when action in [:create]
   plug Guardian.Plug.EnsureAuthenticated,
-    [handler: Api.SessionController] when action in [:index, :create, :accept, :delete]
+    [handler: Api.ErrorController] when action in [:index, :create, :accept, :delete]
 
   def index(conn, _params) do
     render(conn, "index.json", invites: InviteActions.for_current_user(conn))
@@ -20,18 +20,11 @@ defmodule Api.InviteController do
         |> put_status(:created)
         |> put_resp_header("location", invite_path(conn, :show, invite))
         |> render("show.json", invite: invite)
-      {:error, changeset} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> render(Api.ChangesetView, "error.json", changeset: changeset)
+      {:error, changeset} -> ErrorController.changeset_error(conn, changeset)
       {:usr_limit_reached} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> render(Api.ErrorView, "error.json", error: "Team user limit reached")
+        ErrorController.handle_error(conn, :unprocessable_entity, "Team user limit reached")
       {:usr_no_team} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> render(Api.ErrorView, "error.json", error: "Couldn't make changes to your team")
+        ErrorController.handle_error(conn, :unprocessable_entity, "Couldn't make changes to your team")
     end
   end
 
@@ -43,10 +36,7 @@ defmodule Api.InviteController do
     case InviteActions.accept(id) do
       {:ok, _} ->
         send_resp(conn, :no_content, "")
-      {:error, error} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> render(Api.ErrorView, "error.json", error: error)
+      {:error, error} -> ErrorController.handle_error(conn, :unprocessable_entity, error)
     end
   end
 
@@ -61,7 +51,7 @@ defmodule Api.InviteController do
       {:error, error} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(Api.ErrorView, "errors.json", error: error)
+        |> render(ErrorView, "errors.json", error: error)
     end
   end
 end

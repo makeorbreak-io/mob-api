@@ -1,12 +1,12 @@
 defmodule Api.TeamController do
-  
+
   use Api.Web, :controller
 
-  alias Api.TeamActions
+  alias Api.{TeamActions, ErrorController}
 
   plug :scrub_params, "team" when action in [:create, :update]
   plug Guardian.Plug.EnsureAuthenticated,
-    [handler: Api.SessionController] when action in [:create, :update, :delete, :remove]
+    [handler: Api.ErrorController] when action in [:create, :update, :delete, :remove]
 
   def index(conn, _params) do
     render(conn, "index.json", teams: TeamActions.all)
@@ -19,10 +19,7 @@ defmodule Api.TeamController do
         |> put_status(:created)
         |> put_resp_header("location", team_path(conn, :show, team))
         |> render("show.json", team: team)
-      {:error, changeset} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> render(Api.ChangesetView, "error.json", changeset: changeset)
+      {:error, changeset} -> ErrorController.changeset_error(conn, changeset)
     end
   end
 
@@ -34,36 +31,24 @@ defmodule Api.TeamController do
     case TeamActions.update(conn, id, team_params) do
       {:ok, team} ->
         render(conn, "show.json", team: team)
-      {:error, changeset} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> render(Api.ChangesetView, "error.json", changeset: changeset)
-      {:unauthorized} ->
-        conn
-        |> put_status(401)
-        |> render(Api.ErrorView, "error.json", error: "Unauthorized")
+      {:error, changeset} -> ErrorController.changeset_error(conn, changeset)
+      {:unauthorized} -> ErrorController.unauthorized(conn, nil)
     end
   end
 
   def delete(conn, %{"id" => id}) do
     case TeamActions.delete(conn, id) do
-      {:ok} ->
-        send_resp(conn, :no_content, "")
-      {:error, error} ->
-        conn
-        |> put_status(401)
-        |> render(Api.ErrorView, "error.json", error: error)
+      {:ok, _} -> send_resp(conn, :no_content, "")
+      {:error, changeset} -> ErrorController.changeset_error(conn, changeset)
+      {:unauthorized} -> ErrorController.unauthorized(conn, nil)
     end
   end
 
   def remove(conn, %{"id" => id, "user_id" => user_id}) do
     case TeamActions.remove(conn, id, user_id) do
-      {:ok} ->
-        send_resp(conn, :no_content, "")
-      {:error, error} ->
-        conn
-        |> put_status(401)
-        |> render(Api.ErrorView, "error.json", error: error)
+      {:ok} -> send_resp(conn, :no_content, "")
+      {:error, error} -> ErrorController.handle_error(conn, :unprocessable_entity, error)
+      {:unauthorized} -> ErrorController.unauthorized(conn, nil)
     end
   end
 end
