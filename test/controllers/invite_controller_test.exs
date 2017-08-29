@@ -199,4 +199,18 @@ defmodule Api.InviteControllerTest do
     assert response(conn, 204)
     refute Repo.get(Invite, invite.id)
   end
+
+  test "invite to slack works", %{conn: conn} do
+    conn = conn
+    |> post(invite_path(conn, :invite_to_slack, %{email: "valid@example.com"}))
+
+    assert response(conn, 201)
+  end
+
+  test "invite to slack returns errors properly", %{conn: conn} do
+    conn = conn
+    |> post(invite_path(conn, :invite_to_slack, %{email: "error@example.com"}))
+
+    assert response(conn, 422)
+  end 
 end

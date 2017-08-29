@@ -1,7 +1,7 @@
 defmodule Api.SessionController do
   use Api.Web, :controller
 
-  alias Api.{User, UserActions, Repo, SessionView, ErrorView, UserView, ErrorController}
+  alias Api.{User, UserActions, Repo, SessionView, UserView, ErrorController}
   alias Comeonin.Bcrypt
   alias Guardian.{Plug, Permissions}
 
@@ -54,7 +54,7 @@ defmodule Api.SessionController do
   defp revoke_claims(conn) do
     {:ok, claims} = Plug.claims(conn)
 
-    token = Plug.current_token(conn)
+    Plug.current_token(conn)
     |> Guardian.revoke!(claims)
 
     conn
