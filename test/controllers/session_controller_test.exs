@@ -124,7 +124,7 @@ defmodule Api.SessionControllerTest do
     conn = conn    
     |> get(session_path(conn, :me))
 
-    assert json_response(conn, 401)["error"] == "Authentication required"
+    assert json_response(conn, 401)["errors"] == "Authentication required"
   end
 
   test "fails authorization", %{conn: conn} do
@@ -132,6 +132,6 @@ defmodule Api.SessionControllerTest do
 
     conn = post(conn, session_path(conn, :create, @invalid_credentials))
    
-    assert json_response(conn, 422)["error"] == "Wrong email or password"
+    assert json_response(conn, 422)["errors"] == "Wrong email or password"
   end
 end

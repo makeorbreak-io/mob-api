@@ -142,7 +142,7 @@ defmodule Api.InviteControllerTest do
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> post(invite_path(conn, :create), invite: %{})
 
-    assert json_response(conn, 422)["error"] == "Couldn't make changes to your team"
+    assert json_response(conn, 422)["errors"] == "Couldn't make changes to your team"
   end
 
   test "doesn't create invite if user limit is reached", %{conn: conn, jwt: jwt, user: user} do
@@ -159,7 +159,7 @@ defmodule Api.InviteControllerTest do
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> post(invite_path(conn, :create, invite: %{email: "user3@example.org"}))
 
-    assert json_response(conn, 422)["error"] == "Team user limit reached"
+    assert json_response(conn, 422)["errors"] == "Team user limit reached"
   end
 
   test "membership is created when invitation is accepted", %{conn: conn, jwt: jwt, user: user} do
@@ -186,7 +186,7 @@ defmodule Api.InviteControllerTest do
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> put(invite_path(conn, :accept, %Invite{id: Ecto.UUID.generate()}))
 
-    assert json_response(conn, 422)["error"] == "Invite not found"
+    assert json_response(conn, 422)["errors"] == "Invite not found"
   end
 
   test "deletes chosen resource", %{conn: conn, jwt: jwt} do

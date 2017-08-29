@@ -174,7 +174,7 @@ defmodule Api.UserControllerTest do
    
     conn = put(conn, user_path(conn, :update, user), user: @invalid_attrs)
 
-    assert json_response(conn, 401)["error"] == "Authentication required"
+    assert json_response(conn, 401)["errors"] == "Authentication required"
   end
 
   test "deletes user if the request is made by that user", %{conn: conn} do
@@ -202,7 +202,7 @@ defmodule Api.UserControllerTest do
     |> delete(user_path(conn, :delete, random_user))
 
     assert json_response(conn, 401)
-    assert json_response(conn, 401)["error"] == "Unauthorized"
+    assert json_response(conn, 401)["errors"] == "Unauthorized"
   end
 
   test "doesn't delete when request is unauthenticated", %{conn: conn} do
@@ -210,6 +210,6 @@ defmodule Api.UserControllerTest do
    
     conn = delete(conn, user_path(conn, :delete, user))
 
-    assert json_response(conn, 401)["error"] == "Authentication required"
+    assert json_response(conn, 401)["errors"] == "Authentication required"
   end  
 end

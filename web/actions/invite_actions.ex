@@ -46,7 +46,7 @@ defmodule Api.InviteActions do
           team_id: user.team.team_id,
         }, invite_params)
 
-        send_invite_email(changeset, user)
+        process_email(changeset, user)
 
         Repo.insert(changeset)
       else
@@ -90,17 +90,23 @@ defmodule Api.InviteActions do
     end
   end
 
-  defp send_invite_email(changeset, host) do
+  defp process_email(changeset, host) do
     cond do
-      Map.has_key?(changeset.changes, :email) ->
-        Map.get(changeset.changes, :email)
-        |> Email.invite_email(host)
-        |> Mailer.deliver_later
-      Map.has_key?(changeset.changes, :invitee_id) ->
-        Repo.get(User, Map.get(changeset.changes, :invitee_id))
-        |> Email.invite_notification_email(host)
-        |> Mailer.deliver_later
+      Map.has_key?(changeset.changes, :email) -> send_invite_email(changeset, host)
+      Map.has_key?(changeset.changes, :invitee_id) -> send_notification_email(changeset, host)
       true -> nil
     end
+  end
+
+  defp send_invite_email(changeset, host) do
+    Map.get(changeset.changes, :email)
+    |> Email.invite_email(host)
+    |> Mailer.deliver_later
+  end
+
+  defp send_notification_email(changeset, host) do
+    Repo.get(User, Map.get(changeset.changes, :invitee_id))
+    |> Email.invite_notification_email(host)
+    |> Mailer.deliver_later
   end
 end

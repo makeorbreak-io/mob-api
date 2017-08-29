@@ -1,7 +1,7 @@
 defmodule Api.InviteController do
   use Api.Web, :controller
 
-  alias Api.{InviteActions, ErrorController, ErrorView}
+  alias Api.{InviteActions, ErrorController}
 
   plug :scrub_params, "invite" when action in [:create]
   plug Guardian.Plug.EnsureAuthenticated,
@@ -34,8 +34,7 @@ defmodule Api.InviteController do
 
   def accept(conn, %{"id" => id}) do
     case InviteActions.accept(id) do
-      {:ok, _} ->
-        send_resp(conn, :no_content, "")
+      {:ok, _} -> send_resp(conn, :no_content, "")
       {:error, error} -> ErrorController.handle_error(conn, :unprocessable_entity, error)
     end
   end
@@ -48,10 +47,7 @@ defmodule Api.InviteController do
   def invite_to_slack(conn, %{"email" => email}) do
     case InviteActions.invite_to_slack(email) do
       {:ok, _} -> send_resp(conn, :created, "")
-      {:error, error} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> render(ErrorView, "errors.json", error: error)
+      {:error, error} -> ErrorController.handle_error(conn, :unprocessable_entity, error)
     end
   end
 end

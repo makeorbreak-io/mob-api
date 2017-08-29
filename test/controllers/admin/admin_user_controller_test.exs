@@ -71,7 +71,7 @@ defmodule Api.AdminUserControllerTest do
     |> get(admin_user_path(conn, :index))
 
     assert json_response(conn, 401)
-    assert json_response(conn, 401)["error"] == "Unauthorized"
+    assert json_response(conn, 401)["errors"] == "Unauthorized"
   end
 
   test "shows user", %{conn: conn, admin: admin, jwt: jwt} do

@@ -58,7 +58,7 @@ defmodule Api.Admin.WorkshopControllerTest do
     |> get(admin_workshop_path(conn, :index))
 
     assert json_response(conn, 401)
-    assert json_response(conn, 401)["error"] == "Unauthorized"
+    assert json_response(conn, 401)["errors"] == "Unauthorized"
   end
 
   test "shows workshop", %{conn: conn, jwt: jwt} do

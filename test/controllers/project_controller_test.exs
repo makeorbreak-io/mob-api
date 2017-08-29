@@ -60,7 +60,7 @@ defmodule Api.ProjectControllerTest do
   test "doesn't create resource when request is invalid", %{conn: conn} do
     conn = post(conn, project_path(conn, :create), project: @valid_attrs)
 
-    assert json_response(conn, 401)["error"] == "Authentication required"
+    assert json_response(conn, 401)["errors"] == "Authentication required"
   end
 
   test "doesn't create resource when data is invalid", %{conn: conn, jwt: jwt} do
@@ -87,7 +87,7 @@ defmodule Api.ProjectControllerTest do
 
     conn = put(conn, project_path(conn, :update, project), project: @valid_attrs)
 
-    assert json_response(conn, 401)["error"] == "Authentication required"
+    assert json_response(conn, 401)["errors"] == "Authentication required"
   end
 
   test "doesn't update resource when data is invalid", %{conn: conn, jwt: jwt} do
