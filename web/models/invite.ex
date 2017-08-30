@@ -25,5 +25,6 @@ defmodule Api.Invite do
     struct
     |> cast(params, @valid_attrs)
     |> validate_required(@required_attrs)
+    |> unique_constraint(:team_id_invitee_id)
   end
 end

@@ -84,7 +84,7 @@ defmodule Api.WorkshopControllerTest do
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> post(workshop_path(conn, :join, workshop))
 
-    assert json_response(conn, 422)["error"] == "Workshop is already full"
+    assert json_response(conn, 422)["errors"] == "Workshop is already full"
   end
 
   test "user can delete attendance if he's a member", %{conn: conn, user: user, jwt: jwt} do

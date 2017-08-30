@@ -50,20 +50,19 @@ defmodule Api.TeamActions do
     team = Repo.get!(Team, id)
 
     case is_team_member?(team, user) do
-      true -> Repo.delete(team)
+      true -> Repo.delete!(team)
       false -> {:unauthorized}
     end
   end
 
   def remove(conn, team_id, user_id) do
+    current_user = Plug.current_resource(conn)
     team = Repo.get!(Team, team_id)
 
     case Repo.get(User, user_id) do
       nil ->
         {:error, "User not found"}
       user ->
-        current_user = Plug.current_resource(conn)
-
         query = from(t in TeamMember, where:
           t.user_id == ^user.id and t.team_id == ^team.id)
 
@@ -93,20 +92,18 @@ defmodule Api.TeamActions do
   end
 
   def delete_any(id) do
-    team = Repo.get!(Team, id)
-    Repo.delete(team)
+    Repo.get!(Team, id) |> Repo.delete!
   end
 
   def remove_any(team_id, user_id) do
     case Repo.get(User, user_id) do
-      nil ->
-        {:error, "User not found"}
+      nil -> {:error, "User not found"}
       user ->
         query = from(t in TeamMember, where:
           t.user_id == ^user.id and t.team_id == ^team_id)
 
         case Repo.delete_all(query) do
-          {1, nil} ->
+          {1, _} ->
             {:ok}
           {0, _} ->
             {:error, "User isn't a member of team"}

@@ -11,7 +11,8 @@ config :api,
   # Use this tutorial to get a Slack token with client privileges 
   # https://medium.com/@andrewarrow/how-to-get-slack-api-tokens-with-client-scope-e311856ebe9
   slack_token: System.get_env("SLACK_TOKEN"),
-  team_user_limit: 4
+  team_user_limit: 4,
+  http_lib: HTTPoison
 
 # Configures the endpoint
 config :api, Api.Endpoint,

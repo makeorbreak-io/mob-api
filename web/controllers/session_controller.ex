@@ -1,7 +1,7 @@
 defmodule Api.SessionController do
   use Api.Web, :controller
 
-  alias Api.{User, UserActions, Repo, SessionView, ErrorView, UserView}
+  alias Api.{User, UserActions, Repo, SessionView, UserView, ErrorController}
   alias Comeonin.Bcrypt
   alias Guardian.{Plug, Permissions}
 
@@ -48,17 +48,13 @@ defmodule Api.SessionController do
   end
 
   defp handle_check_password(false, conn, _user) do
-    conn
-    |> put_status(:unprocessable_entity)
-    |> render(ErrorView, "error.json", error: "Wrong email or password")
+    ErrorController.handle_error(conn, :unprocessable_entity, "Wrong email or password")
   end
 
   defp revoke_claims(conn) do
     {:ok, claims} = Plug.claims(conn)
 
-    token = Plug.current_token(conn)
-
-    token
+    Plug.current_token(conn)
     |> Guardian.revoke!(claims)
 
     conn

@@ -142,7 +142,7 @@ defmodule Api.InviteControllerTest do
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> post(invite_path(conn, :create), invite: %{})
 
-    assert json_response(conn, 422)["error"] == "Couldn't make changes to your team"
+    assert json_response(conn, 422)["errors"] == "Couldn't make changes to your team"
   end
 
   test "doesn't create invite if user limit is reached", %{conn: conn, jwt: jwt, user: user} do
@@ -159,7 +159,24 @@ defmodule Api.InviteControllerTest do
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> post(invite_path(conn, :create, invite: %{email: "user3@example.org"}))
 
-    assert json_response(conn, 422)["error"] == "Team user limit reached"
+    assert json_response(conn, 422)["errors"] == "Team user limit reached"
+  end
+
+  test "doesn't create duplicate invites", %{conn: conn, jwt: jwt, user: user} do
+    invitee = create_user(%{
+      email: "example@email.com",
+      first_name: "Jane",
+      last_name: "doe",
+      password: "thisisapassword"
+    })
+    team = create_team(user)
+    create_invite(%{host_id: user.id, team_id: team.id, invitee_id: invitee.id})
+
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> post(invite_path(conn, :create, invite: %{invitee_id: invitee.id}))
+
+    assert json_response(conn, 422)
   end
 
   test "membership is created when invitation is accepted", %{conn: conn, jwt: jwt, user: user} do
@@ -186,7 +203,7 @@ defmodule Api.InviteControllerTest do
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> put(invite_path(conn, :accept, %Invite{id: Ecto.UUID.generate()}))
 
-    assert json_response(conn, 422)["error"] == "Invite not found"
+    assert json_response(conn, 422)["errors"] == "Invite not found"
   end
 
   test "deletes chosen resource", %{conn: conn, jwt: jwt} do
@@ -199,4 +216,18 @@ defmodule Api.InviteControllerTest do
     assert response(conn, 204)
     refute Repo.get(Invite, invite.id)
   end
+
+  test "invite to slack works", %{conn: conn} do
+    conn = conn
+    |> post(invite_path(conn, :invite_to_slack, %{email: "valid@example.com"}))
+
+    assert response(conn, 201)
+  end
+
+  test "invite to slack returns errors properly", %{conn: conn} do
+    conn = conn
+    |> post(invite_path(conn, :invite_to_slack, %{email: "error@example.com"}))
+
+    assert response(conn, 422)
+  end 
 end

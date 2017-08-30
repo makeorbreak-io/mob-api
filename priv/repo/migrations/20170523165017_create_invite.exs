@@ -13,9 +13,9 @@ defmodule Api.Repo.Migrations.CreateInvite do
 
       timestamps()
     end
+
     create index(:invites, [:invitee_id])
     create index(:invites, [:host_id])
     create index(:invites, [:team_id])
-
   end
 end

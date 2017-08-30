@@ -15,6 +15,10 @@ config :api, Api.Repo,
   adapter: Ecto.Adapters.Postgres,
   url: "#{System.get_env("DB_URL")}-test"
 
+config :api,
+  slack_token: "DUMMY-TOKEN",
+  http_lib: FakeHTTPoison
+
 # Bamboo configuration
 config :api, Api.Mailer,
   adapter: Bamboo.TestAdapter

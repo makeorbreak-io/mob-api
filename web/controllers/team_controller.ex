@@ -37,9 +37,8 @@ defmodule Api.TeamController do
 
   def delete(conn, %{"id" => id}) do
     case TeamActions.delete(conn, id) do
-      {:ok, _} -> send_resp(conn, :no_content, "")
-      {:error, changeset} -> ErrorController.changeset_error(conn, changeset)
       {:unauthorized} -> ErrorController.unauthorized(conn, nil)
+      _ -> send_resp(conn, :no_content, "")
     end
   end
 
