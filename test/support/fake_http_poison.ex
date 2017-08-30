@@ -2,7 +2,7 @@ defmodule FakeHTTPoison do
   def post(url, _, _) do
     uri = URI.parse(url)
 
-    [{_,_}, {"email", email}] = URI.query_decoder(uri.query) |> Enum.to_list()
+    [{"email", email} | _] = URI.query_decoder(uri.query) |> Enum.to_list()
 
     case email do
       "valid@example.com" -> { :ok, successful_response }

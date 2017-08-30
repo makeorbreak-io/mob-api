@@ -56,7 +56,7 @@ defmodule Api.InviteActions do
 
   def invite_to_slack(email) do
     base_url = "https://portosummerofcode.slack.com/api/users.admin.invite"
-    params = "token=#{@slack_token}&email=#{email}"
+    params = URI.encode_query(%{token: @slack_token, email: email})
     url = base_url <> "?" <> params
     headers = %{"Content-Type" => "application/x-www-form-urlencoded"}
 
