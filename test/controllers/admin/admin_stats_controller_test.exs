@@ -1,7 +1,7 @@
 defmodule Api.AdminStatsControllerTest do
   use Api.ConnCase
 
-  alias Api.{User, WorkshopAttendance}
+  alias Api.{User, Project, WorkshopAttendance}
 
   setup %{conn: conn} do
     admin = create_admin
@@ -28,6 +28,7 @@ defmodule Api.AdminStatsControllerTest do
       last_name: "doe",
       password: "thisisapassword"
     })
+    Repo.insert! %Project{}
 
     Repo.insert! %WorkshopAttendance{user_id: workshop_attendee.id, workshop_id: workshop.id}
 
@@ -51,7 +52,10 @@ defmodule Api.AdminStatsControllerTest do
           "participants" => 1,
           "participant_limit" => 1
         }
-      ]
+      ],
+      "projects" => %{
+        "total" => 1
+      }
     }
   end
 end

@@ -11,7 +11,10 @@ defmodule Api.Admin.StatsView do
           total: stats.teams.total,
           applied: stats.teams.applied
         },
-        workshops: stats.workshops
+        workshops: stats.workshops,
+        projects: %{
+          total: stats.projects
+        }
       }
     }
   end
