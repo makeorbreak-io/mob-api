@@ -19,9 +19,17 @@ defmodule Api.TeamControllerTest do
     }}
   end
 
-  test "lists all teams on index", %{conn: conn} do
+  test "lists all teams on index", %{conn: conn, user: user} do
+    team = create_team(user)
+
     conn = get conn, team_path(conn, :index)
-    assert json_response(conn, 200)["data"] == []
+    assert json_response(conn, 200)["data"] == [%{
+      "applied" => team.applied,
+      "id" => team.id,
+      "name" => team.name,
+      "prize_preference" => team.prize_preference,
+      "project" => nil
+    }]
   end
 
   test "shows chosen team", %{conn: conn, user: user} do

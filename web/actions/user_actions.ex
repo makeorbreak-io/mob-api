@@ -55,7 +55,7 @@ defmodule Api.UserActions do
 
   def delete_any(id) do
     user = Repo.get!(User, id)
-    Repo.delete(user)
+    Repo.delete!(user)
   end
 
   def add_current_team(user) do

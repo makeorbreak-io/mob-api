@@ -162,6 +162,23 @@ defmodule Api.InviteControllerTest do
     assert json_response(conn, 422)["errors"] == "Team user limit reached"
   end
 
+  test "doesn't create duplicate invites", %{conn: conn, jwt: jwt, user: user} do
+    invitee = create_user(%{
+      email: "example@email.com",
+      first_name: "Jane",
+      last_name: "doe",
+      password: "thisisapassword"
+    })
+    team = create_team(user)
+    create_invite(%{host_id: user.id, team_id: team.id, invitee_id: invitee.id})
+
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> post(invite_path(conn, :create, invite: %{invitee_id: invitee.id}))
+
+    assert json_response(conn, 422)
+  end
+
   test "membership is created when invitation is accepted", %{conn: conn, jwt: jwt, user: user} do
     host = create_user(%{
       email: "example@email.com",

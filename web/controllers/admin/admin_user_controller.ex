@@ -24,9 +24,7 @@ defmodule Api.Admin.UserController do
   end
 
   def delete(conn, %{"id" => id}) do
-    case UserActions.delete_any(id) do
-      {:ok, _} -> send_resp(conn, :no_content, "")
-      {:error, changeset} -> ErrorController.changeset_error(conn, changeset)
-    end
+    UserActions.delete_any(id)
+    send_resp(conn, :no_content, "")
   end
 end

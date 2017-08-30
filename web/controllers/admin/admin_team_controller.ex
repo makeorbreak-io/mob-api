@@ -24,10 +24,8 @@ defmodule Api.Admin.TeamController do
   end
 
   def delete(conn, %{"id" => id}) do
-    case TeamActions.delete_any(id) do
-      {:ok, _} -> send_resp(conn, :no_content, "")
-      {:error, changeset} -> ErrorController.changeset_error(conn, changeset)
-    end
+    TeamActions.delete_any(id)
+    send_resp(conn, :no_content, "")
   end
 
   def remove(conn, %{"id" => id, "user_id" => user_id}) do
