@@ -3,7 +3,7 @@ defmodule Api.Email do
   alias Api.UserHelper
 
   def invite_email(recipient, host) do
-    base_email
+    base_email()
     |> to(recipient)
     |> subject("Join #{UserHelper.display_name(host)}'s team in this year's Make or Break!")
     |> put_html_layout({Api.LayoutView, "email.html"})
@@ -14,7 +14,7 @@ defmodule Api.Email do
   end
 
   def invite_notification_email(recipient, host) do
-    base_email
+    base_email()
     |> to(recipient)
     |> subject("Join #{UserHelper.display_name(host)}'s team in this year's Make or Break!")
     |> put_html_layout({Api.LayoutView, "email.html"})
@@ -26,7 +26,7 @@ defmodule Api.Email do
   end
 
   def registration_email(recipient) do
-    base_email
+    base_email()
     |> to(recipient)
     |> subject("Make or Break - You are almost there!")
     |> put_html_layout({Api.LayoutView, "email.html"})
@@ -36,7 +36,7 @@ defmodule Api.Email do
   end
 
   def joined_hackathon_email(recipient, team) do
-    base_email
+    base_email()
     |> to(recipient)
     |> subject("Welcome to the Make or Break hackathon!")
     |> put_html_layout({Api.LayoutView, "email.html"})
@@ -47,7 +47,7 @@ defmodule Api.Email do
   end
 
   def joined_workshop_email(recipient, workshop) do
-    base_email
+    base_email()
     |> to(recipient)
     |> subject("You have applied to #{workshop.name}")
     |> put_html_layout({Api.LayoutView, "email.html"})
@@ -59,7 +59,7 @@ defmodule Api.Email do
 
   defp base_email do
     # Here you can set a default from, default headers, etc.
-    new_email
+    new_email()
     |> from({"Porto Summer of Code", "info@portosummerofcode.com"})
   end
 end

@@ -11,7 +11,7 @@ defmodule Api.TeamMember do
 
     belongs_to :user, User
     belongs_to :team, Team
-    timestamps
+    timestamps()
   end
 
   def changeset(struct, params \\ %{}) do
