@@ -1,7 +1,7 @@
 defmodule Api.StatsActions do
   use Api.Web, :action
 
-  alias Api.{User, Team, Workshop, Repo}
+  alias Api.{User, Team, Workshop, Project, Repo}
 
   def stats do
     participant_query = from u in "users", where: u.role == "participant"
@@ -29,7 +29,8 @@ defmodule Api.StatsActions do
         total: Repo.aggregate(Team, :count, :id),
         applied: Repo.aggregate(applied_teams_query, :count, :id)
       },
-      workshops: workshop_stats
+      workshops: workshop_stats,
+      projects: Repo.aggregate(Project, :count, :id)
     }
   end
 end
