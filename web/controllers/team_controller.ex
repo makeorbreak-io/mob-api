@@ -1,11 +1,11 @@
 defmodule Api.TeamController do
   use Api.Web, :controller
 
-  alias Api.{TeamActions, ErrorController}
+  alias Api.{TeamActions, Controller.Errors}
 
   plug :scrub_params, "team" when action in [:create, :update]
   plug Guardian.Plug.EnsureAuthenticated,
-    [handler: Api.ErrorController] when action in [:create, :update, :delete, :remove]
+    [handler: Errors] when action in [:create, :update, :delete, :remove]
 
   def index(conn, _params) do
     render(conn, "index.json", teams: TeamActions.all)
@@ -18,7 +18,7 @@ defmodule Api.TeamController do
         |> put_status(:created)
         |> put_resp_header("location", team_path(conn, :show, team))
         |> render("show.json", team: team)
-      {:error, changeset} -> ErrorController.changeset_error(conn, changeset)
+      {:error, changeset} -> Errors.changeset(conn, changeset)
     end
   end
 
@@ -30,14 +30,14 @@ defmodule Api.TeamController do
     case TeamActions.update(conn, id, team_params) do
       {:ok, team} ->
         render(conn, "show.json", team: team)
-      {:error, changeset} -> ErrorController.changeset_error(conn, changeset)
-      {:unauthorized} -> ErrorController.unauthorized(conn, nil)
+      {:error, changeset} -> Errors.changeset(conn, changeset)
+      {:unauthorized} -> Errors.unauthorized(conn, nil)
     end
   end
 
   def delete(conn, %{"id" => id}) do
     case TeamActions.delete(conn, id) do
-      {:unauthorized} -> ErrorController.unauthorized(conn, nil)
+      {:unauthorized} -> Errors.unauthorized(conn, nil)
       _ -> send_resp(conn, :no_content, "")
     end
   end
@@ -45,8 +45,8 @@ defmodule Api.TeamController do
   def remove(conn, %{"id" => id, "user_id" => user_id}) do
     case TeamActions.remove(conn, id, user_id) do
       {:ok} -> send_resp(conn, :no_content, "")
-      {:error, error} -> ErrorController.handle_error(conn, :unprocessable_entity, error)
-      {:unauthorized} -> ErrorController.unauthorized(conn, nil)
+      {:error, error} -> Errors.build(conn, :unprocessable_entity, error)
+      {:unauthorized} -> Errors.unauthorized(conn, nil)
     end
   end
 end

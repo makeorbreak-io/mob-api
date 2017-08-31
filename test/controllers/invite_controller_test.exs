@@ -228,6 +228,6 @@ defmodule Api.InviteControllerTest do
     conn = conn
     |> post(invite_path(conn, :invite_to_slack, %{email: "error@example.com"}))
 
-    assert response(conn, 422)
+    assert json_response(conn, 422)["errors"]["email"] == ["is already in the team"]
   end 
 end

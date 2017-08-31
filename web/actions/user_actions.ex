@@ -5,12 +5,12 @@ defmodule Api.UserActions do
   alias Guardian.{Plug}
 
   def all do
-    Enum.map(Repo.all(User), fn(user) -> UserActions.add_current_team(user) end)
+    Enum.map(Repo.all(User), fn(user) -> UserActions.preload_user_data(user) end)
   end
 
   def get(id) do
     Repo.get!(User, id)
-    |> add_current_team
+    |> preload_user_data
   end
 
   def create(user_params) do
@@ -24,7 +24,9 @@ defmodule Api.UserActions do
 
         Email.registration_email(user) |> Mailer.deliver_later
 
-        {:ok, add_current_team(user)}
+        {:ok, jwt, _claims} = Guardian.encode_and_sign(user, :token)
+
+        {:ok, jwt, preload_user_data(user)}
       {:error, changeset} -> {:error, changeset}
     end
   end
@@ -37,7 +39,7 @@ defmodule Api.UserActions do
       [user, user_params])
 
     case Repo.update(changeset) do
-      {:ok, user} -> {:ok, add_current_team(user)}
+      {:ok, user} -> {:ok, preload_user_data(user)}
       {:error, changeset} -> {:error, changeset}
     end
   end
@@ -49,7 +51,7 @@ defmodule Api.UserActions do
     if user == current_user do
       Repo.delete(user)
     else
-      {:unauthorized}
+      :unauthorized
     end
   end
 
@@ -58,9 +60,8 @@ defmodule Api.UserActions do
     Repo.delete!(user)
   end
 
-  def add_current_team(user) do
-    user = user
-    |> Repo.preload([
+  def preload_user_data(user) do
+    user = user |> Repo.preload([
       :workshops,
       invitations: [:host, :team, :invitee],
       teams: [

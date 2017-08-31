@@ -1,10 +1,9 @@
 defmodule Api.WorkshopController do
   use Api.Web, :controller
 
-  alias Api.{WorkshopActions, ErrorController}
+  alias Api.{WorkshopActions, Controller.Errors}
 
-  plug Guardian.Plug.EnsureAuthenticated,
-    [handler: Api.ErrorController] when action in [:join, :leave]
+  plug Guardian.Plug.EnsureAuthenticated, [handler: Errors] when action in [:join, :leave]
 
   def index(conn, _params) do
     render(conn, "index.json", workshops: WorkshopActions.all)
@@ -17,14 +16,14 @@ defmodule Api.WorkshopController do
   def join(conn, %{"id" => id}) do
     case WorkshopActions.join(conn, id) do
       {:ok, _} -> send_resp(conn, :created, "")
-      {:error, error} -> ErrorController.handle_error(conn, :unprocessable_entity, error)
+      {:error, error} -> Errors.build(conn, :unprocessable_entity, error)
     end
   end
 
   def leave(conn, %{"id" => id}) do
     case WorkshopActions.leave(conn, id) do
       {:ok} -> send_resp(conn, :no_content, "")
-      {:error, error} -> ErrorController.handle_error(conn, :unprocessable_entity, error)
+      {:error, error} -> Errors.build(conn, :unprocessable_entity, error)
     end
   end
 end

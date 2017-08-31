@@ -1,12 +1,12 @@
 defmodule Api.Admin.UserController do
   use Api.Web, :controller
 
-  alias Api.{UserActions, ErrorController}
+  alias Api.{UserActions, Controller.Errors}
   alias Guardian.Plug.{EnsureAuthenticated, EnsurePermissions}
 
   plug :scrub_params, "user" when action in [:update]
-  plug EnsureAuthenticated, [handler: ErrorController]
-  plug EnsurePermissions, [handler: ErrorController, admin: ~w(full)]
+  plug EnsureAuthenticated, [handler: Errors]
+  plug EnsurePermissions, [handler: Errors, admin: ~w(full)]
 
   def index(conn, _params) do
     render(conn, "index.json", users: UserActions.all)
@@ -19,7 +19,7 @@ defmodule Api.Admin.UserController do
   def update(conn, %{"id" => id, "user" => user_params}) do
     case UserActions.update(conn, id, user_params) do
       {:ok, user} -> render(conn, "show.json", user: user)
-      {:error, changeset} -> ErrorController.changeset_error(conn, changeset)
+      {:error, changeset} -> Errors.changeset(conn, changeset)
     end
   end
 
