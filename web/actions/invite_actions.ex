@@ -2,19 +2,10 @@ defmodule Api.InviteActions do
   use Api.Web, :action
 
   @slack_token Application.get_env(:api, :slack_token)
-  @slack_error_codes %{
-    already_invited: "was already invited",
-    already_in_team: "is already in the team",
-    missing_scope: "couldn't be invited at this time",
-    invalid_email: "isn't valid",
-    channel_not_found: "couldn't join inexistent channel",
-    user_disabled: "account has been deactivated",
-    sent_recently: "was invited recently"
-  }
   @team_user_limit Application.get_env(:api, :team_user_limit)
   @http Application.get_env(:api, :http_lib)
 
-  alias Api.{Invite, Repo, Mailer, Email, TeamMember, UserActions, User}
+  alias Api.{Email, Invite, Mailer, Repo, TeamMember, User, UserActions}
   alias Guardian.{Plug}
 
   def for_current_user(conn) do
@@ -33,12 +24,12 @@ defmodule Api.InviteActions do
 
   def create(conn, invite_params) do
     user = Plug.current_resource(conn)
-    |> UserActions.add_current_team
+    |> UserActions.preload_user_data
 
     if user.team do
       create_if_vacant(user, invite_params)
     else
-      {:usr_no_team}
+      :user_without_team
     end
   end
 
@@ -80,8 +71,8 @@ defmodule Api.InviteActions do
 
       Repo.insert(changeset)
     else
-      {:usr_limit_reached}
-    end   
+      :team_user_limit
+    end
   end
 
   defp process_email(changeset, host) do
@@ -99,7 +90,7 @@ defmodule Api.InviteActions do
     case Repo.insert(changeset) do
       {:ok, _} -> Repo.delete(invite)
       {:error, _} -> {:error, "Unable to create membership"}
-    end   
+    end
   end
 
   defp send_invite_email(changeset, host) do
@@ -118,8 +109,15 @@ defmodule Api.InviteActions do
     case Poison.decode! response.body do
       %{"ok" => true} -> {:ok, true}
       %{"ok" => false, "error" => error} ->
-        error_message = Map.get(@slack_error_codes, String.to_atom(error))
-        {:error, %{email: [error_message]}}
+        {:error, %{email: [message(String.to_atom(error))]}}
     end
   end
+
+  defp message(:already_invited), do: "was already invited"
+  defp message(:already_in_team), do: "is already in the team"
+  defp message(:missing_scope), do: "couldn't be invited at this time"
+  defp message(:invalid_email), do: "isn't valid"
+  defp message(:channel_not_found), do: "couldn't join inexistent channel"
+  defp message(:user_disabled), do: "account has been deactivated"
+  defp message(:sent_recently), do: "was invited recently"
 end

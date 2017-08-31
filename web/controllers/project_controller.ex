@@ -2,11 +2,11 @@ defmodule Api.ProjectController do
 
   use Api.Web, :controller
 
-  alias Api.{ProjectActions, ErrorController}
+  alias Api.{ProjectActions, Controller.Errors}
 
   plug :scrub_params, "project" when action in [:create, :update]
   plug Guardian.Plug.EnsureAuthenticated,
-    [handler: Api.ErrorController] when action in [:create, :update, :delete]
+    [handler: Errors] when action in [:create, :update, :delete]
 
   def index(conn, _params) do
     render(conn, "index.json", projects: ProjectActions.all)
@@ -19,7 +19,7 @@ defmodule Api.ProjectController do
         |> put_status(:created)
         |> put_resp_header("location", project_path(conn, :show, project))
         |> render("show.json", project: project)
-      {:error, changeset} -> ErrorController.changeset_error(conn, changeset)
+      {:error, changeset} -> Errors.changeset(conn, changeset)
     end
   end
 
@@ -30,7 +30,7 @@ defmodule Api.ProjectController do
   def update(conn, %{"id" => id, "project" => project_params}) do
     case ProjectActions.update(id, project_params) do
       {:ok, project} -> render(conn, "show.json", project: project)
-      {:error, changeset} -> ErrorController.changeset_error(conn, changeset)
+      {:error, changeset} -> Errors.changeset(conn, changeset)
     end
   end
 

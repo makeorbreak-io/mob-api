@@ -5,7 +5,6 @@ defmodule Api.User do
 
   use Api.Web, :model
   alias Api.{Invite, TeamMember, Workshop, WorkshopAttendance}
-  @derive {Poison.Encoder, only: [:id, :email, :first_name, :last_name]}
 
   alias Comeonin.Bcrypt
 

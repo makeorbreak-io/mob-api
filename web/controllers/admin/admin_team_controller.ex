@@ -1,12 +1,12 @@
 defmodule Api.Admin.TeamController do
   use Api.Web, :controller
 
-  alias Api.{TeamActions, ErrorController}
+  alias Api.{TeamActions, Controller.Errors}
   alias Guardian.Plug.{EnsureAuthenticated, EnsurePermissions}
 
   plug :scrub_params, "team" when action in [:update]
-  plug EnsureAuthenticated, [handler: ErrorController]
-  plug EnsurePermissions, [handler: ErrorController, admin: ~w(full)]
+  plug EnsureAuthenticated, [handler: Errors]
+  plug EnsurePermissions, [handler: Errors, admin: ~w(full)]
 
   def index(conn, _params) do
     render(conn, "index.json", teams: TeamActions.all)
@@ -19,7 +19,7 @@ defmodule Api.Admin.TeamController do
   def update(conn, %{"id" => id, "team" => team_params}) do
     case TeamActions.update_any(id, team_params) do
       {:ok, team} -> render(conn, "show.json", team: team)
-      {:error, changeset} -> ErrorController.changeset_error(conn, changeset)
+      {:error, changeset} -> Errors.changeset(conn, changeset)
     end
   end
 
@@ -31,7 +31,7 @@ defmodule Api.Admin.TeamController do
   def remove(conn, %{"id" => id, "user_id" => user_id}) do
     case TeamActions.remove_any(id, user_id) do
       {:ok} -> send_resp(conn, :no_content, "")
-      {:error, error} -> ErrorController.handle_error(conn, :unprocessable_entity, error)
+      {:error, error} -> Errors.build(conn, :unprocessable_entity, error)
     end
   end
 end
