@@ -15,7 +15,7 @@ defmodule Api.EmailsTest do
 
   test "registration email" do
     user = create_user(%{
-      email: "user@example.com", 
+      email: "user@example.com",
       password: "thisisapassword",
       first_name: "Random",
       last_name: "User"

@@ -8,7 +8,7 @@ use Mix.Config
 # General application configuration
 config :api,
   ecto_repos: [Api.Repo],
-  # Use this tutorial to get a Slack token with client privileges 
+  # Use this tutorial to get a Slack token with client privileges
   # https://medium.com/@andrewarrow/how-to-get-slack-api-tokens-with-client-scope-e311856ebe9
   slack_token: System.get_env("SLACK_TOKEN"),
   team_user_limit: 4,

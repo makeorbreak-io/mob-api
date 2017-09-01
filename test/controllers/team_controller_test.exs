@@ -35,7 +35,7 @@ defmodule Api.TeamControllerTest do
   test "shows chosen team", %{conn: conn, user: user} do
     team = create_team(user)
     |> Repo.preload([:members, :project, :invites])
-  
+
     conn = get conn, team_path(conn, :show, team)
     assert json_response(conn, 200)["data"] == %{
       "id" => team.id,
@@ -157,7 +157,7 @@ defmodule Api.TeamControllerTest do
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> delete(team_path(conn, :delete, team))
-    
+
     assert response(conn, 204)
     refute Repo.get(Team, team.id)
   end
@@ -169,7 +169,7 @@ defmodule Api.TeamControllerTest do
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> delete(team_path(conn, :delete, team))
-    
+
     assert json_response(conn, 401)
     assert Repo.get(Team, team.id)
   end
@@ -182,7 +182,7 @@ defmodule Api.TeamControllerTest do
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> delete(team_path(conn, :remove, team, team_member.id))
-    
+
     assert response(conn, 204)
   end
 
@@ -194,7 +194,7 @@ defmodule Api.TeamControllerTest do
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> delete(team_path(conn, :remove, team, user.id))
-    
+
     assert response(conn, 204)
   end
 
@@ -207,18 +207,18 @@ defmodule Api.TeamControllerTest do
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> delete(team_path(conn, :remove, team, member.id))
-    
+
     assert response(conn, 401)
     assert json_response(conn, 401)["errors"] == "Unauthorized"
   end
 
   test "can't remove membership if user isn't in the DB", %{conn: conn, jwt: jwt, user: user} do
     team = create_team(user)
-    
+
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> delete(team_path(conn, :remove, team, Ecto.UUID.generate()))
-    
+
     assert response(conn, 422)
     assert json_response(conn, 422)["errors"] == "User not found"
   end
@@ -231,7 +231,7 @@ defmodule Api.TeamControllerTest do
 
     conn = conn
     |> delete(team_path(conn, :remove, team, member.id))
-    
+
     assert response(conn, 401)
     assert json_response(conn, 401)["errors"] == "Authentication required"
   end
@@ -239,11 +239,11 @@ defmodule Api.TeamControllerTest do
   test "can't remove membership if user isn't in the team", %{conn: conn, jwt: jwt, user: user} do
     random_user = create_user(%{email: "user@example.com", password: "thisisapassword"})
     team = create_team(user)
-    
+
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> delete(team_path(conn, :remove, team, random_user.id))
-    
+
     assert response(conn, 422)
     assert json_response(conn, 422)["errors"] == "User isn't a member of team"
   end
@@ -253,11 +253,11 @@ defmodule Api.TeamControllerTest do
     member = create_user(%{email: "user@example.com", password: "thisisapassword"})
     team = create_team(user, %{name: "awesome team", applied: true})
     Repo.insert! %TeamMember{user_id: member.id, team_id: team.id}
-    
+
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> delete(team_path(conn, :remove, team, member.id))
-    
+
     assert response(conn, 422)
     assert json_response(conn, 422)["errors"] == "Can't remove users after applying to the event"
   end

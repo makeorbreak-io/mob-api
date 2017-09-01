@@ -34,7 +34,7 @@ defmodule Api.UserControllerTest do
     team = create_team(user)
 
     conn = get conn, user_path(conn, :show, user)
-    
+
     assert json_response(conn, 200)["data"] == %{
       "id" => user.id,
       "first_name" => user.first_name,
@@ -66,7 +66,7 @@ defmodule Api.UserControllerTest do
     Repo.insert! %TeamMember{user_id: team_member.id, team_id: team.id}
 
     conn = get conn, user_path(conn, :show, team_member)
-    
+
     assert json_response(conn, 200)["data"] == %{
       "id" => team_member.id,
       "first_name" => team_member.first_name,
@@ -161,7 +161,7 @@ defmodule Api.UserControllerTest do
   test "doesn't update user when data is invalid", %{conn: conn} do
     user = Repo.insert! %User{}
     {:ok, jwt, _} = Guardian.encode_and_sign(user)
-   
+
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> put(user_path(conn, :update, user), user: @invalid_attrs)
@@ -171,7 +171,7 @@ defmodule Api.UserControllerTest do
 
   test "doesn't update user when user is unauthenticated", %{conn: conn} do
     user = Repo.insert! %User{}
-   
+
     conn = put(conn, user_path(conn, :update, user), user: @invalid_attrs)
 
     assert json_response(conn, 401)["errors"] == "Authentication required"
@@ -207,9 +207,9 @@ defmodule Api.UserControllerTest do
 
   test "doesn't delete when request is unauthenticated", %{conn: conn} do
     user = Repo.insert! %User{}
-   
+
     conn = delete(conn, user_path(conn, :delete, user))
 
     assert json_response(conn, 401)["errors"] == "Authentication required"
-  end  
+  end
 end

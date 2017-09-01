@@ -2,7 +2,7 @@ defmodule Api.Admin.WorkshopControllerTest do
   use Api.ConnCase
 
   alias Api.{Workshop, User}
-  
+
   @valid_attrs %{
     slug: "some-content",
     name: "some content",
@@ -137,7 +137,7 @@ defmodule Api.Admin.WorkshopControllerTest do
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> delete(admin_workshop_path(conn, :delete, workshop))
-    
+
     assert response(conn, 204)
     refute Repo.get_by(Workshop, slug: @valid_attrs.slug)
   end

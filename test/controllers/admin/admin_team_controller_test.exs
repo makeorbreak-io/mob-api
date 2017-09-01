@@ -28,7 +28,7 @@ defmodule Api.Admin.TeamControllerTest do
   test "shows chosen team", %{conn: conn, admin: admin, jwt: jwt} do
     team = create_team(admin)
     |> Repo.preload([:members, :project, :invites])
-  
+
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> get(admin_team_path(conn, :show, team))
@@ -88,7 +88,7 @@ defmodule Api.Admin.TeamControllerTest do
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> delete(admin_team_path(conn, :delete, team))
-    
+
     assert response(conn, 204)
     refute Repo.get(Team, team.id)
   end
@@ -101,17 +101,17 @@ defmodule Api.Admin.TeamControllerTest do
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> delete(admin_team_path(conn, :remove, team, admin.id))
-    
+
     assert response(conn, 204)
   end
 
   test "can't remove membership if user isn't in the DB", %{conn: conn, jwt: jwt, admin: admin} do
     team = create_team(admin)
-    
+
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> delete(admin_team_path(conn, :remove, team, Ecto.UUID.generate()))
-    
+
     assert response(conn, 422)
     assert json_response(conn, 422)["errors"] == "User not found"
   end
@@ -124,7 +124,7 @@ defmodule Api.Admin.TeamControllerTest do
 
     conn = conn
     |> delete(admin_team_path(conn, :remove, team, member.id))
-    
+
     assert response(conn, 401)
     assert json_response(conn, 401)["errors"] == "Authentication required"
   end
@@ -132,11 +132,11 @@ defmodule Api.Admin.TeamControllerTest do
   test "can't remove membership if user isn't in the team", %{conn: conn, jwt: jwt, admin: admin} do
     random_user = create_user(%{email: "user@example.com", password: "thisisapassword"})
     team = create_team(admin)
-    
+
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> delete(admin_team_path(conn, :remove, team, random_user.id))
-    
+
     assert response(conn, 422)
     assert json_response(conn, 422)["errors"] == "User isn't a member of team"
   end

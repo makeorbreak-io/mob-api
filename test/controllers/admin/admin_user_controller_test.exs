@@ -80,7 +80,7 @@ defmodule Api.AdminUserControllerTest do
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> get(admin_user_path(conn, :show, admin))
-    
+
     assert json_response(conn, 200)["data"] == %{
       "id" => admin.id,
       "first_name" => admin.first_name,
