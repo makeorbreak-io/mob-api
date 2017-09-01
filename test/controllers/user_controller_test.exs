@@ -17,7 +17,7 @@ defmodule Api.UserControllerTest do
   end
 
   test "lists all users on index", %{conn: conn} do
-    user = create_user
+    user = create_user()
     conn = get conn, user_path(conn, :index)
     assert json_response(conn, 200)["data"] == [%{
       "display_name" => "#{user.first_name} #{user.last_name}",
@@ -30,7 +30,7 @@ defmodule Api.UserControllerTest do
   end
 
   test "shows user with owner role in team", %{conn: conn} do
-    user = create_user
+    user = create_user()
     team = create_team(user)
 
     conn = get conn, user_path(conn, :show, user)

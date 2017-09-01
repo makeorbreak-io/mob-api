@@ -17,7 +17,7 @@ defmodule Api.SessionControllerTest do
   end
 
   test "user can login", %{conn: conn} do
-    user = create_user
+    user = create_user()
     team = create_team(user)
 
     conn = post(conn, session_path(conn, :create, @valid_credentials))
@@ -59,7 +59,7 @@ defmodule Api.SessionControllerTest do
   end
 
   test "deletes a session", %{conn: conn} do
-    user = create_user
+    user = create_user()
     {:ok, jwt, _} = Guardian.encode_and_sign(user)
 
     conn
@@ -69,9 +69,9 @@ defmodule Api.SessionControllerTest do
   end
 
   test "jwt checking works", %{conn: conn} do
-    user = create_user
+    user = create_user()
     team = create_team(user)
-    workshop = create_workshop
+    workshop = create_workshop()
     Repo.insert! %WorkshopAttendance{user_id: user.id, workshop_id: workshop.id}
 
     {:ok, jwt, _} = Guardian.encode_and_sign(user)
@@ -128,7 +128,7 @@ defmodule Api.SessionControllerTest do
   end
 
   test "fails authorization", %{conn: conn} do
-    create_user
+    create_user()
 
     conn = post(conn, session_path(conn, :create, @invalid_credentials))
    

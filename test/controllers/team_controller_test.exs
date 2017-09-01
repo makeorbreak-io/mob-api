@@ -8,7 +8,7 @@ defmodule Api.TeamControllerTest do
   @invalid_attrs %{name: ""}
 
   setup %{conn: conn} do
-    user = create_user
+    user = create_user()
     {:ok, jwt, full_claims} = Guardian.encode_and_sign(user)
 
     {:ok, %{

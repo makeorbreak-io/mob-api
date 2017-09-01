@@ -5,7 +5,7 @@ defmodule Api.InviteControllerTest do
   alias Api.{Invite, Email, TeamMember}
 
   setup %{conn: conn} do
-    user = create_user
+    user = create_user()
     {:ok, jwt, full_claims} = Guardian.encode_and_sign(user)
 
     {:ok, %{

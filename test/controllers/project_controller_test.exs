@@ -11,7 +11,7 @@ defmodule Api.ProjectControllerTest do
   @invalid_attrs %{}
 
   setup %{conn: conn} do
-    user = create_user
+    user = create_user()
     {:ok, jwt, full_claims} = Guardian.encode_and_sign(user)
 
     {:ok, %{
