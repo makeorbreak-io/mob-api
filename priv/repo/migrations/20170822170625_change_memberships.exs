@@ -15,7 +15,7 @@ defmodule Api.Repo.Migrations.ChangeMemberships do
 
     # owners = Enum.map(Repo.all(Team), fn(team) -> [team.id, team.user_id] end)
 
-    # Enum.each(owners, fn([team_id, user_id]) -> 
+    # Enum.each(owners, fn([team_id, user_id]) ->
     #   Repo.insert!(%TeamMember{team_id: team_id, user_id: user_id, role: "owner"})
     # end)
   end
