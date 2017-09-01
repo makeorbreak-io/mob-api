@@ -75,7 +75,7 @@ defmodule Api.SessionControllerTest do
     Repo.insert! %WorkshopAttendance{user_id: user.id, workshop_id: workshop.id}
 
     {:ok, jwt, _} = Guardian.encode_and_sign(user)
-    
+
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> get(session_path(conn, :me))
@@ -121,7 +121,7 @@ defmodule Api.SessionControllerTest do
   end
 
   test "jwt checking returns 401 without token", %{conn: conn} do
-    conn = conn    
+    conn = conn
     |> get(session_path(conn, :me))
 
     assert json_response(conn, 401)["errors"] == "Authentication required"
@@ -131,7 +131,7 @@ defmodule Api.SessionControllerTest do
     create_user
 
     conn = post(conn, session_path(conn, :create, @invalid_credentials))
-   
+
     assert json_response(conn, 422)["errors"] == "Wrong email or password"
   end
 end

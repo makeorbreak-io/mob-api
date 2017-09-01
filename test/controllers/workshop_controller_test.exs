@@ -40,7 +40,7 @@ defmodule Api.WorkshopControllerTest do
 
   test "shows chosen workshop", %{conn: conn} do
     workshop = create_workshop
-  
+
     conn = get conn, workshop_path(conn, :show, workshop)
     assert json_response(conn, 200)["data"] == %{
       "slug" => workshop.slug,

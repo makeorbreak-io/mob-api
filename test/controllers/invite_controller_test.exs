@@ -212,7 +212,7 @@ defmodule Api.InviteControllerTest do
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> delete(invite_path(conn, :delete, invite))
-    
+
     assert response(conn, 204)
     refute Repo.get(Invite, invite.id)
   end
@@ -229,5 +229,5 @@ defmodule Api.InviteControllerTest do
     |> post(invite_path(conn, :invite_to_slack, %{email: "error@example.com"}))
 
     assert json_response(conn, 422)["errors"]["email"] == ["is already in the team"]
-  end 
+  end
 end

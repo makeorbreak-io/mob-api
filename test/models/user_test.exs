@@ -10,7 +10,7 @@ defmodule Api.UserTest do
     password: "thisisapassword"
   }
   @invalid_attrs %{}
- 
+
   test "changeset with valid attributes" do
     changeset = User.changeset(%User{}, @valid_attrs)
     assert changeset.valid?

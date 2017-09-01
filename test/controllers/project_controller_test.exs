@@ -2,7 +2,7 @@ defmodule Api.ProjectControllerTest do
   use Api.ConnCase
 
   alias Api.Project
-  
+
   @valid_attrs %{
     description: "some content",
     name: "some content",
@@ -106,7 +106,7 @@ defmodule Api.ProjectControllerTest do
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> delete(project_path(conn, :delete, project))
-    
+
     assert response(conn, 204)
     refute Repo.get(Project, project.id)
   end
