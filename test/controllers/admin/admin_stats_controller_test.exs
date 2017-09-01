@@ -4,7 +4,7 @@ defmodule Api.AdminStatsControllerTest do
   alias Api.{User, Project, WorkshopAttendance}
 
   setup %{conn: conn} do
-    admin = create_admin
+    admin = create_admin()
     {:ok, jwt, _} =
       Guardian.encode_and_sign(admin, :token, perms: %{admin: Guardian.Permissions.max})
 
@@ -21,7 +21,7 @@ defmodule Api.AdminStatsControllerTest do
     team_owner = Repo.insert! %User{}
     create_team(admin)
     create_team(team_owner, %{applied: true, name: "awesome team"})
-    workshop = create_workshop
+    workshop = create_workshop()
     workshop_attendee = create_user(%{
       email: "example@email.com",
       first_name: "Jane",

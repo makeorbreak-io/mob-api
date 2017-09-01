@@ -5,7 +5,7 @@ defmodule Api.WorkshopControllerTest do
   alias Api.{WorkshopAttendance, Email}
 
   setup %{conn: conn} do
-    user = create_user
+    user = create_user()
     {:ok, jwt, full_claims} = Guardian.encode_and_sign(user)
 
     {:ok, %{
@@ -17,7 +17,7 @@ defmodule Api.WorkshopControllerTest do
   end
 
   test "lists all entries on index", %{conn: conn} do
-    workshop = create_workshop
+    workshop = create_workshop()
 
     conn = get conn, workshop_path(conn, :index)
     assert json_response(conn, 200)["data"] == [
@@ -39,7 +39,7 @@ defmodule Api.WorkshopControllerTest do
   end
 
   test "shows chosen workshop", %{conn: conn} do
-    workshop = create_workshop
+    workshop = create_workshop()
 
     conn = get conn, workshop_path(conn, :show, workshop)
     assert json_response(conn, 200)["data"] == %{
@@ -59,7 +59,7 @@ defmodule Api.WorkshopControllerTest do
   end
 
   test "user can join workshops if there are vacancies", %{conn: conn, jwt: jwt, user: user} do
-    workshop = create_workshop
+    workshop = create_workshop()
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
@@ -70,7 +70,7 @@ defmodule Api.WorkshopControllerTest do
   end
 
   test "user can't join workshop if it's full", %{conn: conn, jwt: jwt} do
-    workshop = create_workshop
+    workshop = create_workshop()
     workshop_attendee = create_user(%{
       email: "example@email.com",
       first_name: "Jane",
@@ -88,7 +88,7 @@ defmodule Api.WorkshopControllerTest do
   end
 
   test "user can delete attendance if he's a member", %{conn: conn, user: user, jwt: jwt} do
-    workshop = create_workshop
+    workshop = create_workshop()
 
     Repo.insert! %WorkshopAttendance{user_id: user.id, workshop_id: workshop.id}
 
@@ -100,7 +100,7 @@ defmodule Api.WorkshopControllerTest do
   end
 
   test "user can't delete attendance if he's not a member", %{conn: conn, jwt: jwt} do
-    workshop = create_workshop
+    workshop = create_workshop()
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")

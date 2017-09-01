@@ -10,7 +10,7 @@ defmodule Api.Admin.WorkshopControllerTest do
   @invalid_attrs %{}
 
   setup %{conn: conn} do
-    admin = create_admin
+    admin = create_admin()
     {:ok, jwt, _} =
       Guardian.encode_and_sign(admin, :token, perms: %{admin: Guardian.Permissions.max})
 
@@ -22,7 +22,7 @@ defmodule Api.Admin.WorkshopControllerTest do
   end
 
   test "endpoints are availale for admin users", %{conn: conn, jwt: jwt} do
-    workshop = create_workshop
+    workshop = create_workshop()
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
@@ -111,7 +111,7 @@ defmodule Api.Admin.WorkshopControllerTest do
   end
 
   test "updates workshop if data is valid", %{conn: conn, jwt: jwt} do
-    workshop = create_workshop
+    workshop = create_workshop()
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
@@ -122,7 +122,7 @@ defmodule Api.Admin.WorkshopControllerTest do
   end
 
   test "doesn't update workshop if data is invalid", %{conn: conn, jwt: jwt} do
-    workshop = create_workshop
+    workshop = create_workshop()
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")

@@ -14,7 +14,7 @@ defmodule Api.AdminUserControllerTest do
   @invalid_attrs %{}
 
   setup %{conn: conn} do
-    admin = create_admin
+    admin = create_admin()
     {:ok, jwt, _} =
       Guardian.encode_and_sign(admin, :token, perms: %{admin: Guardian.Permissions.max})
 
@@ -135,7 +135,7 @@ defmodule Api.AdminUserControllerTest do
   test "deletes user", %{conn: conn, jwt: jwt} do
     user = Repo.insert! %User{}
     create_team(user)
-    workshop = create_workshop
+    workshop = create_workshop()
     Repo.insert! %WorkshopAttendance{user_id: user.id, workshop_id: workshop.id}
 
     conn = conn

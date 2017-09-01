@@ -7,7 +7,7 @@ defmodule Api.Admin.TeamControllerTest do
   @invalid_attrs %{name: ""}
 
   setup %{conn: conn} do
-    admin = create_admin
+    admin = create_admin()
     {:ok, jwt, _} =
       Guardian.encode_and_sign(admin, :token, perms: %{admin: Guardian.Permissions.max})
 
