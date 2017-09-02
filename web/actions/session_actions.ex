@@ -12,26 +12,27 @@ defmodule Api.SessionActions do
 
   def create(email, password) do
     user = Repo.get_by(User, email: email)
-    |> UserActions.preload_user_data
-
-    user
     |> check_password(password)
-    |> sign_user(user)
+    |> sign_user
   end
 
   def delete(conn) do
     revoke_claims(conn)
   end
 
-  defp check_password(nil, _password), do: false
+  defp check_password(nil, _password), do: {:error, :wrong_credentials}
   defp check_password(user, password) do
-    Bcrypt.checkpw(password, user.password_hash)
+    Bcrypt.checkpw(password, user.password_hash) && {:ok, user} || {:error, :wrong_credentials}
   end
 
-  defp sign_user(false, _user), do: :wrong_credentials
-  defp sign_user(true, user) do
-    {:ok, jwt, _} = Guardian.encode_and_sign(user, :token, perms: %{"#{user.role}": Permissions.max})
-    {:ok, jwt, user}
+  defp sign_user({:error, e}), do: e
+  defp sign_user({:ok, user}) do
+    {:ok, jwt, _} = Guardian.encode_and_sign(
+      user,
+      :token,
+      perms: %{"#{user.role}": Permissions.max}
+    )
+    {:ok, jwt, UserActions.preload_user_data(user)}
   end
 
   defp revoke_claims(conn) do

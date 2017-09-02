@@ -134,4 +134,10 @@ defmodule Api.SessionControllerTest do
 
     assert json_response(conn, 422)["errors"] == "Wrong email or password"
   end
+
+  test "unknown user", %{conn: conn} do
+    conn = post(conn, session_path(conn, :create, @invalid_credentials))
+
+    assert json_response(conn, 422)["errors"] == "Wrong email or password"
+  end
 end
