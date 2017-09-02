@@ -38,6 +38,7 @@ defmodule Api.Router do
 
       get "/stats", Admin.StatsController, :stats
       delete "/teams/:id/remove/:user_id", Admin.TeamController, :remove
+      post "/invites/sync", Admin.InviteController, :sync
     end
   end
 end

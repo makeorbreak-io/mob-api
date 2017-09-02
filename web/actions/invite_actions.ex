@@ -6,6 +6,7 @@ defmodule Api.InviteActions do
   @http Application.get_env(:api, :http_lib)
 
   alias Api.{Email, Invite, Mailer, Repo, TeamMember, User, UserActions}
+  alias Ecto.Changeset
 
   def for_current_user(current_user) do
     Invite
@@ -50,6 +51,19 @@ defmodule Api.InviteActions do
     with {:ok, response} <- @http.post(url, "", headers), do: process_slack_invite(response)
   end
 
+  def sync do
+    invites = Invite
+    |> where([i], not is_nil(i.email))
+    |> Repo.all
+
+    Enum.each(invites, fn(invite) ->
+      case Repo.get_by(User, email: invite.email) do
+        nil -> nil
+        user -> __MODULE__.update(invite, %{invitee_id: user.id})
+      end
+    end)
+  end
+
   defp create_if_vacant(user, invite_params) do
     # Since user.team returns a membership instead of the actual team,
     # we need to send user.team.team
@@ -62,12 +76,29 @@ defmodule Api.InviteActions do
         host_id: user.id,
         team_id: user.team.team_id,
       }, invite_params)
-
-      process_email(changeset, user)
+      |> maybe_associate_user()
+      |> process_email(user)
 
       Repo.insert(changeset)
     else
       :team_user_limit
+    end
+  end
+
+  def update(invite, params) do
+    Invite.changeset(invite, params) |> Repo.update
+  end
+
+  defp maybe_associate_user(changeset) do
+    if Map.has_key?(changeset.changes, :email) do
+      case Repo.get_by(User, email: Map.get(changeset.changes, :email)) do
+        nil -> changeset
+        user ->
+          Changeset.delete_change(changeset, :email)
+          |> Changeset.put_change(:invitee_id, user.id)
+      end
+    else
+      changeset
     end
   end
 
@@ -93,12 +124,16 @@ defmodule Api.InviteActions do
     Map.get(changeset.changes, :email)
     |> Email.invite_email(host)
     |> Mailer.deliver_later
+
+    changeset
   end
 
   defp send_notification_email(changeset, host) do
     Repo.get(User, Map.get(changeset.changes, :invitee_id))
     |> Email.invite_notification_email(host)
     |> Mailer.deliver_later
+
+    changeset
   end
 
   defp process_slack_invite(response) do
