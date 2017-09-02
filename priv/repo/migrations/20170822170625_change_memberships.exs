@@ -1,8 +1,6 @@
 defmodule Api.Repo.Migrations.ChangeMemberships do
   use Ecto.Migration
 
-  alias Api.{Repo, Team, TeamMember}
-
   def change do
     alter table(:users_teams) do
       add :role, :string, default: "member"
@@ -13,10 +11,10 @@ defmodule Api.Repo.Migrations.ChangeMemberships do
     # at the same time
     # flush()
 
-    # owners = Enum.map(Repo.all(Team), fn(team) -> [team.id, team.user_id] end)
+    # owners = Enum.map(Api.Repo.all(Api.Team), fn(team) -> [team.id, team.user_id] end)
 
     # Enum.each(owners, fn([team_id, user_id]) ->
-    #   Repo.insert!(%TeamMember{team_id: team_id, user_id: user_id, role: "owner"})
+    #   Api.Repo.insert!(%Api.TeamMember{team_id: team_id, user_id: user_id, role: "owner"})
     # end)
   end
 end
