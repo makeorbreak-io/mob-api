@@ -21,6 +21,7 @@ defmodule Api.ConnCase do
       use Phoenix.ConnTest
 
       alias Api.Repo
+      alias Api.UserHelper
       import Ecto
       import Ecto.Changeset
       import Ecto.Query

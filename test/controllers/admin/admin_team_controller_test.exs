@@ -42,7 +42,7 @@ defmodule Api.Admin.TeamControllerTest do
         "id" => admin.id,
         "role" => "owner",
         "display_name" => "#{admin.first_name} #{admin.last_name}",
-        "gravatar_hash" => "fd876f8cd6a58277fc664d47ea10ad19"
+        "gravatar_hash" => UserHelper.gravatar_hash(admin)
       }],
       "invites" => team.invites,
       "project" => team.project

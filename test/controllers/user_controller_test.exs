@@ -21,7 +21,7 @@ defmodule Api.UserControllerTest do
     conn = get conn, user_path(conn, :index)
     assert json_response(conn, 200)["data"] == [%{
       "display_name" => "#{user.first_name} #{user.last_name}",
-      "gravatar_hash" => "fd876f8cd6a58277fc664d47ea10ad19",
+      "gravatar_hash" => UserHelper.gravatar_hash(user),
       "first_name" => user.first_name,
       "last_name" => user.last_name,
       "id" => user.id,
@@ -40,7 +40,7 @@ defmodule Api.UserControllerTest do
       "first_name" => user.first_name,
       "last_name" => user.last_name,
       "display_name" => "#{user.first_name} #{user.last_name}",
-      "gravatar_hash" => "fd876f8cd6a58277fc664d47ea10ad19",
+      "gravatar_hash" => UserHelper.gravatar_hash(user),
       "birthday" => user.birthday,
       "employment_status" => user.employment_status,
       "college" => user.college,
@@ -72,7 +72,7 @@ defmodule Api.UserControllerTest do
       "first_name" => team_member.first_name,
       "last_name" => team_member.last_name,
       "display_name" => "#{team_member.first_name} #{team_member.last_name}",
-      "gravatar_hash" => "fd876f8cd6a58277fc664d47ea10ad19",
+      "gravatar_hash" => UserHelper.gravatar_hash(team_member),
       "birthday" => team_member.birthday,
       "employment_status" => team_member.employment_status,
       "college" => team_member.college,
