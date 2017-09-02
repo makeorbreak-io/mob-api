@@ -5,8 +5,8 @@ defmodule FakeHTTPoison do
     [{"email", email} | _] = URI.query_decoder(uri.query) |> Enum.to_list()
 
     case email do
-      "valid@example.com" -> { :ok, successful_response }
-      "error@example.com" -> { :ok, error_response }
+      "valid@example.com" -> { :ok, successful_response() }
+      "error@example.com" -> { :ok, error_response() }
     end
   end
 

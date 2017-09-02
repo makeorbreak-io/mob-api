@@ -10,7 +10,7 @@ defmodule Api.UserControllerTest do
     last_name: "doe",
     password: "thisisapassword"
   }
-  @invalid_attrs %{}
+  @invalid_attrs %{email: "no at sign"}
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
@@ -21,7 +21,7 @@ defmodule Api.UserControllerTest do
     conn = get conn, user_path(conn, :index)
     assert json_response(conn, 200)["data"] == [%{
       "display_name" => "#{user.first_name} #{user.last_name}",
-      "gravatar_hash" => "fd876f8cd6a58277fc664d47ea10ad19",
+      "gravatar_hash" => UserHelper.gravatar_hash(user),
       "first_name" => user.first_name,
       "last_name" => user.last_name,
       "id" => user.id,
@@ -40,7 +40,7 @@ defmodule Api.UserControllerTest do
       "first_name" => user.first_name,
       "last_name" => user.last_name,
       "display_name" => "#{user.first_name} #{user.last_name}",
-      "gravatar_hash" => "fd876f8cd6a58277fc664d47ea10ad19",
+      "gravatar_hash" => UserHelper.gravatar_hash(user),
       "birthday" => user.birthday,
       "employment_status" => user.employment_status,
       "college" => user.college,
@@ -72,7 +72,7 @@ defmodule Api.UserControllerTest do
       "first_name" => team_member.first_name,
       "last_name" => team_member.last_name,
       "display_name" => "#{team_member.first_name} #{team_member.last_name}",
-      "gravatar_hash" => "fd876f8cd6a58277fc664d47ea10ad19",
+      "gravatar_hash" => UserHelper.gravatar_hash(team_member),
       "birthday" => team_member.birthday,
       "employment_status" => team_member.employment_status,
       "college" => team_member.college,
@@ -147,7 +147,7 @@ defmodule Api.UserControllerTest do
   end
 
   test "updates user when data is valid", %{conn: conn} do
-    user = Repo.insert! %User{}
+    user = create_user()
     {:ok, jwt, _} = Guardian.encode_and_sign(user)
 
     conn = conn
@@ -159,7 +159,7 @@ defmodule Api.UserControllerTest do
   end
 
   test "doesn't update user when data is invalid", %{conn: conn} do
-    user = Repo.insert! %User{}
+    user = create_user()
     {:ok, jwt, _} = Guardian.encode_and_sign(user)
 
     conn = conn
@@ -170,7 +170,7 @@ defmodule Api.UserControllerTest do
   end
 
   test "doesn't update user when user is unauthenticated", %{conn: conn} do
-    user = Repo.insert! %User{}
+    user = create_user()
 
     conn = put(conn, user_path(conn, :update, user), user: @invalid_attrs)
 
@@ -178,7 +178,7 @@ defmodule Api.UserControllerTest do
   end
 
   test "deletes user if the request is made by that user", %{conn: conn} do
-    user = Repo.insert! %User{}
+    user = create_user()
     {:ok, jwt, _} = Guardian.encode_and_sign(user)
 
     create_team(user)
@@ -192,10 +192,10 @@ defmodule Api.UserControllerTest do
   end
 
   test "doesnt' delete user if the request is made by other user", %{conn: conn} do
-    user = Repo.insert! %User{}
+    user = create_user()
     {:ok, jwt, _} = Guardian.encode_and_sign(user)
 
-    random_user = Repo.insert! %User{}
+    random_user = create_user()
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
@@ -206,7 +206,7 @@ defmodule Api.UserControllerTest do
   end
 
   test "doesn't delete when request is unauthenticated", %{conn: conn} do
-    user = Repo.insert! %User{}
+    user = create_user()
 
     conn = delete(conn, user_path(conn, :delete, user))
 

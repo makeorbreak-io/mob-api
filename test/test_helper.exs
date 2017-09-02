@@ -6,7 +6,6 @@ defmodule Api.TestHelper do
   alias Api.{User, Team, Repo, TeamMember, Invite, Workshop}
 
   @valid_user_attrs %{
-    email: "johndoe@example.com",
     first_name: "john",
     last_name: "doe",
     password: "thisisapassword"
@@ -19,16 +18,29 @@ defmodule Api.TestHelper do
     short_date: "SUNDAY 10TH — 10:30"
   }
 
+  defp add_email(params) do
+    Map.merge(
+      %{email: "#{to_string(:rand.uniform())}@email.com"},
+      params
+    )
+  end
+
   def create_user(params \\ @valid_user_attrs) do
     %User{}
-    |> User.registration_changeset(params)
+    |> User.registration_changeset(
+      params
+      |> add_email
+    )
     |> Repo.insert!
   end
 
   def create_admin(params \\ @valid_user_attrs) do
-    user_params = Kernel.struct(User, Map.merge(params, %{role: "admin"}))
-
-    user_params
+    %User{}
+    |> User.admin_changeset(
+      params
+      |> add_email
+      |> Map.merge(%{role: "admin"})
+    )
     |> Repo.insert!
   end
 

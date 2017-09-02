@@ -11,7 +11,7 @@ defmodule Api.AdminUserControllerTest do
     role: "admin"
   }
 
-  @invalid_attrs %{}
+  @invalid_attrs %{email: "no at sign"}
 
   setup %{conn: conn} do
     admin = create_admin()
@@ -39,7 +39,7 @@ defmodule Api.AdminUserControllerTest do
       "email" => admin.email,
       "role" => admin.role,
       "display_name" => "#{admin.first_name} #{admin.last_name}",
-      "gravatar_hash" => "fd876f8cd6a58277fc664d47ea10ad19",
+      "gravatar_hash" => UserHelper.gravatar_hash(admin),
       "birthday" => admin.birthday,
       "employment_status" => admin.employment_status,
       "college" => admin.college,
@@ -61,7 +61,7 @@ defmodule Api.AdminUserControllerTest do
   end
 
   test "endpoints are locked for non admin users", %{conn: conn} do
-    user = Repo.insert!(%User{})
+    user = create_user()
 
     {:ok, jwt, _} =
       Guardian.encode_and_sign(user, :token, perms: %{participant: Guardian.Permissions.max})
@@ -88,7 +88,7 @@ defmodule Api.AdminUserControllerTest do
       "email" => admin.email,
       "role" => admin.role,
       "display_name" => "#{admin.first_name} #{admin.last_name}",
-      "gravatar_hash" => "fd876f8cd6a58277fc664d47ea10ad19",
+      "gravatar_hash" => UserHelper.gravatar_hash(admin),
       "birthday" => admin.birthday,
       "employment_status" => admin.employment_status,
       "college" => admin.college,
@@ -110,7 +110,7 @@ defmodule Api.AdminUserControllerTest do
   end
 
   test "updates user when data is valid", %{conn: conn, jwt: jwt} do
-    user = Repo.insert! %User{}
+    user = create_user()
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
@@ -123,7 +123,7 @@ defmodule Api.AdminUserControllerTest do
   end
 
   test "doesn't update user when data is invalid", %{conn: conn, jwt: jwt} do
-    user = Repo.insert! %User{}
+    user = create_user()
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
@@ -133,7 +133,7 @@ defmodule Api.AdminUserControllerTest do
   end
 
   test "deletes user", %{conn: conn, jwt: jwt} do
-    user = Repo.insert! %User{}
+    user = create_user()
     create_team(user)
     workshop = create_workshop()
     Repo.insert! %WorkshopAttendance{user_id: user.id, workshop_id: workshop.id}

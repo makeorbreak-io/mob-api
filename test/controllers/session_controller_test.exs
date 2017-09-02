@@ -17,7 +17,7 @@ defmodule Api.SessionControllerTest do
   end
 
   test "user can login", %{conn: conn} do
-    user = create_user()
+    user = create_user(@valid_credentials)
     team = create_team(user)
 
     conn = post(conn, session_path(conn, :create, @valid_credentials))
@@ -27,12 +27,12 @@ defmodule Api.SessionControllerTest do
       "birthday" => user.birthday,
       "college" => user.college,
       "company" => user.company,
-      "display_name" => "#{user.first_name} #{user.last_name}",
+      "display_name" => UserHelper.display_name(user),
       "email" => user.email,
       "employment_status" => nil,
       "first_name" => user.first_name,
       "github_handle" => nil,
-      "gravatar_hash" => "fd876f8cd6a58277fc664d47ea10ad19",
+      "gravatar_hash" => UserHelper.gravatar_hash(user),
       "id" => user.id,
       "invitations" => [],
       "last_name" => user.last_name,
@@ -45,8 +45,8 @@ defmodule Api.SessionControllerTest do
         "invites" => [],
         "members" => [%{
           "id" => user.id,
-          "display_name" => "#{user.first_name} #{user.last_name}",
-          "gravatar_hash" => "fd876f8cd6a58277fc664d47ea10ad19",
+          "display_name" => UserHelper.display_name(user),
+          "gravatar_hash" => UserHelper.gravatar_hash(user),
           "role" => "owner"
         }],
         "role" => "owner",
@@ -86,7 +86,7 @@ defmodule Api.SessionControllerTest do
       "first_name" => user.first_name,
       "last_name" => user.last_name,
       "display_name" => "#{user.first_name} #{user.last_name}",
-      "gravatar_hash" => "fd876f8cd6a58277fc664d47ea10ad19",
+      "gravatar_hash" => UserHelper.gravatar_hash(user),
       "birthday" => user.birthday,
       "employment_status" => user.employment_status,
       "college" => user.college,
@@ -104,7 +104,7 @@ defmodule Api.SessionControllerTest do
         "members" => [%{
           "id" => user.id,
           "display_name" => "#{user.first_name} #{user.last_name}",
-          "gravatar_hash" => "fd876f8cd6a58277fc664d47ea10ad19",
+          "gravatar_hash" => UserHelper.gravatar_hash(user),
           "role" => "owner"
         }],
         "project" => nil
@@ -128,8 +128,14 @@ defmodule Api.SessionControllerTest do
   end
 
   test "fails authorization", %{conn: conn} do
-    create_user()
+    create_user(@valid_credentials)
 
+    conn = post(conn, session_path(conn, :create, @invalid_credentials))
+
+    assert json_response(conn, 422)["errors"] == "Wrong email or password"
+  end
+
+  test "unknown user", %{conn: conn} do
     conn = post(conn, session_path(conn, :create, @invalid_credentials))
 
     assert json_response(conn, 422)["errors"] == "Wrong email or password"

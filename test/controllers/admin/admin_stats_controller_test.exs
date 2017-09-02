@@ -1,12 +1,13 @@
 defmodule Api.AdminStatsControllerTest do
   use Api.ConnCase
 
-  alias Api.{User, Project, WorkshopAttendance}
+  alias Api.{Project, WorkshopAttendance}
+  alias Guardian.Permissions
 
   setup %{conn: conn} do
     admin = create_admin()
     {:ok, jwt, _} =
-      Guardian.encode_and_sign(admin, :token, perms: %{admin: Guardian.Permissions.max})
+      Guardian.encode_and_sign(admin, :token, perms: %{admin: Permissions.max})
 
     {:ok, %{
       admin: admin,
@@ -16,9 +17,9 @@ defmodule Api.AdminStatsControllerTest do
   end
 
   test "correct statistics are given", %{conn: conn, admin: admin, jwt: jwt} do
-    Repo.insert! %User{}
-    Repo.insert! %User{}
-    team_owner = Repo.insert! %User{}
+    create_user()
+    create_user()
+    team_owner = create_user()
     create_team(admin)
     create_team(team_owner, %{applied: true, name: "awesome team"})
     workshop = create_workshop()

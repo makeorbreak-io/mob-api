@@ -36,7 +36,7 @@ defmodule Api.InviteControllerTest do
       "host" => %{
         "display_name" => "#{host.first_name} #{host.last_name}",
         "first_name" => host.first_name,
-        "gravatar_hash" => "8455938a1db5c475a87d76edacb6284e",
+        "gravatar_hash" => UserHelper.gravatar_hash(host),
         "id" => host.id,
         "last_name" => host.last_name,
         "tshirt_size" => host.tshirt_size
@@ -45,7 +45,7 @@ defmodule Api.InviteControllerTest do
       "invitee" => %{
         "display_name" => "#{user.first_name} #{user.last_name}",
         "first_name" => user.first_name,
-        "gravatar_hash" => "fd876f8cd6a58277fc664d47ea10ad19",
+        "gravatar_hash" => UserHelper.gravatar_hash(user),
         "id" => user.id,
         "last_name" => user.last_name,
         "tshirt_size" => user.tshirt_size
@@ -75,7 +75,7 @@ defmodule Api.InviteControllerTest do
         "first_name" => user.first_name,
         "last_name" => user.last_name,
         "display_name" => "#{user.first_name} #{user.last_name}",
-        "gravatar_hash" => "fd876f8cd6a58277fc664d47ea10ad19",
+        "gravatar_hash" => UserHelper.gravatar_hash(user),
         "tshirt_size" => nil,
       },
       "invitee" => nil,
