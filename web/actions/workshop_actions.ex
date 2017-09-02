@@ -2,7 +2,6 @@ defmodule Api.WorkshopActions do
   use Api.Web, :action
 
   alias Api.{Workshop, WorkshopAttendance, Repo, Email, Mailer}
-  alias Guardian.{Plug}
   import Ecto.Query
 
   def all do
@@ -46,8 +45,7 @@ defmodule Api.WorkshopActions do
     Repo.delete!(workshop)
   end
 
-  def join(conn, id) do
-    user = Plug.current_resource(conn)
+  def join(current_user, id) do
     workshop = Repo.get_by!(Workshop, slug: id)
 
     query = from w in "users_workshops", where: w.workshop_id == type(^workshop.id, Ecto.UUID)
@@ -55,11 +53,11 @@ defmodule Api.WorkshopActions do
 
     if attendees_count < workshop.participant_limit do
       changeset = WorkshopAttendance.changeset(%WorkshopAttendance{},
-        %{user_id: user.id, workshop_id: workshop.id})
+        %{user_id: current_user.id, workshop_id: workshop.id})
 
       case Repo.insert(changeset) do
         {:ok, attendance} ->
-          Email.joined_workshop_email(user, workshop) |> Mailer.deliver_later
+          Email.joined_workshop_email(current_user, workshop) |> Mailer.deliver_later
           {:ok, attendance}
         {:error, _} -> {:error, "Unable to create workshop attendance"}
       end
@@ -68,13 +66,12 @@ defmodule Api.WorkshopActions do
     end
   end
 
-  def leave(conn, id) do
-    user = Plug.current_resource(conn)
+  def leave(current_user, id) do
     workshop = Repo.get_by!(Workshop, slug: id)
 
     query = from(w in "users_workshops",
       where: w.workshop_id == type(^workshop.id, Ecto.UUID)
-        and w.user_id == type(^user.id, Ecto.UUID))
+        and w.user_id == type(^current_user.id, Ecto.UUID))
 
     case Repo.delete_all(query) do
       {1, nil} ->

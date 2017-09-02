@@ -2,7 +2,7 @@ defmodule Api.ProjectController do
 
   use Api.Web, :controller
 
-  alias Api.{ProjectActions, Controller.Errors}
+  alias Api.{Controller.Errors, ProjectActions}
 
   plug :scrub_params, "project" when action in [:create, :update]
   plug Guardian.Plug.EnsureAuthenticated,

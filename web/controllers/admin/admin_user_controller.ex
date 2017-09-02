@@ -1,7 +1,7 @@
 defmodule Api.Admin.UserController do
   use Api.Web, :controller
 
-  alias Api.{UserActions, Controller.Errors}
+  alias Api.{Controller.Errors, SessionActions, UserActions}
   alias Guardian.Plug.{EnsureAuthenticated, EnsurePermissions}
 
   plug :scrub_params, "user" when action in [:update]
@@ -17,7 +17,7 @@ defmodule Api.Admin.UserController do
   end
 
   def update(conn, %{"id" => id, "user" => user_params}) do
-    case UserActions.update(conn, id, user_params) do
+    case UserActions.update(SessionActions.current_user(conn), id, user_params) do
       {:ok, user} -> render(conn, "show.json", user: user)
       {:error, changeset} -> Errors.changeset(conn, changeset)
     end

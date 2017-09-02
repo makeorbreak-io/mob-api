@@ -6,11 +6,8 @@ defmodule Api.InviteActions do
   @http Application.get_env(:api, :http_lib)
 
   alias Api.{Email, Invite, Mailer, Repo, TeamMember, User, UserActions}
-  alias Guardian.{Plug}
 
-  def for_current_user(conn) do
-    current_user = Plug.current_resource(conn)
-
+  def for_current_user(current_user) do
     Invite
     |> where(invitee_id: ^current_user.id)
     |> Repo.all
@@ -22,9 +19,8 @@ defmodule Api.InviteActions do
     |> Repo.preload([:host, :team, :invitee])
   end
 
-  def create(conn, invite_params) do
-    user = Plug.current_resource(conn)
-    |> UserActions.preload_user_data
+  def create(current_user, invite_params) do
+    user = UserActions.preload_user_data(current_user)
 
     if user.team do
       create_if_vacant(user, invite_params)

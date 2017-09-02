@@ -2,7 +2,6 @@ defmodule Api.TeamActions do
   use Api.Web, :action
 
   alias Api.{Team, User, TeamMember, Email, Mailer}
-  alias Guardian.{Plug}
 
   def all do
     Repo.all(Team)
@@ -14,8 +13,7 @@ defmodule Api.TeamActions do
     |> Repo.preload([:project, members: [:user], invites: [:host, :invitee, :team]])
   end
 
-  def create(conn, team_params) do
-    current_user = Plug.current_resource(conn)
+  def create(current_user, team_params) do
     changeset = Team.changeset(%Team{}, team_params)
 
     case Repo.insert(changeset) do
@@ -30,12 +28,10 @@ defmodule Api.TeamActions do
     end
   end
 
-  def update(conn, id, team_params) do
-    user = Plug.current_resource(conn)
-
+  def update(current_user, id, team_params) do
     team = get(id)
 
-    if is_team_member?(team, user) do
+    if is_team_member?(team, current_user) do
       Team.changeset(team, team_params)
       |> email_if_applying(team)
       |> Repo.update
@@ -44,19 +40,16 @@ defmodule Api.TeamActions do
     end
   end
 
-  def delete(conn, id) do
-    user = Plug.current_resource(conn)
-
+  def delete(current_user, id) do
     team = Repo.get!(Team, id)
 
-    case is_team_member?(team, user) do
+    case is_team_member?(team, current_user) do
       true -> Repo.delete!(team)
       false -> {:unauthorized}
     end
   end
 
-  def remove(conn, team_id, user_id) do
-    current_user = Plug.current_resource(conn)
+  def remove(current_user, team_id, user_id) do
     team = Repo.get!(Team, team_id)
 
     case Repo.get(User, user_id) do
