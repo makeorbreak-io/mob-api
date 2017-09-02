@@ -1,18 +1,19 @@
 defmodule Api.InviteController do
   use Api.Web, :controller
 
-  alias Api.{Controller.Errors, InviteActions}
+  alias Api.{Controller.Errors, InviteActions, SessionActions}
 
   plug :scrub_params, "invite" when action in [:create]
   plug Guardian.Plug.EnsureAuthenticated,
     [handler: Errors] when action in [:index, :create, :accept, :delete]
 
   def index(conn, _params) do
-    render(conn, "index.json", invites: InviteActions.for_current_user(conn))
+    render(conn, "index.json",
+      invites: InviteActions.for_current_user(SessionActions.current_user(conn)))
   end
 
   def create(conn, %{"invite" => invite_params}) do
-    case InviteActions.create(conn, invite_params) do
+    case InviteActions.create(SessionActions.current_user(conn), invite_params) do
       {:ok, invite} ->
         invite = Repo.preload(invite, [:host, :team, :invitee])
 

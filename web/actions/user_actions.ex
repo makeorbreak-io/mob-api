@@ -2,7 +2,6 @@ defmodule Api.UserActions do
   use Api.Web, :action
 
   alias Api.{User, UserActions, Invite, Email, Mailer}
-  alias Guardian.{Plug}
 
   def all do
     Enum.map(Repo.all(User), fn(user) -> UserActions.preload_user_data(user) end)
@@ -31,8 +30,7 @@ defmodule Api.UserActions do
     end
   end
 
-  def update(conn, id, user_params) do
-    current_user = Plug.current_resource(conn)
+  def update(current_user, id, user_params) do
     user = Repo.get!(User, id)
 
     changeset = apply(User, String.to_atom("#{current_user.role}_changeset"),
@@ -44,11 +42,10 @@ defmodule Api.UserActions do
     end
   end
 
-  def delete(conn, id) do
-    current_user = Plug.current_resource(conn)
+  def delete(current_user, id) do
     user = Repo.get!(User, id)
 
-    if user == current_user do
+    if user.id == current_user.id do
       Repo.delete(user)
     else
       :unauthorized

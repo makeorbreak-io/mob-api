@@ -94,6 +94,9 @@ defmodule Api.Mixfile do
       ],
       "server": [
         "phoenix.server"
+      ],
+      "sentry_recompile": [
+        "clean", "compile"
       ]
     ]
   end

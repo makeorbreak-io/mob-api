@@ -1,7 +1,7 @@
 defmodule Api.UserController do
   use Api.Web, :controller
 
-  alias Api.{UserActions, SessionView, Controller.Errors}
+  alias Api.{Controller.Errors, SessionActions, SessionView, UserActions}
 
   plug :scrub_params, "user" when action in [:create, :update]
   plug Guardian.Plug.EnsureAuthenticated, [handler: Errors] when action in [:update, :delete]
@@ -26,14 +26,14 @@ defmodule Api.UserController do
   end
 
   def update(conn, %{"id" => id, "user" => user_params}) do
-    case UserActions.update(conn, id, user_params) do
+    case UserActions.update(SessionActions.current_user(conn), id, user_params) do
       {:ok, user} -> render(conn, "show.json", user: user)
       {:error, changeset} -> Errors.changeset(conn, changeset)
     end
   end
 
   def delete(conn, %{"id" => id}) do
-    case UserActions.delete(conn, id) do
+    case UserActions.delete(SessionActions.current_user(conn), id) do
       :unauthorized -> Errors.unauthorized(conn, nil)
       _ -> send_resp(conn, :no_content, "")
     end

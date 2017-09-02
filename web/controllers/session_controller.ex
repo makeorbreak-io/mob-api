@@ -1,7 +1,7 @@
 defmodule Api.SessionController do
   use Api.Web, :controller
 
-  alias Api.{SessionActions, SessionView, Controller.Errors}
+  alias Api.{Controller.Errors, SessionActions, SessionView}
 
   plug Guardian.Plug.EnsureAuthenticated, [handler: Errors] when action in [:me]
 
