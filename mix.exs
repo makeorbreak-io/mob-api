@@ -66,6 +66,9 @@ defmodule Api.Mixfile do
       {:phoenix_html, "~> 2.6"},
       {:postgrex, "~> 0.13.3"},
       {:sentry, "~> 5.0.1"},
+      # Don't allow Plug 1.4 until there's a new Phoenix 1.2.x version
+      # https://github.com/phoenixframework/phoenix/issues/2400
+      {:plug, "~> 1.3.0"},
     ]
   end
 
