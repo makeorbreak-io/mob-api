@@ -1,7 +1,7 @@
 defmodule Api.Admin.WorkshopControllerTest do
   use Api.ConnCase
 
-  alias Api.{Workshop, User}
+  alias Api.{Workshop}
 
   @valid_attrs %{
     slug: "some-content",
@@ -48,7 +48,7 @@ defmodule Api.Admin.WorkshopControllerTest do
   end
 
   test "endpoints are locked for non admin users", %{conn: conn} do
-    user = Repo.insert! %User{}
+    user = create_user()
 
     {:ok, jwt, _} =
       Guardian.encode_and_sign(user, :token, perms: %{participant: Guardian.Permissions.max})

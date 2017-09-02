@@ -17,7 +17,7 @@ defmodule Api.SessionControllerTest do
   end
 
   test "user can login", %{conn: conn} do
-    user = create_user()
+    user = create_user(@valid_credentials)
     team = create_team(user)
 
     conn = post(conn, session_path(conn, :create, @valid_credentials))
@@ -128,7 +128,7 @@ defmodule Api.SessionControllerTest do
   end
 
   test "fails authorization", %{conn: conn} do
-    create_user()
+    create_user(@valid_credentials)
 
     conn = post(conn, session_path(conn, :create, @invalid_credentials))
 

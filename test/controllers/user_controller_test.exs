@@ -10,7 +10,7 @@ defmodule Api.UserControllerTest do
     last_name: "doe",
     password: "thisisapassword"
   }
-  @invalid_attrs %{}
+  @invalid_attrs %{email: "no at sign"}
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
@@ -147,7 +147,7 @@ defmodule Api.UserControllerTest do
   end
 
   test "updates user when data is valid", %{conn: conn} do
-    user = Repo.insert! %User{}
+    user = create_user()
     {:ok, jwt, _} = Guardian.encode_and_sign(user)
 
     conn = conn
@@ -159,7 +159,7 @@ defmodule Api.UserControllerTest do
   end
 
   test "doesn't update user when data is invalid", %{conn: conn} do
-    user = Repo.insert! %User{}
+    user = create_user()
     {:ok, jwt, _} = Guardian.encode_and_sign(user)
 
     conn = conn
@@ -170,7 +170,7 @@ defmodule Api.UserControllerTest do
   end
 
   test "doesn't update user when user is unauthenticated", %{conn: conn} do
-    user = Repo.insert! %User{}
+    user = create_user()
 
     conn = put(conn, user_path(conn, :update, user), user: @invalid_attrs)
 
@@ -178,7 +178,7 @@ defmodule Api.UserControllerTest do
   end
 
   test "deletes user if the request is made by that user", %{conn: conn} do
-    user = Repo.insert! %User{}
+    user = create_user()
     {:ok, jwt, _} = Guardian.encode_and_sign(user)
 
     create_team(user)
@@ -192,10 +192,10 @@ defmodule Api.UserControllerTest do
   end
 
   test "doesnt' delete user if the request is made by other user", %{conn: conn} do
-    user = Repo.insert! %User{}
+    user = create_user()
     {:ok, jwt, _} = Guardian.encode_and_sign(user)
 
-    random_user = Repo.insert! %User{}
+    random_user = create_user()
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
@@ -206,7 +206,7 @@ defmodule Api.UserControllerTest do
   end
 
   test "doesn't delete when request is unauthenticated", %{conn: conn} do
-    user = Repo.insert! %User{}
+    user = create_user()
 
     conn = delete(conn, user_path(conn, :delete, user))
 
