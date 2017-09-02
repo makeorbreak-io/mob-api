@@ -1,7 +1,4 @@
 defmodule Api do
-  @moduledoc """
-    TODO: Write.
-  """
   use Application
 
   alias Api.{Endpoint, Repo}

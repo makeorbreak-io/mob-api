@@ -1,8 +1,4 @@
 defmodule Api.User do
-  @moduledoc """
-    TODO: Write.
-  """
-
   use Api.Web, :model
   alias Api.{EctoHelper, Crypto, Invite, TeamMember, Workshop, WorkshopAttendance}
 
