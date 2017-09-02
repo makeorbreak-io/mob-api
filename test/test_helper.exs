@@ -3,7 +3,7 @@ ExUnit.start
 Ecto.Adapters.SQL.Sandbox.mode(Api.Repo, :manual)
 
 defmodule Api.TestHelper do
-  alias Api.{User, Team, Repo, TeamMember, Invite, Workshop}
+  alias Api.{User, Team, Repo, TeamMember, Invite, Workshop, Category}
 
   @valid_user_attrs %{
     first_name: "john",
@@ -63,6 +63,17 @@ defmodule Api.TestHelper do
   def create_invite(params) do
     %Invite{}
     |> Invite.changeset(params)
+    |> Repo.insert!
+  end
+
+  def create_category(params \\ %{}) do
+    %Category{}
+    |> Category.changeset(
+      %{
+        name: "cool #{:rand.uniform()}",
+      }
+      |> Map.merge(params)
+    )
     |> Repo.insert!
   end
 end

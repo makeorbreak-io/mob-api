@@ -4,12 +4,15 @@ defmodule Api.User do
   """
 
   use Api.Web, :model
-  alias Api.{Invite, TeamMember, Workshop, WorkshopAttendance}
+  alias Api.{EctoHelper, Crypto, Invite, TeamMember, Workshop, WorkshopAttendance}
 
   alias Comeonin.Bcrypt
 
   @valid_attrs ~w(email first_name last_name password birthday employment_status college
-                  company github_handle twitter_handle linkedin_url bio tshirt_size)
+                  company github_handle twitter_handle linkedin_url bio tshirt_size
+                  voter_identity)
+  @admin_attrs @valid_attrs ++ ~w(role checked_in)
+  @required_attrs ~w(email voter_identity)a
 
   schema "users" do
     field :email, :string
@@ -27,6 +30,7 @@ defmodule Api.User do
     field :role, :string, default: "participant"
     field :tshirt_size, :string
     field :checked_in, :boolean, default: false
+    field :voter_identity, :string
     timestamps()
 
     # Virtual fields
@@ -40,27 +44,20 @@ defmodule Api.User do
     many_to_many :workshops, Workshop, join_through: WorkshopAttendance, on_delete: :delete_all
   end
 
-  def changeset(struct, params \\ %{}) do
+  def changeset(struct, params \\ %{}),  do: _cs(struct, params, @valid_attrs)
+  def participant_changeset(struct, params \\ %{}),  do: _cs(struct, params, @valid_attrs)
+  def admin_changeset(struct, params \\ %{}), do: _cs(struct, params, @admin_attrs)
+  defp _cs(struct, params, attrs) do
     struct
-    |> cast(params, @valid_attrs)
-    |> validate_required(~w(email)a)
+    |> cast(
+      params
+      |> EctoHelper.if_missing(struct, :voter_identity, Crypto.random_hmac()),
+      attrs
+    )
+    |> validate_required(@required_attrs)
     |> validate_length(:email, min: 1, max: 255)
     |> validate_format(:email, ~r/@/)
     |> unique_constraint(:email)
-  end
-
-  def admin_changeset(struct, params \\ %{}) do
-    struct
-    |> cast(params, @valid_attrs ++ ~w(role checked_in))
-    |> validate_required(~w(email)a)
-    |> validate_length(:email, min: 1, max: 255)
-    |> validate_format(:email, ~r/@/)
-    |> unique_constraint(:email)
-  end
-
-  def participant_changeset(struct, params \\ %{}) do
-    struct
-    |> changeset(params)
   end
 
   def registration_changeset(struct, params \\ %{}) do
