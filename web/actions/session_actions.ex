@@ -11,7 +11,7 @@ defmodule Api.SessionActions do
   end
 
   def create(email, password) do
-    user = Repo.get_by(User, email: String.downcase(email))
+    user = Repo.get_by(User, email: email)
     |> UserActions.preload_user_data
 
     user
