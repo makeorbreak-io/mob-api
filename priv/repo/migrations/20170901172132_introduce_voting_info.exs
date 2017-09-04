@@ -4,6 +4,7 @@ defmodule Api.Repo.Migrations.IntroduceVotingInfo do
   import Ecto.Query
 
   alias Api.{Crypto, Repo, User, Team, Category}
+  alias Ecto.{Changeset}
 
   defp fk(table, on_delete \\ :nilify_all, type \\ :uuid) do
     references(table, on_delete: on_delete, type: type)
@@ -19,9 +20,7 @@ defmodule Api.Repo.Migrations.IntroduceVotingInfo do
     |> Enum.map(fn
       user ->
         user
-        |> User.changeset(%{
-          voter_identity: Crypto.random_hmac(),
-        })
+        |> Changeset.change(voter_identity: Crypto.random_hmac())
         |> Repo.update!
     end)
     flush()
@@ -34,7 +33,7 @@ defmodule Api.Repo.Migrations.IntroduceVotingInfo do
 
     alter table(:teams) do
       add :disqualified_at, :utc_datetime, default: nil
-      add :disqualified_by, fk(:users), default: nil
+      add :disqualified_by_id, fk(:users), default: nil
       add :eligible, :boolean, default: false
       add :prize_preference_hmac_secret, :string
       add :tie_breaker, :integer
@@ -49,10 +48,10 @@ defmodule Api.Repo.Migrations.IntroduceVotingInfo do
     |> Enum.map(fn
       {team, tie_breaker} ->
         team
-        |> Team.changeset(%{
+        |> Changeset.change(
           prize_preference_hmac_secret: Crypto.random_hmac(),
           tie_breaker: tie_breaker
-        })
+        )
         |> Repo.update!
     end)
 
