@@ -39,9 +39,13 @@ defmodule Api.AdminStatsControllerTest do
 
     assert json_response(conn, 200)["data"] == %{
       "users" => %{
-        "participants" => 4,
+        "hackathon" => 1,
         "total" => 5
       },
+      "roles" => [
+        %{"role" => "admin", "total" => 1},
+        %{"role" => "participant", "total" => 4},
+      ],
       "teams" => %{
         "total" => 2,
         "applied" => 1
