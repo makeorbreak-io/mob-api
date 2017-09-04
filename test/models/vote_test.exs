@@ -13,7 +13,7 @@ defmodule Api.VoteTest do
   test "changeset", %{category: category, team: team} do
     assert Vote.changeset(%Vote{}, %{
       voter_identity: "derp",
-      category: category,
+      category_id: category.id,
       ballot: [team.id],
     }).valid?
   end

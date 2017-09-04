@@ -6,6 +6,7 @@ defmodule Api.PaperVote do
   use Api.Web, :model
 
   alias Api.{Crypto, Team, Category, User}
+  alias Api.EctoHelper
 
   @required_attrs [
     :hmac_secret,
@@ -44,24 +45,20 @@ defmodule Api.PaperVote do
     Crypto.hmac(paper_vote.hmac_secret, paper_vote.id)
   end
 
-  def creation_changeset(struct, params \\ %{}) do
+  def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @valid_attrs)
     |> EctoHelper.if_missing(:hmac_secret, Crypto.random_hmac())
-    |> put_assoc(:category, params.category)
-    |> put_assoc(:created_by, params.created_by)
     |> validate_required(@required_attrs)
-  end
-
-  def redemption_changeset(struct, params \\ %{}) do
-    creation_changeset(struct, params)
-    |> put_assoc(:redeeming_admin, params.redeeming_admin)
-    |> put_assoc(:redeeming_member, params.redeeming_member)
-    |> put_assoc(:team, params.team)
-  end
-
-  def annulment_changeset(struct, params \\ %{}) do
-    creation_changeset(struct, params)
-    |> put_assoc(:annulled_by, params.annulled_by)
+    |> EctoHelper.validate_xor_change([
+      :redeemed_at,
+      :redeeming_admin_id,
+      :redeeming_member_id,
+      :team_id,
+    ])
+    |> EctoHelper.validate_xor_change([
+      :annulled_by_id,
+      :annulled_at,
+    ])
   end
 end

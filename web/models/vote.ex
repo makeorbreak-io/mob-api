@@ -7,8 +7,9 @@ defmodule Api.Vote do
 
   alias Api.{Category}
 
-  @required_attrs [
+  @attrs [
     :voter_identity,
+    :category_id,
     :ballot,
   ]
 
@@ -21,8 +22,7 @@ defmodule Api.Vote do
 
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, @required_attrs)
-    |> put_assoc(:category, params.category)
-    |> validate_required(@required_attrs)
+    |> cast(params, @attrs)
+    |> validate_required(@attrs)
   end
 end

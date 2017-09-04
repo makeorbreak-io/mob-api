@@ -15,29 +15,29 @@ defmodule Api.PaperVoteTest do
       team: team,
       base_attrs: %{
         hmac_secret: "you'll never guess me",
-        category: category,
-        created_by: admin,
+        category_id: category.id,
+        created_by_id: admin.id,
       }
     }}
   end
 
   test "changeset create", %{base_attrs: base_attrs} do
-    assert PaperVote.creation_changeset(%PaperVote{}, base_attrs).valid?
+    assert PaperVote.changeset(%PaperVote{}, base_attrs).valid?
   end
 
   test "changeset redeem", %{base_attrs: base_attrs, user: user, team: team, admin: admin} do
-    assert PaperVote.redemption_changeset(%PaperVote{}, Map.merge(base_attrs, %{
+    assert PaperVote.changeset(%PaperVote{}, Map.merge(base_attrs, %{
       redeemed_at: DateTime.utc_now(),
-      redeeming_admin: admin,
-      redeeming_member: user,
-      team: team,
+      redeeming_admin_id: admin.id,
+      redeeming_member_id: user.id,
+      team_id: team.id,
     })).valid?
   end
 
   test "changeset annul", %{base_attrs: base_attrs, admin: admin} do
-    assert PaperVote.annulment_changeset(%PaperVote{}, Map.merge(base_attrs, %{
-      annulled_at: DateTime.utc_now(),
-      annulled_by: admin,
+    assert PaperVote.changeset(%PaperVote{}, Map.merge(base_attrs, %{
+      annulled_at_id: DateTime.utc_now(),
+      annulled_by: admin.id,
     })).valid?
   end
 end
