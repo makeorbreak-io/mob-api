@@ -49,11 +49,8 @@ defmodule Api.User do
   def admin_changeset(struct, params \\ %{}), do: _cs(struct, params, @admin_attrs)
   defp _cs(struct, params, attrs) do
     struct
-    |> cast(
-      params
-      |> EctoHelper.if_missing(struct, :voter_identity, Crypto.random_hmac()),
-      attrs
-    )
+    |> cast(params, attrs)
+    |> EctoHelper.if_missing(:voter_identity, Crypto.random_hmac())
     |> validate_required(@required_attrs)
     |> validate_length(:email, min: 1, max: 255)
     |> validate_format(:email, ~r/@/)

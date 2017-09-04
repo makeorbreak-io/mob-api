@@ -26,20 +26,9 @@ defmodule Api.Team do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(
-      params
-      |> EctoHelper.if_missing(
-        struct,
-        :tie_breaker,
-        round(:rand.uniform() * 100)
-      )
-      |> EctoHelper.if_missing(
-        struct,
-        :prize_preference_hmac_secret,
-        Crypto.random_hmac()
-      ),
-      @valid_attrs
-    )
+    |> cast(params, @valid_attrs)
+    |> EctoHelper.if_missing(:tie_breaker, round(:rand.uniform() * 100))
+    |> EctoHelper.if_missing(:prize_preference_hmac_secret, Crypto.random_hmac())
     |> validate_required(@required_attrs)
   end
 end
