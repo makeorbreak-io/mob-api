@@ -27,6 +27,8 @@ defmodule Api.AdminUserControllerTest do
 
   test "endpoints are availale for admin users", %{conn: conn, admin: admin, jwt: jwt} do
     team = create_team(admin)
+    workshop = create_workshop()
+    Repo.insert! %WorkshopAttendance{user_id: admin.id, workshop_id: workshop.id}
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
@@ -57,6 +59,11 @@ defmodule Api.AdminUserControllerTest do
         "role" => "owner",
       },
       "tshirt_size" => nil,
+      "workshops" => [%{
+        "name" => workshop.name,
+        "slug" => workshop.slug,
+        "short_speaker" => workshop.short_speaker
+      }]
     }]
   end
 
@@ -76,6 +83,8 @@ defmodule Api.AdminUserControllerTest do
 
   test "shows user", %{conn: conn, admin: admin, jwt: jwt} do
     team = create_team(admin)
+    workshop = create_workshop()
+    Repo.insert! %WorkshopAttendance{user_id: admin.id, workshop_id: workshop.id}
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
@@ -106,6 +115,11 @@ defmodule Api.AdminUserControllerTest do
         "role" => "owner",
       },
       "tshirt_size" => nil,
+      "workshops" => [%{
+        "name" => workshop.name,
+        "slug" => workshop.slug,
+        "short_speaker" => workshop.short_speaker
+      }]
     }
   end
 
