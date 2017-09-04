@@ -50,6 +50,7 @@ defmodule Api.PaperVote do
     |> cast(params, @valid_attrs)
     |> EctoHelper.if_missing(:hmac_secret, Crypto.random_hmac())
     |> validate_required(@required_attrs)
+    |> unique_constraint(:hmac_secret)
     |> EctoHelper.validate_xor_change([
       :redeemed_at,
       :redeeming_admin_id,

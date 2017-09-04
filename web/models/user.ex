@@ -52,6 +52,7 @@ defmodule Api.User do
     |> cast(params, attrs)
     |> EctoHelper.if_missing(:voter_identity, Crypto.random_hmac())
     |> validate_required(@required_attrs)
+    |> unique_constraint(:voter_identity)
     |> validate_length(:email, min: 1, max: 255)
     |> validate_format(:email, ~r/@/)
     |> unique_constraint(:email)

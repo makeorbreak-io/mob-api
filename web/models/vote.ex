@@ -24,5 +24,6 @@ defmodule Api.Vote do
     struct
     |> cast(params, @attrs)
     |> validate_required(@attrs)
+    |> unique_constraint(:voter_identity)
   end
 end

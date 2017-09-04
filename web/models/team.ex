@@ -32,6 +32,8 @@ defmodule Api.Team do
     |> EctoHelper.if_missing(:tie_breaker, round(:rand.uniform() * 100))
     |> EctoHelper.if_missing(:prize_preference_hmac_secret, Crypto.random_hmac())
     |> validate_required(@required_attrs)
+    |> unique_constraint(:tie_breaker)
+    |> unique_constraint(:prize_preference_hmac_secret)
     |> EctoHelper.validate_xor_change([:disqualified_at, :disqualified_by_id])
   end
 end
