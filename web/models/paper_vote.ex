@@ -9,11 +9,19 @@ defmodule Api.PaperVote do
 
   @required_attrs [
     :hmac_secret,
+    :category_id,
+    :created_by_id,
   ]
 
-  @valid_attrs @required_attrs ++ [
+  @valid_attrs [
+    :category_id,
+    :created_by_id,
     :redeemed_at,
+    :redeeming_admin_id,
+    :redeeming_member_id,
+    :team_id,
     :annulled_at,
+    :annulled_by_id,
   ]
 
   schema "paper_votes" do
@@ -39,6 +47,7 @@ defmodule Api.PaperVote do
   def creation_changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @valid_attrs)
+    |> EctoHelper.if_missing(:hmac_secret, Crypto.random_hmac())
     |> put_assoc(:category, params.category)
     |> put_assoc(:created_by, params.created_by)
     |> validate_required(@required_attrs)

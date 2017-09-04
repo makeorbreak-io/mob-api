@@ -3,8 +3,7 @@ defmodule Api.Team do
 
   alias Api.{EctoHelper, Crypto, Project, Invite, TeamMember}
 
-  @valid_attrs ~w(name applied prize_preference prize_preference_hmac_secret
-                  tie_breaker)
+  @valid_attrs ~w(name applied prize_preference)
   @required_attrs ~w(name prize_preference_hmac_secret tie_breaker)a
 
   schema "teams" do

@@ -10,7 +10,7 @@ defmodule Api.User do
 
   @valid_attrs ~w(email first_name last_name password birthday employment_status college
                   company github_handle twitter_handle linkedin_url bio tshirt_size
-                  voter_identity)
+                  )
   @admin_attrs @valid_attrs ++ ~w(role checked_in)
   @required_attrs ~w(email voter_identity)a
 
