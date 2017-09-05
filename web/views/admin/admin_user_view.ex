@@ -1,7 +1,7 @@
 defmodule Api.Admin.UserView do
   use Api.Web, :view
 
-  alias Api.{TeamMemberView, UserHelper}
+  alias Api.{TeamMemberView, WorkshopView, UserHelper}
 
   def render("index.json", %{users: users}) do
     %{data: render_many(users, __MODULE__, "user.json")}
@@ -33,6 +33,8 @@ defmodule Api.Admin.UserView do
       team: if user.team do
         render_one(user.team, TeamMemberView, "member_team_short.json", as: :membership) end,
       tshirt_size: user.tshirt_size,
+      workshops: if Ecto.assoc_loaded?(user.workshops) do
+        render_many(user.workshops, WorkshopView, "workshop_short.json") end
     }
   end
 end

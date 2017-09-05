@@ -4,9 +4,10 @@ defmodule Api.Admin.StatsView do
   def render("stats.json", %{stats: stats}) do
     %{data: %{
         users: %{
-          total: stats.users,
-          participants: stats.participants
+          hackathon: stats.users.hackathon,
+          total: stats.users.total
         },
+        roles: stats.roles,
         teams: %{
           total: stats.teams.total,
           applied: stats.teams.applied
