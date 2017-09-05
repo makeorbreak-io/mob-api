@@ -14,7 +14,13 @@ defmodule Api.Vote do
   ]
 
   schema "votes" do
-    field :voter_identity, :string
+    belongs_to(
+      :voter,
+      User,
+      foreign_key: :voter_identity,
+      references: :voter_identity,
+      type: :string,
+    )
     belongs_to :category, Category
     field :ballot, {:array, :string}
     timestamps()
@@ -25,5 +31,7 @@ defmodule Api.Vote do
     |> cast(params, @attrs)
     |> validate_required(@attrs)
     |> unique_constraint(:voter_identity)
+    |> assoc_constraint(:voter)
+    |> assoc_constraint(:category)
   end
 end

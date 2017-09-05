@@ -2,7 +2,6 @@ defmodule Api.Team do
   use Api.Web, :model
 
   alias Api.{EctoHelper, Crypto, Project, Invite, TeamMember}
-  alias Ecto.{Changeset}
 
   @valid_attrs ~w(name applied prize_preference)
   @required_attrs ~w(name prize_preference_hmac_secret tie_breaker)a
@@ -41,8 +40,8 @@ defmodule Api.Team do
         :disqualified_by_id,
       ],
       [
-        &Changeset.validate_required/2,
-        &(Changeset.assoc_constraint(&1, :disqualified_by)),
+        &validate_required/2,
+        &assoc_constraint(&1, :disqualified_by),
       ]
     )
   end

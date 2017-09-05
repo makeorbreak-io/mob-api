@@ -2,7 +2,6 @@ defmodule Api.TeamMember do
   use Api.Web, :model
 
   alias Api.{User, Team}
-  alias Ecto.{Changeset}
 
   @primary_key false
 
@@ -16,7 +15,7 @@ defmodule Api.TeamMember do
 
   def changeset(struct, params \\ %{}) do
     struct
-    |> Changeset.cast(params, [:user_id, :team_id])
-    |> Changeset.validate_required([:user_id, :team_id])
+    |> cast(params, [:user_id, :team_id])
+    |> validate_required([:user_id, :team_id])
   end
 end
