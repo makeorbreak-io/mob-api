@@ -5,7 +5,28 @@ defmodule Api.EctoHelperTests do
   alias Api.{Team}
   alias Ecto.{Changeset}
 
+  test "if_missing absent" do
+    field = :name
+    fallback_value = "my cool name"
 
+    cs =
+      changeset(%Team{})
+      |> EctoHelper.if_missing(field, fallback_value)
+
+    {:ok, ^fallback_value} = Changeset.fetch_change(cs, field)
+  end
+
+  test "if_missing present" do
+    field = :name
+    fallback_value = "my cool name"
+    original_value = "something else, idk dude"
+
+    cs =
+      Changeset.change(%Team{}, [{field, original_value}])
+      |> EctoHelper.if_missing(field, fallback_value)
+
+    {:ok, ^original_value} = Changeset.fetch_change(cs, field)
+  end
 
   defp changeset(o, opts \\ []) do
     Changeset.change(o, opts)
