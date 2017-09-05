@@ -7,6 +7,7 @@ defmodule Api.PaperVote do
 
   alias Api.{Crypto, Team, Category, User}
   alias Api.EctoHelper
+  alias Ecto.{Changeset}
 
   @required_attrs [
     :hmac_secret,
@@ -51,15 +52,29 @@ defmodule Api.PaperVote do
     |> EctoHelper.if_missing(:hmac_secret, Crypto.random_hmac())
     |> validate_required(@required_attrs)
     |> unique_constraint(:hmac_secret)
-    |> EctoHelper.validate_xor_change([
-      :redeemed_at,
-      :redeeming_admin_id,
-      :redeeming_member_id,
-      :team_id,
-    ])
-    |> EctoHelper.validate_xor_change([
-      :annulled_by_id,
-      :annulled_at,
-    ])
+    |> EctoHelper.on_any_present(
+      [
+        :redeemed_at,
+        :redeeming_admin_id,
+        :redeeming_member_id,
+        :team_id,
+      ],
+      [
+        &Changeset.validate_required/2,
+        &(Changeset.assoc_constraint(&1, :redeeming_admin)),
+        &(Changeset.assoc_constraint(&1, :redeeming_member)),
+        &(Changeset.assoc_constraint(&1, :team))
+      ]
+    )
+    |> EctoHelper.on_any_present(
+      [
+        :annulled_by_id,
+        :annulled_at,
+      ],
+      [
+        &Changeset.validate_required/2,
+        &(Changeset.assoc_constraint(&1, :annulled_by))
+      ]
+    )
   end
 end

@@ -2,6 +2,7 @@ defmodule Api.Team do
   use Api.Web, :model
 
   alias Api.{EctoHelper, Crypto, Project, Invite, TeamMember}
+  alias Ecto.{Changeset}
 
   @valid_attrs ~w(name applied prize_preference)
   @required_attrs ~w(name prize_preference_hmac_secret tie_breaker)a
@@ -34,6 +35,15 @@ defmodule Api.Team do
     |> validate_required(@required_attrs)
     |> unique_constraint(:tie_breaker)
     |> unique_constraint(:prize_preference_hmac_secret)
-    |> EctoHelper.validate_xor_change([:disqualified_at, :disqualified_by_id])
+    |> EctoHelper.on_any_present(
+      [
+        :disqualified_at,
+        :disqualified_by_id,
+      ],
+      [
+        &Changeset.validate_required/2,
+        &(Changeset.assoc_constraint(&1, :disqualified_by)),
+      ]
+    )
   end
 end

@@ -5,33 +5,30 @@ defmodule Api.EctoHelperTests do
   alias Api.{Team}
   alias Ecto.{Changeset}
 
-  test "validate_xor_change none" do
-    assert (
-      Changeset.change(%Team{})
-      |> EctoHelper.validate_xor_change([
+
+
+  defp changeset(o, opts \\ []) do
+    Changeset.change(o, opts)
+    |> EctoHelper.on_any_present(
+      [
         :disqualified_at,
         :disqualified_by_id,
-      ])
-    ).valid?
+      ],
+      [
+        &Changeset.validate_required/2,
+      ]
+    )
   end
 
-  test "validate_xor_change not all" do
-    refute (
-      Changeset.change(%Team{}, disqualified_at: 1)
-      |> EctoHelper.validate_xor_change([
-        :disqualified_at,
-        :disqualified_by_id,
-      ])
-    ).valid?
+  test "on_any_present none" do
+    assert changeset(%Team{}).valid?
   end
 
-  test "validate_xor_change all" do
-    assert (
-      Changeset.change(%Team{}, disqualified_at: 1, disqualified_by_id: 1)
-      |> EctoHelper.validate_xor_change([
-        :disqualified_at,
-        :disqualified_by_id,
-      ])
-    ).valid?
+  test "on_any_present not all" do
+    refute changeset(%Team{}, disqualified_at: 1).valid?
+  end
+
+  test "on_any_present all" do
+    assert changeset(%Team{}, disqualified_at: 1, disqualified_by_id: 1).valid?
   end
 end
