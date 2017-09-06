@@ -14,7 +14,7 @@ defmodule Api.TeamActions do
   end
 
   def create(current_user, team_params) do
-    changeset = Team.changeset(%Team{}, team_params)
+    changeset = Team.changeset(%Team{}, team_params, Repo)
 
     case Repo.insert(changeset) do
       {:ok, team} ->
@@ -32,7 +32,7 @@ defmodule Api.TeamActions do
     team = get(id)
 
     if is_team_member?(team, current_user) do
-      Team.changeset(team, team_params)
+      Team.changeset(team, team_params, Repo)
       |> email_if_applying(team)
       |> Repo.update
     else
@@ -79,7 +79,7 @@ defmodule Api.TeamActions do
   def update_any(id, team_params) do
     team = get(id)
 
-    Team.changeset(team, team_params)
+    Team.changeset(team, team_params, Repo)
     |> email_if_applying(team)
     |> Repo.update
   end

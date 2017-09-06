@@ -26,10 +26,10 @@ defmodule Api.Team do
   @doc """
   Builds a changeset based on the `struct` and `params`.
   """
-  def changeset(struct, params \\ %{}) do
+  def changeset(struct, params, repo) do
     struct
     |> cast(params, @valid_attrs)
-    |> EctoHelper.if_missing(:tie_breaker, round(:rand.uniform() * 100))
+    |> EctoHelper.if_missing(:tie_breaker, generate_tie_breaker(repo))
     |> EctoHelper.if_missing(:prize_preference_hmac_secret, Crypto.random_hmac())
     |> validate_required(@required_attrs)
     |> unique_constraint(:tie_breaker)
@@ -44,5 +44,20 @@ defmodule Api.Team do
         &assoc_constraint(&1, :disqualified_by),
       ]
     )
+  end
+
+  defp generate_tie_breaker(repo) do
+    available_options =
+      MapSet.new(0..99)
+      |> MapSet.difference(MapSet.new(
+        repo.all(from(t in Api.Team, distinct: true, select: t.tie_breaker))
+      ))
+      |> MapSet.to_list
+
+    if Enum.empty?(available_options) do
+      raise "No tie_breaker options left available"
+    end
+
+    Enum.random(available_options)
   end
 end
