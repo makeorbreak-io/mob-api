@@ -55,7 +55,7 @@
         dest: /var/www/psc-api
       become: yes
       become_user: deploy
-  
+
     - name: Restart nginx
       service:
         name: nginx
