@@ -57,6 +57,16 @@ defmodule Api.Email do
     |> render("workshop.html")
   end
 
+  def checkin_email(recipient) do
+    base_email()
+    |> to(recipient)
+    |> subject("Welcome to Make or Break, here is some useful info!")
+    |> put_html_layout({Api.LayoutView, "email.html"})
+    |> assign(:title, "Welcome to Make or Break!")
+    |> assign(:name, UserHelper.display_name(recipient))
+    |> render("checkin.html")
+  end
+
   defp base_email do
     # Here you can set a default from, default headers, etc.
     new_email()
