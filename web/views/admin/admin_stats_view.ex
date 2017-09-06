@@ -5,6 +5,7 @@ defmodule Api.Admin.StatsView do
     %{data: %{
         users: %{
           hackathon: stats.users.hackathon,
+          checked_in: stats.users.checked_in,
           total: stats.users.total
         },
         roles: stats.roles,

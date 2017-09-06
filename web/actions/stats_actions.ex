@@ -15,11 +15,13 @@ defmodule Api.StatsActions do
       join: t in assoc(u, :team),
       where: t.applied == true,
       preload: [team: t]
+    checked_in_users = from u in User, where: u.checked_in == true
 
     %{
       users: %{
         total: Repo.aggregate(User, :count, :id),
         hackathon: Repo.aggregate(applied_users, :count, :user_id),
+        checked_in: Repo.aggregate(checked_in_users, :count, :id)
       },
       roles: Repo.all(roles),
       teams: %{
