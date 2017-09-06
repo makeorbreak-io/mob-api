@@ -27,4 +27,11 @@ defmodule Api.Admin.UserController do
     UserActions.delete_any(id)
     send_resp(conn, :no_content, "")
   end
+
+  def checkin(conn, %{"id" => id}) do
+    case UserActions.checkin(id) do
+      {:ok, user} -> render(conn, "show.json", user: user)
+      {:error, changeset} -> Errors.changeset(conn, changeset)
+    end
+  end
 end

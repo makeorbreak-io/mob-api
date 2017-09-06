@@ -26,6 +26,7 @@ defmodule Api.User do
     field :bio, :string
     field :role, :string, default: "participant"
     field :tshirt_size, :string
+    field :checked_in, :boolean, default: false
     timestamps()
 
     # Virtual fields
@@ -50,7 +51,7 @@ defmodule Api.User do
 
   def admin_changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, @valid_attrs ++ ["role"])
+    |> cast(params, @valid_attrs ++ ~w(role checked_in))
     |> validate_required(~w(email)a)
     |> validate_length(:email, min: 1, max: 255)
     |> validate_format(:email, ~r/@/)

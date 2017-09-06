@@ -34,7 +34,8 @@ defmodule Api.Admin.UserView do
         render_one(user.team, TeamMemberView, "member_team_short.json", as: :membership) end,
       tshirt_size: user.tshirt_size,
       workshops: if Ecto.assoc_loaded?(user.workshops) do
-        render_many(user.workshops, WorkshopView, "workshop_short.json") end
+        render_many(user.workshops, WorkshopView, "workshop_short.json") end,
+      checked_in: user.checked_in
     }
   end
 end

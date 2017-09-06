@@ -1,7 +1,8 @@
 defmodule Api.AdminUserControllerTest do
   use Api.ConnCase
+  use Bamboo.Test, shared: true
 
-  alias Api.{User, WorkshopAttendance}
+  alias Api.{User, WorkshopAttendance, Email}
 
   @valid_attrs %{
     email: "user@example.com",
@@ -63,7 +64,8 @@ defmodule Api.AdminUserControllerTest do
         "name" => workshop.name,
         "slug" => workshop.slug,
         "short_speaker" => workshop.short_speaker
-      }]
+      }],
+      "checked_in" => false
     }]
   end
 
@@ -119,7 +121,8 @@ defmodule Api.AdminUserControllerTest do
         "name" => workshop.name,
         "slug" => workshop.slug,
         "short_speaker" => workshop.short_speaker
-      }]
+      }],
+      "checked_in" => false
     }
   end
 
@@ -158,5 +161,16 @@ defmodule Api.AdminUserControllerTest do
 
     assert response(conn, 204)
     refute Repo.get(User, user.id)
+  end
+
+  test "checks in user", %{conn: conn, jwt: jwt} do
+    user = create_user()
+
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> post(admin_user_path(conn, :checkin, user))
+
+    assert json_response(conn, 200)["data"]["checked_in"] == true
+    assert_delivered_email Email.checkin_email(user)
   end
 end

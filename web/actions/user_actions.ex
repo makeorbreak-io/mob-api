@@ -57,6 +57,19 @@ defmodule Api.UserActions do
     Repo.delete!(user)
   end
 
+  def checkin(id) do
+    user = Repo.get!(User, id)
+
+    changeset = User.admin_changeset(user, %{checked_in: true})
+
+    case Repo.update(changeset) do
+      {:ok, user} ->
+        Email.checkin_email(user) |> Mailer.deliver_later
+        {:ok, preload_user_data(user)}
+      {:error, changeset} -> {:error, changeset}
+    end
+  end
+
   def preload_user_data(user) do
     user = user |> Repo.preload([
       :workshops,
