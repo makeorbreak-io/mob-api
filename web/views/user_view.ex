@@ -38,7 +38,8 @@ defmodule Api.UserView do
       college: user.college,
       company: user.company,
       team: if user.team do
-        render_one(user.team, TeamMemberView, "member_team_short.json", as: :membership) end,
+        render_one(user.team, TeamMemberView, "member_team_short.json", as: :membership)
+      end,
       tshirt_size: user.tshirt_size,
     }
   end

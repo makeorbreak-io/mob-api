@@ -34,12 +34,15 @@ defmodule Api.SessionView do
       college: user.college,
       company: user.company,
       team: if user.team do
-        render_one(user.team, TeamMemberView, "member_team_full.json", as: :membership) end,
+        render_one(user.team, TeamMemberView, "member_team_full.json", as: :membership)
+      end,
       invitations: if Ecto.assoc_loaded?(user.invitations) do
-        render_many(user.invitations, InviteView, "invite.json") end,
+        render_many(user.invitations, InviteView, "invite.json")
+      end,
       tshirt_size: user.tshirt_size,
       workshops: if Ecto.assoc_loaded?(user.workshops) do
-        render_many(user.workshops, WorkshopView, "workshop_short.json") end,
+        render_many(user.workshops, WorkshopView, "workshop_short.json")
+      end,
     }
   end
 end
