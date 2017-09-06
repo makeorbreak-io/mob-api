@@ -40,6 +40,7 @@ defmodule Api.Router do
       delete "/teams/:id/remove/:user_id", Admin.TeamController, :remove
       post "/invites/sync", Admin.InviteController, :sync
       post "/checkin/:id", Admin.UserController, :checkin
+      delete "/checkin/:id", Admin.UserController, :remove_checkin
     end
   end
 end

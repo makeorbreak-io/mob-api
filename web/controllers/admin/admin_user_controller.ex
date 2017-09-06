@@ -29,7 +29,14 @@ defmodule Api.Admin.UserController do
   end
 
   def checkin(conn, %{"id" => id}) do
-    case UserActions.checkin(id) do
+    case UserActions.toggle_checkin(id, true) do
+      {:ok, user} -> render(conn, "show.json", user: user)
+      {:error, changeset} -> Errors.changeset(conn, changeset)
+    end
+  end
+
+  def remove_checkin(conn, %{"id" => id}) do
+    case UserActions.toggle_checkin(id, false) do
       {:ok, user} -> render(conn, "show.json", user: user)
       {:error, changeset} -> Errors.changeset(conn, changeset)
     end

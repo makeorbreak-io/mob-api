@@ -173,4 +173,14 @@ defmodule Api.AdminUserControllerTest do
     assert json_response(conn, 200)["data"]["checked_in"] == true
     assert_delivered_email Email.checkin_email(user)
   end
+
+  test "removes user checkin", %{conn: conn, jwt: jwt} do
+    user = create_user()
+
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> delete(admin_user_path(conn, :checkin, user))
+
+    assert json_response(conn, 200)["data"]["checked_in"] == false
+  end
 end

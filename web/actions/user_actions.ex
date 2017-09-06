@@ -57,14 +57,16 @@ defmodule Api.UserActions do
     Repo.delete!(user)
   end
 
-  def checkin(id) do
+  def toggle_checkin(id, value) do
     user = Repo.get!(User, id)
 
-    changeset = User.admin_changeset(user, %{checked_in: true})
+    changeset = User.admin_changeset(user, %{checked_in: value})
 
     case Repo.update(changeset) do
       {:ok, user} ->
-        Email.checkin_email(user) |> Mailer.deliver_later
+        if value do
+          Email.checkin_email(user) |> Mailer.deliver_later
+        end
         {:ok, preload_user_data(user)}
       {:error, changeset} -> {:error, changeset}
     end
