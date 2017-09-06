@@ -4,7 +4,12 @@ defmodule Api.StatsActions do
   alias Api.{Project, Repo, Team, TeamMember, User, Workshop, WorkshopAttendance}
 
   def stats do
-    roles = from(u in User, group_by: :role, select: %{role: u.role, total: count(u.id)})
+    roles = from(
+      u in User,
+      group_by: :role,
+      order_by: :role,
+      select: %{role: u.role, total: count(u.id)}
+    )
     applied_teams = from t in Team, where: t.applied == true
     applied_users = from u in TeamMember,
       join: t in assoc(u, :team),
