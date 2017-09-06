@@ -11,7 +11,7 @@ defmodule Api.SessionActions do
   end
 
   def create(email, password) do
-    user = Repo.get_by(User, email: email)
+    Repo.get_by(User, email: email)
     |> check_password(password)
     |> sign_user
   end
