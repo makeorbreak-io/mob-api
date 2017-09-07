@@ -1,7 +1,7 @@
 defmodule Api.Admin.UserView do
   use Api.Web, :view
 
-  alias Api.{TeamMemberView, WorkshopView, UserHelper}
+  alias Api.{TeamMemberView, WorkshopView, UserView, UserHelper}
 
   def render("index.json", %{users: users}) do
     %{data: render_many(users, __MODULE__, "user.json")}
@@ -39,5 +39,12 @@ defmodule Api.Admin.UserView do
       end,
       checked_in: user.checked_in
     }
+  end
+
+  def render("user_short.json", %{user: user}) do
+    Map.merge(
+      render_one(user, UserView, "user_short.json"),
+      %{email: user.email}
+    )
   end
 end
