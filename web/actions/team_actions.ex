@@ -80,7 +80,7 @@ defmodule Api.TeamActions do
   def update_any(id, team_params) do
     team = get(id)
 
-    Team.changeset(team, team_params, Repo)
+    Team.admin_changeset(team, team_params, Repo)
     |> email_if_applying(team)
     |> Repo.update
   end
