@@ -1,0 +1,67 @@
+---
+- hosts: production
+  remote_user: deploy
+  become: yes
+
+  vars_files:
+    - vars/nginx.yml
+    - vars/postgres.yml
+    - vars/certbot.yml
+    - vars/psc.yml
+
+  pre_tasks:
+    - name: Add Erlang Solutions repo
+      shell: wget https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb && dpkg -i erlang-solutions_1.0_all.deb
+      args:
+        chdir: /root/
+
+    - name: Update apt repositories
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Update all packages to the latest version
+      apt:
+        upgrade: dist
+
+    - name: Install required packages
+      apt: name={{ item }} state=present
+      with_items:
+        - git-core
+        - htop
+        - esl-erlang
+        - elixir
+
+  roles:
+    - jdauphant.nginx
+    - geerlingguy.postgresql
+    - geerlingguy.certbot
+
+  tasks:
+    - name: Create directories for `psc-api`
+      become: yes
+      file:
+        path: /var/www/psc-api/
+        state: directory
+        owner: deploy
+        group: deploy
+        mode: u=rwx,g=rwx,o=r
+
+    - name: Clone psc-api repository into destination directory
+      git:
+        repo: {{git@github.com:jgradim/psc-api.git}}
+        accept_hostkey: yes
+        version: {{psc_master}}
+        dest: /var/www/psc-api
+      become: yes
+      become_user: deploy
+
+    - name: Restart nginx
+      service:
+        name: nginx
+        state: restarted
+        enabled: yes
+
+    - name: Update apt repositories
+      apt:
+        update_cache: yes

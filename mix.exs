@@ -65,7 +65,7 @@ defmodule Api.Mixfile do
       {:phoenix_ecto, "~> 3.0"},
       {:phoenix_html, "~> 2.6"},
       {:postgrex, "~> 0.13.3"},
-      {:sentry, "~> 5.0.1"}
+      {:sentry, "~> 5.0.1"},
     ]
   end
 

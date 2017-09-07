@@ -1,0 +1,14 @@
+postgresql_users:
+  - name: psc
+
+postgresql_databases:
+  - name: psc
+
+postgresql_hba_entries:
+  - type: host
+    database: all
+    user: all
+    address: 127.0.0.1/8
+    auth_method: trust
+
+postgresql_connection_string: postgresql://psc@127.0.0.1/psc
