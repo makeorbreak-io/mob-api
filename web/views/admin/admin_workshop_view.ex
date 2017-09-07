@@ -1,7 +1,7 @@
 defmodule Api.Admin.WorkshopView do
   use Api.Web, :view
 
-  alias Api.{UserView}
+  alias Api.{Admin.UserView}
 
   def render("index.json", %{workshops: workshops}) do
     %{data: render_many(workshops, __MODULE__, "workshop.json")}
@@ -26,7 +26,7 @@ defmodule Api.Admin.WorkshopView do
       short_speaker: workshop.short_speaker,
       short_date: workshop.short_date,
       attendees: if Ecto.assoc_loaded?(workshop.attendees) do
-        render_many(workshop.attendees, UserView, "user_short.json")
+        render_many(workshop.attendees, UserView, "user_short.json", as: :user)
       end
     }
   end

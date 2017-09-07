@@ -1,7 +1,7 @@
 defmodule Api.Admin.WorkshopControllerTest do
   use Api.ConnCase
 
-  alias Api.{Workshop}
+  alias Api.{Workshop, WorkshopAttendance}
 
   @valid_attrs %{
     slug: "some-content",
@@ -23,6 +23,9 @@ defmodule Api.Admin.WorkshopControllerTest do
 
   test "endpoints are availale for admin users", %{conn: conn, jwt: jwt} do
     workshop = create_workshop()
+    attendee = create_user()
+
+    Repo.insert! %WorkshopAttendance{user_id: attendee.id, workshop_id: workshop.id}
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
@@ -35,14 +38,22 @@ defmodule Api.Admin.WorkshopControllerTest do
         "summary" => workshop.summary,
         "description" => workshop.description,
         "speaker" => workshop.speaker,
-        "participants" => 0,
+        "participants" => 1,
         "participant_limit" => workshop.participant_limit,
         "year" => workshop.year,
         "speaker_image" => workshop.speaker_image,
         "banner_image" => workshop.banner_image,
         "short_speaker" => workshop.short_speaker,
         "short_date" => workshop.short_date,
-        "attendees" => []
+        "attendees" => [%{
+          "id" => attendee.id,
+          "email" => attendee.email,
+          "display_name" => UserHelper.display_name(attendee),
+          "gravatar_hash" => UserHelper.gravatar_hash(attendee),
+          "first_name" => attendee.first_name,
+          "last_name" => attendee.last_name,
+          "tshirt_size" => attendee.tshirt_size
+        }]
       }
     ]
   end
