@@ -5,7 +5,7 @@ defmodule Api.AdminStatsControllerTest do
   alias Guardian.Permissions
 
   setup %{conn: conn} do
-    admin = create_admin()
+    admin = create_admin(%{checked_in: true})
     {:ok, jwt, _} =
       Guardian.encode_and_sign(admin, :token, perms: %{admin: Permissions.max})
 
@@ -40,6 +40,7 @@ defmodule Api.AdminStatsControllerTest do
     assert json_response(conn, 200)["data"] == %{
       "users" => %{
         "hackathon" => 1,
+        "checked_in" => 1,
         "total" => 5
       },
       "roles" => [
