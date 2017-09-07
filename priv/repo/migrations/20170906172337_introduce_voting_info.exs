@@ -40,10 +40,10 @@ defmodule Api.Repo.Migrations.IntroduceVotingInfo do
     end
     flush()
 
-    teams = Repo.all(from t in Team)
+    teams = Repo.all(from t in Team, order_by: :inserted_at)
     Enum.zip([
       teams,
-      (1..Enum.count(teams)) |> Enum.shuffle
+      (1..Enum.count(teams))
     ])
     |> Enum.map(fn
       {team, tie_breaker} ->

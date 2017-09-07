@@ -21,21 +21,11 @@ defmodule Api.TeamTest do
     refute changeset.valid?
   end
 
-  test "make tie_breaker use the whole number space" do
-    (1..100)
-    |> Enum.map(fn _ ->
-      Team.changeset(%Team{}, @valid_attrs, Repo)
-      |> Repo.insert!
-    end)
-  end
+  test "tie_breaker is sequential" do
+    first = Repo.insert!(Team.changeset(%Team{}, @valid_attrs, Repo))
+    assert first.tie_breaker == 1
 
-  test "make tie_breaker exhaust the number space" do
-    assert_raise RuntimeError, "No tie_breaker options left available", fn ->
-      (1..101)
-      |> Enum.map(fn _ ->
-        Team.changeset(%Team{}, @valid_attrs, Repo)
-        |> Repo.insert!
-      end)
-    end
+    second = Repo.insert!(Team.changeset(%Team{}, @valid_attrs, Repo))
+    assert second.tie_breaker == 2
   end
 end

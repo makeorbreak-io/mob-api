@@ -47,17 +47,6 @@ defmodule Api.Team do
   end
 
   defp generate_tie_breaker(repo) do
-    available_options =
-      MapSet.new(0..99)
-      |> MapSet.difference(MapSet.new(
-        repo.all(from(t in Api.Team, distinct: true, select: t.tie_breaker))
-      ))
-      |> MapSet.to_list
-
-    if Enum.empty?(available_options) do
-      raise "No tie_breaker options left available"
-    end
-
-    Enum.random(available_options)
+    repo.aggregate(Api.Team, :count, :id) + 1
   end
 end

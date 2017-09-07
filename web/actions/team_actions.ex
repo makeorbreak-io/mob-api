@@ -2,6 +2,7 @@ defmodule Api.TeamActions do
   use Api.Web, :action
 
   alias Api.{Team, User, TeamMember, Email, Mailer}
+  alias Ecto.{Changeset, Multi}
 
   def all do
     Repo.all(Team)
@@ -102,6 +103,50 @@ defmodule Api.TeamActions do
             {:error, "User isn't a member of team"}
         end
     end
+  end
+
+  def shuffle_tie_breakers do
+    teams = Repo.all(from t in Team)
+
+    multi = Multi.new
+
+    # I can't update the tie breakers to their intended value on just one pass.
+    # Consider the case where you have two teams, A and B, with tie breakers 1
+    # and 2, respectively. If we decide that team A gets the tie breaker 2,
+    # on the fisrt update, the BD will complain that both A and B have the tie
+    # breaker 1. In order to get around that, we make them all negative first,
+    # and only assign the new tie breakers after that. Since we know the new
+    # tie breakers won't ever be negative, this gets rid of all conflicts.
+    multi =
+      Enum.reduce(
+        teams,
+        multi,
+        fn team, multi ->
+          Multi.update(
+            multi,
+            "#{team.id} to negative",
+            Changeset.change(team, tie_breaker: -1 * team.tie_breaker)
+          )
+        end
+      )
+
+    multi =
+      Enum.reduce(
+        Enum.zip([
+          teams,
+          (1..Enum.count(teams)) |> Enum.shuffle
+        ]),
+        multi,
+        fn {team, new_tb}, multi ->
+          Multi.update(
+            multi,
+            "#{team.id} to shuffled",
+            Changeset.change(team, tie_breaker: new_tb)
+          )
+        end
+      )
+
+    Repo.transaction(multi)
   end
 
   defp is_team_member?(team, user) do
