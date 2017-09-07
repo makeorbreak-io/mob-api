@@ -59,10 +59,10 @@ defmodule Api.WorkshopActions do
         {:ok, attendance} ->
           Email.joined_workshop_email(current_user, workshop) |> Mailer.deliver_later
           {:ok, attendance}
-        {:error, _} -> {:error, "Unable to create workshop attendance"}
+        {:error, _} -> {:error, :join_workshop}
       end
     else
-      {:error, "Workshop is already full"}
+      {:error, :workshop_full}
     end
   end
 
@@ -74,10 +74,23 @@ defmodule Api.WorkshopActions do
         and w.user_id == type(^current_user.id, Ecto.UUID))
 
     case Repo.delete_all(query) do
-      {1, nil} ->
-        {:ok}
-      {0, nil} ->
-        {:error, "User isn't an attendee of the workshop"}
+      {1, nil} -> {:ok}
+      {0, nil} -> {:error, :workshop_attendee}
+    end
+  end
+
+  def toggle_checkin(id, user_id, value) do
+    workshop = Repo.get_by!(Workshop, slug: id)
+
+    result = from(a in WorkshopAttendance,
+      where: a.workshop_id == ^workshop.id,
+      where: a.user_id == ^user_id,
+      update: [set: [checked_in: ^value]])
+      |> Repo.update_all([])
+
+    case result do
+      {1, _} -> :ok
+      {0, _} -> if value, do: {:error, :checkin}, else: {:error, :remove_checkin}
     end
   end
 end

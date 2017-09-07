@@ -41,6 +41,8 @@ defmodule Api.Router do
       post "/invites/sync", Admin.InviteController, :sync
       post "/checkin/:id", Admin.UserController, :checkin
       delete "/checkin/:id", Admin.UserController, :remove_checkin
+      post "/workshops/:id/checkin/:user_id", Admin.WorkshopController, :checkin
+      delete "/workshops/:id/checkin/:user_id", Admin.WorkshopController, :remove_checkin
     end
   end
 end

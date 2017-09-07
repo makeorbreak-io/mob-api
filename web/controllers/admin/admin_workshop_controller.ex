@@ -39,4 +39,18 @@ defmodule Api.Admin.WorkshopController do
     WorkshopActions.delete(id)
     send_resp(conn, :no_content, "")
   end
+
+  def checkin(conn, %{"id" => id, "user_id" => user_id}) do
+    case WorkshopActions.toggle_checkin(id, user_id, true) do
+      :ok -> send_resp(conn, :created, "")
+      {:error, error} -> Errors.build(conn, :unprocessable_entity, error)
+    end
+  end
+
+  def remove_checkin(conn, %{"id" => id, "user_id" => user_id}) do
+    case WorkshopActions.toggle_checkin(id, user_id, false) do
+      :ok -> send_resp(conn, :no_content, "")
+      {:error, error} -> Errors.build(conn, :unprocessable_entity, error)
+    end
+  end
 end

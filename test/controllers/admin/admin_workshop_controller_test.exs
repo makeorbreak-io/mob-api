@@ -152,4 +152,34 @@ defmodule Api.Admin.WorkshopControllerTest do
     assert response(conn, 204)
     refute Repo.get_by(Workshop, slug: @valid_attrs.slug)
   end
+
+  test "checks in user in workshop", %{conn: conn, jwt: jwt} do
+    user = create_user()
+    workshop = create_workshop()
+    Repo.insert! %WorkshopAttendance{user_id: user.id, workshop_id: workshop.id}
+
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> post(admin_workshop_path(conn, :checkin, workshop, user))
+
+    assert response(conn, 201)
+
+    attendance = Repo.get_by(WorkshopAttendance, user_id: user.id, workshop_id: workshop.id)
+    assert attendance.checked_in == true
+  end
+
+  test "removes user checkin in workshop", %{conn: conn, jwt: jwt} do
+    user = create_user()
+    workshop = create_workshop()
+    Repo.insert! %WorkshopAttendance{user_id: user.id, workshop_id: workshop.id, checked_in: true}
+
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> delete(admin_workshop_path(conn, :remove_checkin, workshop, user))
+
+    assert response(conn, 204)
+
+    attendance = Repo.get_by(WorkshopAttendance, user_id: user.id, workshop_id: workshop.id)
+    assert attendance.checked_in == false
+  end
 end
