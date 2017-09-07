@@ -6,24 +6,19 @@ defmodule Api.WorkshopActions do
 
   def all do
     Repo.all(Workshop)
-    |> Repo.preload(:attendees)
-    |> Enum.map(fn(workshop) ->
-      Map.put(workshop, :participants, Enum.count(workshop.attendees))
-    end)
+    |> add_participant_count()
   end
 
   def get(id) do
-    workshop = Repo.get_by!(Workshop, slug: id)
-    |> Repo.preload(:attendees)
-
-    Map.put(workshop, :participants, Enum.count(workshop.attendees))
+    Repo.get_by!(Workshop, slug: id)
+    |> add_participant_count()
   end
 
   def create(workshop_params) do
     changeset = Workshop.changeset(%Workshop{}, workshop_params)
 
     case Repo.insert(changeset) do
-      {:ok, workshop} -> {:ok, Map.put(workshop, :participants, 0)}
+      {:ok, workshop} -> {:ok, add_participant_count(workshop)}
       {:error, changeset} -> {:error, changeset}
     end
   end
@@ -33,9 +28,7 @@ defmodule Api.WorkshopActions do
     changeset = Workshop.changeset(workshop, workshop_params)
 
     case Repo.update(changeset) do
-      {:ok, workshop} ->
-        workshop = workshop |> Repo.preload(:attendees)
-        {:ok, Map.put(workshop, :participants, Enum.count(workshop.attendees))}
+      {:ok, workshop} -> {:ok, add_participant_count(workshop)}
       {:error, changeset} -> {:error, changeset}
     end
   end
@@ -48,7 +41,7 @@ defmodule Api.WorkshopActions do
   def join(current_user, id) do
     workshop = Repo.get_by!(Workshop, slug: id)
 
-    query = from w in "users_workshops", where: w.workshop_id == type(^workshop.id, Ecto.UUID)
+    query = from w in WorkshopAttendance, where: w.workshop_id == type(^workshop.id, Ecto.UUID)
     attendees_count = Repo.aggregate(query, :count, :workshop_id)
 
     if attendees_count < workshop.participant_limit do
@@ -69,7 +62,7 @@ defmodule Api.WorkshopActions do
   def leave(current_user, id) do
     workshop = Repo.get_by!(Workshop, slug: id)
 
-    query = from(w in "users_workshops",
+    query = from(w in WorkshopAttendance,
       where: w.workshop_id == type(^workshop.id, Ecto.UUID)
         and w.user_id == type(^current_user.id, Ecto.UUID))
 
@@ -92,5 +85,17 @@ defmodule Api.WorkshopActions do
       {1, _} -> :ok
       {0, _} -> if value, do: {:error, :checkin}, else: {:error, :remove_checkin}
     end
+  end
+
+  defp add_participant_count(workshops) when is_list(workshops) do
+    Enum.map(workshops, fn(workshop) -> add_participant_count(workshop) end)
+  end
+  defp add_participant_count(workshop) do
+    workshop =
+      unless Ecto.assoc_loaded?(workshop.attendances) do
+        Repo.preload(workshop, attendances: [:user])
+      end
+
+    Map.put(workshop, :participants, Enum.count(workshop.attendances))
   end
 end

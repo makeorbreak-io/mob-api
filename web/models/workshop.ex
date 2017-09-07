@@ -1,7 +1,7 @@
 defmodule Api.Workshop do
   use Api.Web, :model
 
-  alias Api.{User, WorkshopAttendance}
+  alias Api.{WorkshopAttendance}
 
   @valid_attrs ~w(name slug summary description speaker participant_limit
     year speaker_image banner_image short_date short_speaker)
@@ -23,7 +23,7 @@ defmodule Api.Workshop do
     field :short_date, :string
     timestamps()
 
-    many_to_many :attendees, User, join_through: WorkshopAttendance
+    has_many :attendances, WorkshopAttendance, foreign_key: :workshop_id, on_delete: :delete_all
   end
 
   @doc """

@@ -24,8 +24,7 @@ defmodule Api.Admin.WorkshopControllerTest do
   test "endpoints are availale for admin users", %{conn: conn, jwt: jwt} do
     workshop = create_workshop()
     attendee = create_user()
-
-    Repo.insert! %WorkshopAttendance{user_id: attendee.id, workshop_id: workshop.id}
+    attendance = Repo.insert! %WorkshopAttendance{user_id: attendee.id, workshop_id: workshop.id}
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
@@ -52,7 +51,8 @@ defmodule Api.Admin.WorkshopControllerTest do
           "gravatar_hash" => UserHelper.gravatar_hash(attendee),
           "first_name" => attendee.first_name,
           "last_name" => attendee.last_name,
-          "tshirt_size" => attendee.tshirt_size
+          "tshirt_size" => attendee.tshirt_size,
+          "checked_in" => attendance.checked_in
         }]
       }
     ]

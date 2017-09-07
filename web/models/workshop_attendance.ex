@@ -1,6 +1,8 @@
 defmodule Api.WorkshopAttendance do
   use Api.Web, :model
 
+  alias Api.{User, Workshop}
+
   @primary_key false
   @valid_attrs ~w(user_id workshop_id checked_in)
   @required_attrs ~w(user_id workshop_id)a
