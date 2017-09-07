@@ -18,6 +18,8 @@ defmodule Api.ModelCase do
     quote do
       alias Api.Repo
 
+      import Api.TestHelper
+
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
