@@ -8,9 +8,13 @@ defmodule Api.TestHelper do
   @valid_user_attrs %{
     first_name: "john",
     last_name: "doe",
-    password: "thisisapassword"
+    password: "thisisapassword",
+    github_handle: "https://github.com/nunopolonia"
   }
-  @valid_team_attrs %{name: "awesome team"}
+  @valid_team_attrs %{
+    name: "awesome team",
+    repo: %{"name" => "awesome-team"}
+  }
   @valid_workshop_attrs %{
     name: "awesome workshop",
     slug: "awesome-workshop",
