@@ -2,6 +2,7 @@ defmodule Api.TeamTest do
   use Api.ModelCase
 
   alias Api.Team
+  alias Ecto.Changeset
 
   @valid_attrs %{name: "awesome team"}
   @invalid_attrs %{}
@@ -19,6 +20,16 @@ defmodule Api.TeamTest do
   test "changeset with no attributes" do
     changeset = Team.changeset(%Team{}, %{}, Repo)
     refute changeset.valid?
+  end
+
+  test "changeset with private attributes" do
+    changeset = Team.changeset(%Team{}, %{"eligible" => true}, Repo)
+    :error = Changeset.fetch_change(changeset, :eligible)
+  end
+
+  test "admin_changeset with private attributes" do
+    changeset = Team.admin_changeset(%Team{}, %{"eligible" => true}, Repo)
+    {:ok, _} = Changeset.fetch_change(changeset, :eligible)
   end
 
   test "tie_breaker is sequential" do
