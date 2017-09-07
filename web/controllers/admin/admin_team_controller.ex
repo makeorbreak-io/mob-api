@@ -2,7 +2,7 @@ defmodule Api.Admin.TeamController do
   use Api.Web, :controller
 
   alias Api.{TeamActions, Controller.Errors}
-  alias Guardian.Plug.{EnsureAuthenticated, EnsurePermissions}
+  alias Guardian.{Plug, Plug.EnsureAuthenticated, Plug.EnsurePermissions}
 
   plug :scrub_params, "team" when action in [:update]
   plug EnsureAuthenticated, [handler: Errors]
@@ -33,5 +33,10 @@ defmodule Api.Admin.TeamController do
       {:ok} -> send_resp(conn, :no_content, "")
       {:error, error} -> Errors.build(conn, :unprocessable_entity, error)
     end
+  end
+
+  def disqualify(conn, %{"id" => id}) do
+    TeamActions.disqualify(id, Plug.current_resource(conn))
+    send_resp(conn, :no_content, "")
   end
 end

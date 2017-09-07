@@ -170,4 +170,17 @@ defmodule Api.TeamActions do
 
     changeset
   end
+
+  def disqualify(team_id, admin) do
+    from(
+      t in Team,
+      where: t.id == ^team_id,
+      where: is_nil(t.disqualified_at),
+      update: [set: [
+        disqualified_at: ^(DateTime.utc_now),
+        disqualified_by_id: ^(admin.id)
+      ]]
+    )
+    |> Repo.update_all([])
+  end
 end
