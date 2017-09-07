@@ -63,8 +63,9 @@ defmodule Api.Mixfile do
       {:httpoison, "~> 0.13"},
       {:phoenix, "~> 1.2.1"},
       {:phoenix_ecto, "~> 3.0"},
+      {:phoenix_html, "~> 2.6"},
       {:postgrex, ">= 0.0.0"},
-      {:exrm, "~> 0.18.1"}
+      {:sentry, "~> 5.0.1"},
     ]
   end
 
