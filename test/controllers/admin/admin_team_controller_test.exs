@@ -2,6 +2,7 @@ defmodule Api.Admin.TeamControllerTest do
   use Api.ConnCase
 
   alias Api.{Team, TeamMember}
+  import Api.StringHelper
 
   @valid_attrs %{name: "some content"}
   @invalid_attrs %{name: ""}
@@ -140,4 +141,29 @@ defmodule Api.Admin.TeamControllerTest do
     assert response(conn, 422)
     assert json_response(conn, 422)["errors"] == "User isn't a member of team"
   end
+
+  # test "create repo works", %{conn: conn, admin: admin, jwt: jwt} do
+  #   team = create_team(admin)
+
+  #   conn = conn
+  #   |> put_req_header("authorization", "Bearer #{jwt}")
+  #   |> post(admin_team_path(conn, :create_repo, team))
+
+  #   assert response(conn, 201)
+
+  #   updated_team = Repo.get(Team, team.id)
+
+  #   assert updated_team.repo["name"] == slugify(team.name)
+  # end
+
+  # test "add team members to repo works", %{conn: conn, jwt: jwt} do
+  #   user = create_user()
+  #   team = create_team(user)
+
+  #   conn = conn
+  #   |> put_req_header("authorization", "Bearer #{jwt}")
+  #   |> post(admin_team_path(conn, :add_users_to_repo, team))
+
+  #   assert response(conn, 204)
+  # end
 end

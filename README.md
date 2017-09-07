@@ -22,3 +22,4 @@ You can find an example env file you can source in `share/env/env`
 | HOST               | Server url              | Prod
 | SENTRY_DSN         | Sentry.io project url   | Prod
 | SLACK_TOKEN        | Slack API access token  | Prod
+| GITHUB_TOKEN       | Github API access token | All

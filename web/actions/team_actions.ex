@@ -1,7 +1,7 @@
 defmodule Api.TeamActions do
   use Api.Web, :action
 
-  alias Api.{Team, User, TeamMember, Email, Mailer}
+  alias Api.{Team, User, TeamMember, Email, Mailer, GithubActions}
   alias Ecto.{Changeset, Multi}
 
   def all do
@@ -147,6 +147,26 @@ defmodule Api.TeamActions do
       )
 
     Repo.transaction(multi)
+  end
+
+  def create_repo(id) do
+    team = Repo.get!(Team, id)
+
+    case GithubActions.create_repo(team) do
+      {:ok, repo} ->
+        __MODULE__.update_any(id, %{repo: repo})
+        :ok
+      {:error, error} -> {:error, error}
+    end
+  end
+
+  def add_users_to_repo(id) do
+     team = Repo.get!(Team, id)
+     |> Repo.preload(members: :user)
+
+    Enum.each(team.members, fn(membership) ->
+      response = GithubActions.add_collaborator(team.repo, membership.user.github_handle)
+    end)
   end
 
   defp is_team_member?(team, user) do
