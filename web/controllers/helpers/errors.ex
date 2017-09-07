@@ -29,4 +29,9 @@ defmodule Api.Controller.Errors do
   defp message(:wrong_credentials), do: "Wrong email or password"
   defp message(:unauthorized), do: "Unauthorized"
   defp message(:authentication_required), do: "Authentication required"
+  defp message(:checkin), do: "Couldn't check-in user at this time"
+  defp message(:remove_checkin), do: "Couldn't remove check-in at this time"
+  defp message(:join_workshop), do: "Unable to create workshop attendance"
+  defp message(:workshop_full), do: "Workshop is already full"
+  defp message(:workshop_attendee), do: "User isn't an attendee of the workshop"
 end

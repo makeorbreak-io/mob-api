@@ -1,9 +1,15 @@
 defmodule Api.WorkshopAttendance do
   use Api.Web, :model
 
+  alias Api.{User, Workshop}
+
   @primary_key false
+  @valid_attrs ~w(user_id workshop_id checked_in)
+  @required_attrs ~w(user_id workshop_id)a
 
   schema "users_workshops" do
+    field :checked_in, :boolean, default: false
+
     belongs_to :user, User
     belongs_to :workshop, Workshop
     timestamps()
@@ -11,7 +17,7 @@ defmodule Api.WorkshopAttendance do
 
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:user_id, :workshop_id])
-    |> validate_required([:user_id, :workshop_id])
+    |> cast(params, @valid_attrs)
+    |> validate_required(@required_attrs)
   end
 end
