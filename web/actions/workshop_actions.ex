@@ -82,13 +82,17 @@ defmodule Api.WorkshopActions do
       |> Repo.update_all([])
 
     case result do
-      {1, _} -> :ok
+      {1, _} ->
+        workshop = Repo.get(Workshop, workshop.id)
+        |> add_participant_count()
+
+        {:ok, workshop}
       {0, _} -> if value, do: {:error, :checkin}, else: {:error, :remove_checkin}
     end
   end
 
   defp add_participant_count(workshops) when is_list(workshops) do
-    Enum.map(workshops, fn(workshop) -> add_participant_count(workshop) end)
+    Enum.map(workshops, &add_participant_count/1)
   end
   defp add_participant_count(workshop) do
     workshop =
