@@ -78,4 +78,13 @@ defmodule Api.PaperVote do
       ]
     )
   end
+
+  def not_annuled(at \\ nil) do
+    at = at || DateTime.utc_now
+
+    from(
+      p in Api.PaperVote,
+      where: is_nil(p.annulled_at) or p.annulled_at > ^at,
+    )
+  end
 end

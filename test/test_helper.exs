@@ -3,7 +3,7 @@ ExUnit.start
 Ecto.Adapters.SQL.Sandbox.mode(Api.Repo, :manual)
 
 defmodule Api.TestHelper do
-  alias Api.{User, Team, Repo, TeamMember, Invite, Workshop, Category}
+  alias Api.{User, Team, Repo, TeamMember, Invite, Workshop, Category, StringHelper, UserActions}
 
   @valid_user_attrs %{
     first_name: "john",
@@ -48,7 +48,8 @@ defmodule Api.TestHelper do
     |> Repo.insert!
   end
 
-  def create_team(user, params \\ @valid_team_attrs) do
+  def create_team(user, params \\ nil) do
+    params = params || %{name: "awesome team #{to_string(:rand.uniform())}"}
     team = %Team{}
     |> Team.changeset(params, Repo)
     |> Repo.insert!
@@ -70,14 +71,41 @@ defmodule Api.TestHelper do
     |> Repo.insert!
   end
 
+  def create_membership(team, user) do
+    %TeamMember{}
+    |> TeamMember.changeset(%{
+      user_id: user.id,
+      team_id: team.id,
+    })
+    |> Repo.insert!
+  end
+
   def create_category(params \\ %{}) do
     %Category{}
     |> Category.changeset(
       %{
-        name: "cool #{:rand.uniform()}",
+        name: StringHelper.slugify("cool #{:rand.uniform()}"),
       }
       |> Map.merge(params)
     )
     |> Repo.insert!
+  end
+
+  def check_in_everyone do
+    people = User |> Repo.all
+
+    people
+    |> Enum.map(&UserActions.toggle_checkin(&1.id, true))
+  end
+
+  def make_teams_eligible(teams \\ nil) do
+    teams = teams || Repo.all(Team)
+
+    teams
+    |> Enum.map(fn team ->
+      team
+      |> Team.admin_changeset(%{eligible: true}, Repo)
+      |> Repo.update!
+    end)
   end
 end

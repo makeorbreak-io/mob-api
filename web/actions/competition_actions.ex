@@ -42,4 +42,12 @@ defmodule Api.CompetitionActions do
       true -> :not_started
     end
   end
+
+  def voting_started_at do
+    _get().voting_started_at
+  end
+
+  def voting_ended_at do
+    _get().voting_ended_at
+  end
 end
