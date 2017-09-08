@@ -60,7 +60,7 @@ defmodule Api.Email do
   def checkin_email(recipient) do
     base_email()
     |> to(recipient)
-    |> subject("Welcome to Make or Break, here is some useful info!")
+    |> subject("Welcome to Make or Break!")
     |> put_html_layout({Api.LayoutView, "email.html"})
     |> assign(:title, "Welcome to Make or Break!")
     |> assign(:name, UserHelper.display_name(recipient))
