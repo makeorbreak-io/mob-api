@@ -165,7 +165,7 @@ defmodule Api.TeamActions do
      |> Repo.preload(members: :user)
 
     Enum.each(team.members, fn(membership) ->
-      response = GithubActions.add_collaborator(team.repo, membership.user.github_handle)
+      GithubActions.add_collaborator(team.repo, membership.user.github_handle)
     end)
   end
 
