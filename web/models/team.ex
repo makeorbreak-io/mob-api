@@ -1,7 +1,7 @@
 defmodule Api.Team do
   use Api.Web, :model
 
-  alias Api.{EctoHelper, Crypto, Project, Invite, TeamMember}
+  alias Api.{EctoHelper, Crypto, Project, Invite, TeamMember, User}
 
   @valid_attrs ~w(name applied prize_preference)
   @admin_attrs @valid_attrs ++ ~w(eligible repo)

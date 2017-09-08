@@ -5,7 +5,7 @@ defmodule Api.Vote do
 
   use Api.Web, :model
 
-  alias Api.{Category}
+  alias Api.{Category, User}
 
   @attrs [
     :voter_identity,
