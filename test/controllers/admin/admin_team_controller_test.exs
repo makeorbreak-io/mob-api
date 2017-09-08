@@ -2,7 +2,7 @@ defmodule Api.Admin.TeamControllerTest do
   use Api.ConnCase
 
   alias Api.{Team, TeamMember}
-  import Api.StringHelper
+  # import Api.StringHelper
 
   @valid_attrs %{name: "some content"}
   @invalid_attrs %{name: ""}
