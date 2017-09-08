@@ -42,14 +42,14 @@ defmodule Api.Admin.WorkshopController do
 
   def checkin(conn, %{"id" => id, "user_id" => user_id}) do
     case WorkshopActions.toggle_checkin(id, user_id, true) do
-      :ok -> send_resp(conn, :created, "")
+      {:ok, workshop} -> render(conn, "show.json", workshop: workshop)
       {:error, error} -> Errors.build(conn, :unprocessable_entity, error)
     end
   end
 
   def remove_checkin(conn, %{"id" => id, "user_id" => user_id}) do
     case WorkshopActions.toggle_checkin(id, user_id, false) do
-      :ok -> send_resp(conn, :no_content, "")
+      {:ok, workshop} -> render(conn, "show.json", workshop: workshop)
       {:error, error} -> Errors.build(conn, :unprocessable_entity, error)
     end
   end

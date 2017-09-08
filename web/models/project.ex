@@ -1,7 +1,4 @@
 defmodule Api.Project do
-  @moduledoc """
-    TODO: Write.
-  """
   use Api.Web, :model
 
   @valid_attrs ~w(name description technologies repo server completed_at team_id)
@@ -13,7 +10,7 @@ defmodule Api.Project do
     field :technologies, {:array, :string}
     field :repo, :string
     field :server, :string
-    field :completed_at, Ecto.DateTime
+    field :completed_at, :naive_datetime
     timestamps()
 
     # Associations

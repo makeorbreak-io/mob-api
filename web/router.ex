@@ -44,6 +44,8 @@ defmodule Api.Router do
       delete "/checkin/:id", Admin.UserController, :remove_checkin
       post "/workshops/:id/checkin/:user_id", Admin.WorkshopController, :checkin
       delete "/workshops/:id/checkin/:user_id", Admin.WorkshopController, :remove_checkin
+      post "/teams/:id/repo", Admin.TeamController, :create_repo
+      post "/teams/:id/repo/add_users", Admin.TeamController, :add_users_to_repo
     end
   end
 end

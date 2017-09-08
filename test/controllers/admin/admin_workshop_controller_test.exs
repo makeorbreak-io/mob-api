@@ -156,13 +156,36 @@ defmodule Api.Admin.WorkshopControllerTest do
   test "checks in user in workshop", %{conn: conn, jwt: jwt} do
     user = create_user()
     workshop = create_workshop()
-    Repo.insert! %WorkshopAttendance{user_id: user.id, workshop_id: workshop.id}
+    attendance = Repo.insert! %WorkshopAttendance{user_id: user.id, workshop_id: workshop.id}
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> post(admin_workshop_path(conn, :checkin, workshop, user))
 
-    assert response(conn, 201)
+    assert json_response(conn, 200)["data"] == %{
+      "slug" => workshop.slug,
+      "name" => workshop.name,
+      "summary" => workshop.summary,
+      "description" => workshop.description,
+      "speaker" => workshop.speaker,
+      "participants" => 1,
+      "participant_limit" => workshop.participant_limit,
+      "year" => workshop.year,
+      "speaker_image" => workshop.speaker_image,
+      "banner_image" => workshop.banner_image,
+      "short_speaker" => workshop.short_speaker,
+      "short_date" => workshop.short_date,
+      "attendees" => [%{
+        "id" => user.id,
+        "email" => user.email,
+        "display_name" => UserHelper.display_name(user),
+        "gravatar_hash" => UserHelper.gravatar_hash(user),
+        "first_name" => user.first_name,
+        "last_name" => user.last_name,
+        "tshirt_size" => user.tshirt_size,
+        "checked_in" => !attendance.checked_in
+      }]
+    }
 
     attendance = Repo.get_by(WorkshopAttendance, user_id: user.id, workshop_id: workshop.id)
     assert attendance.checked_in == true
@@ -171,13 +194,40 @@ defmodule Api.Admin.WorkshopControllerTest do
   test "removes user checkin in workshop", %{conn: conn, jwt: jwt} do
     user = create_user()
     workshop = create_workshop()
-    Repo.insert! %WorkshopAttendance{user_id: user.id, workshop_id: workshop.id, checked_in: true}
+    attendance = Repo.insert! %WorkshopAttendance{
+      user_id: user.id,
+      workshop_id: workshop.id,
+      checked_in: true
+    }
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> delete(admin_workshop_path(conn, :remove_checkin, workshop, user))
 
-    assert response(conn, 204)
+    assert json_response(conn, 200)["data"] == %{
+      "slug" => workshop.slug,
+      "name" => workshop.name,
+      "summary" => workshop.summary,
+      "description" => workshop.description,
+      "speaker" => workshop.speaker,
+      "participants" => 1,
+      "participant_limit" => workshop.participant_limit,
+      "year" => workshop.year,
+      "speaker_image" => workshop.speaker_image,
+      "banner_image" => workshop.banner_image,
+      "short_speaker" => workshop.short_speaker,
+      "short_date" => workshop.short_date,
+      "attendees" => [%{
+        "id" => user.id,
+        "email" => user.email,
+        "display_name" => UserHelper.display_name(user),
+        "gravatar_hash" => UserHelper.gravatar_hash(user),
+        "first_name" => user.first_name,
+        "last_name" => user.last_name,
+        "tshirt_size" => user.tshirt_size,
+        "checked_in" => !attendance.checked_in
+      }]
+    }
 
     attendance = Repo.get_by(WorkshopAttendance, user_id: user.id, workshop_id: workshop.id)
     assert attendance.checked_in == false

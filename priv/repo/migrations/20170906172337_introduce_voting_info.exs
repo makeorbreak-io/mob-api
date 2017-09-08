@@ -40,20 +40,20 @@ defmodule Api.Repo.Migrations.IntroduceVotingInfo do
     end
     flush()
 
-    teams = Repo.all(from t in Team, order_by: :inserted_at)
-    Enum.zip([
-      teams,
-      (1..Enum.count(teams))
-    ])
-    |> Enum.map(fn
-      {team, tie_breaker} ->
-        team
-        |> Changeset.change(
-          prize_preference_hmac_secret: Crypto.random_hmac(),
-          tie_breaker: tie_breaker
-        )
-        |> Repo.update!
-    end)
+    # teams = Repo.all(from t in Team, order_by: :inserted_at)
+    # Enum.zip([
+    #   teams,
+    #   (1..Enum.count(teams))
+    # ])
+    # |> Enum.map(fn
+    #   {team, tie_breaker} ->
+    #     team
+    #     |> Changeset.change(
+    #       prize_preference_hmac_secret: Crypto.random_hmac(),
+    #       tie_breaker: tie_breaker
+    #     )
+    #     |> Repo.update!
+    # end)
 
     create unique_index(:teams, [:prize_preference_hmac_secret])
     create unique_index(:teams, [:tie_breaker])

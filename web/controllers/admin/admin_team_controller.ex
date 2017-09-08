@@ -39,4 +39,18 @@ defmodule Api.Admin.TeamController do
     TeamActions.disqualify(id, Plug.current_resource(conn))
     send_resp(conn, :no_content, "")
   end
+
+  def create_repo(conn, %{"id" => id}) do
+    case TeamActions.create_repo(id) do
+      :ok -> send_resp(conn, :created, "")
+      {:error, error} -> Errors.build(conn, :unprocessable_entity, error)
+    end
+  end
+
+  def add_users_to_repo(conn, %{"id" => id}) do
+    case TeamActions.add_users_to_repo(id) do
+      :ok -> send_resp(conn, :no_content, "")
+      {:error, error} -> Errors.build(conn, :unprocessable_entity, error)
+    end
+  end
 end

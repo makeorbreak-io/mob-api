@@ -4,11 +4,12 @@ defmodule Api.Team do
   alias Api.{EctoHelper, Crypto, Project, Invite, TeamMember}
 
   @valid_attrs ~w(name applied prize_preference)
-  @admin_attrs @valid_attrs ++ ~w(eligible)
+  @admin_attrs @valid_attrs ++ ~w(eligible repo)
   @required_attrs ~w(name prize_preference_hmac_secret tie_breaker)a
 
   schema "teams" do
     field :name, :string
+    field :repo, :map
     field :applied, :boolean, default: false
     field :eligible, :boolean, default: false
     field :disqualified_at, :utc_datetime, default: nil

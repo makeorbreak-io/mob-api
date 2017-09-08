@@ -1,7 +1,7 @@
 defmodule Api.ProjectActions do
   use Api.Web, :action
 
-  alias Api.Project
+  alias Api.{Project}
 
   def all do
     Repo.all(Project)
