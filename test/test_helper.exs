@@ -11,10 +11,6 @@ defmodule Api.TestHelper do
     password: "thisisapassword",
     github_handle: "https://github.com/nunopolonia"
   }
-  @valid_team_attrs %{
-    name: "awesome team",
-    repo: %{"name" => "awesome-team"}
-  }
   @valid_workshop_attrs %{
     name: "awesome workshop",
     slug: "awesome-workshop",
