@@ -31,6 +31,8 @@ defmodule Api.Router do
     post "/workshops/:id/join", WorkshopController, :join
     delete "/workshops/:id/leave", WorkshopController, :leave
 
+    get "/voting/info_begin", VotingController, :info_begin
+
     scope "/admin", as: :admin do
       resources "/users", Admin.UserController, except: [:new, :edit, :create]
       resources "/workshops", Admin.WorkshopController, except: [:new, :edit]

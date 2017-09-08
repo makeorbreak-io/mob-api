@@ -53,4 +53,21 @@ defmodule Api.Team do
   defp generate_tie_breaker(repo) do
     repo.aggregate(Api.Team, :count, :id) + 1
   end
+
+  def preference_hmac(team) do
+    Crypto.hmac(
+      team.prize_preference_hmac_secret,
+      Enum.join(team.prize_preference || [], ",")
+    )
+  end
+
+  def votable(at \\ nil) do
+    at = at || DateTime.utc_now
+
+    from(
+      t in Api.Team,
+      where: t.eligible == true,
+      where: is_nil(t.disqualified_at) or t.disqualified_at > ^at,
+    )
+  end
 end

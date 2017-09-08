@@ -72,4 +72,16 @@ defmodule Api.User do
     changeset
     |> put_change(:password_hash, hashed_password)
   end
+
+  def able_to_vote(at \\ nil) do
+    at = at || DateTime.utc_now
+
+    from(
+      u in Api.User,
+      join: tm in assoc(u, :teams),
+      join: t in assoc(tm, :team),
+      where: u.checked_in == true and u.role == "participant",
+      where: is_nil(t.disqualified_at) or t.disqualified_at > ^at,
+    )
+  end
 end

@@ -2,6 +2,7 @@ defmodule Api.UserTest do
   use Api.ModelCase
 
   alias Api.User
+  alias Api.{UserActions, TeamActions}
 
   @valid_attrs %{
     email: "johndoe@example.com",
@@ -46,5 +47,47 @@ defmodule Api.UserTest do
       %User{}, Map.put(@valid_attrs, :password, "12345")
     )
     refute changeset.valid?
+  end
+
+  test "able_to_vote not in a team" do
+    create_user()
+
+    assert User.able_to_vote() |> Repo.all == []
+  end
+
+  test "able_to_vote not checked in" do
+    create_team(create_user())
+
+    assert User.able_to_vote() |> Repo.all == []
+  end
+
+  test "able_to_vote checked in" do
+    u = create_user()
+    create_team(u)
+    UserActions.toggle_checkin(u.id, true)
+    u = Repo.get!(User, u.id)
+
+    assert User.able_to_vote() |> Repo.all == [u]
+  end
+
+  test "able_to_vote disqualified" do
+    u = create_user()
+    t = create_team(u)
+    UserActions.toggle_checkin(u.id, true)
+
+    TeamActions.disqualify(t.id, create_admin())
+
+    assert User.able_to_vote() |> Repo.all == []
+  end
+
+  test "able_to_vote disqualified later" do
+    u = create_user()
+    t = create_team(u)
+    UserActions.toggle_checkin(u.id, true)
+
+    TeamActions.disqualify(t.id, create_admin())
+
+    {:ok, past} = DateTime.from_unix(DateTime.to_unix(DateTime.utc_now) - 10)
+    assert User.able_to_vote(past) |> Repo.all == [Repo.get!(User, u.id)]
   end
 end
