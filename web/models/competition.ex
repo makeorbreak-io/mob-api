@@ -1,8 +1,4 @@
 defmodule Api.Competition do
-  @moduledoc """
-    TODO: Write.
-  """
-
   use Api.Web, :model
 
   @valid_attrs ~w(
