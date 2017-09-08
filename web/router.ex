@@ -38,6 +38,7 @@ defmodule Api.Router do
 
       get "/stats", Admin.StatsController, :stats
       delete "/teams/:id/remove/:user_id", Admin.TeamController, :remove
+      post "/teams/:id/disqualify", Admin.TeamController, :disqualify
       post "/invites/sync", Admin.InviteController, :sync
       post "/checkin/:id", Admin.UserController, :checkin
       delete "/checkin/:id", Admin.UserController, :remove_checkin

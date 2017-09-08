@@ -142,6 +142,17 @@ defmodule Api.Admin.TeamControllerTest do
     assert json_response(conn, 422)["errors"] == "User isn't a member of team"
   end
 
+  test "disqualify", %{conn: conn, jwt: jwt} do
+    user = create_user()
+    team = create_team(user)
+
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> post(admin_team_path(conn, :disqualify, team.id))
+
+    assert response(conn, 204)
+  end
+
   # test "create repo works", %{conn: conn, admin: admin, jwt: jwt} do
   #   team = create_team(admin)
 
