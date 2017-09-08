@@ -34,4 +34,7 @@ defmodule Api.Controller.Errors do
   defp message(:join_workshop), do: "Unable to create workshop attendance"
   defp message(:workshop_full), do: "Workshop is already full"
   defp message(:workshop_attendee), do: "User isn't an attendee of the workshop"
+  defp message(:already_started), do: "Competition already started"
+  defp message(:already_ended), do: "Competition already ended"
+  defp message(:not_started), do: "Competition hasn't started yet"
 end

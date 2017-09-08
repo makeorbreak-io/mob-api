@@ -1,8 +1,4 @@
 defmodule Api.PaperVote do
-  @moduledoc """
-    TODO: Write.
-  """
-
   use Api.Web, :model
 
   alias Api.{Crypto, Team, Category, User}
