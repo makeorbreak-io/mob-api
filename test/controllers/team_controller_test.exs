@@ -28,6 +28,7 @@ defmodule Api.TeamControllerTest do
       "id" => team.id,
       "name" => team.name,
       "prize_preference" => team.prize_preference,
+      "eligible" => team.eligible,
       "project" => nil
     }]
   end
@@ -41,6 +42,7 @@ defmodule Api.TeamControllerTest do
       "id" => team.id,
       "name" => team.name,
       "applied" => team.applied,
+      "eligible" => team.eligible,
       "prize_preference" => team.prize_preference,
       "members" => [%{
         "id" => user.id,

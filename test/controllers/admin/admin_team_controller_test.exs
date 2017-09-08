@@ -39,6 +39,7 @@ defmodule Api.Admin.TeamControllerTest do
       "name" => team.name,
       "applied" => team.applied,
       "prize_preference" => team.prize_preference,
+      "eligible" => team.eligible,
       "members" => [%{
         "id" => admin.id,
         "role" => "owner",

@@ -17,6 +17,7 @@ defmodule Api.TeamView do
       name: team.name,
       applied: team.applied,
       prize_preference: team.prize_preference,
+      eligible: team.eligible,
       members: if Ecto.assoc_loaded?(team.members) do
         render_many(team.members, TeamMemberView, "member_user.json", as: :membership)
       end,
@@ -42,6 +43,7 @@ defmodule Api.TeamView do
       name: team.name,
       applied: team.applied,
       prize_preference: team.prize_preference,
+      eligible: team.eligible,
       project: if Ecto.assoc_loaded?(team.project) do
         render_one(team.project, ProjectView, "project.json")
       end,
