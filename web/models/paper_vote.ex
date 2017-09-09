@@ -5,7 +5,6 @@ defmodule Api.PaperVote do
   alias Api.EctoHelper
 
   @required_attrs [
-    :hmac_secret,
     :category_id,
     :created_by_id,
   ]
@@ -22,7 +21,6 @@ defmodule Api.PaperVote do
   ]
 
   schema "paper_votes" do
-    field :hmac_secret, :string
     belongs_to :category, Category
     belongs_to :created_by, User
 
@@ -37,18 +35,12 @@ defmodule Api.PaperVote do
     timestamps()
   end
 
-  def hmac(paper_vote) do
-    Crypto.hmac(paper_vote.hmac_secret, paper_vote.id)
-  end
-
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @valid_attrs)
-    |> EctoHelper.if_missing(:hmac_secret, Crypto.random_hmac())
     |> validate_required(@required_attrs)
     |> assoc_constraint(:category)
     |> assoc_constraint(:created_by)
-    |> unique_constraint(:hmac_secret)
     |> EctoHelper.on_any_present(
       [
         :redeemed_at,
