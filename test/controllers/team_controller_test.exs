@@ -51,7 +51,8 @@ defmodule Api.TeamControllerTest do
         "gravatar_hash" => UserHelper.gravatar_hash(user),
       }],
       "invites" => team.invites,
-      "project" => team.project
+      "project" => team.project,
+      "disqualified_at" => nil,
     }
   end
 

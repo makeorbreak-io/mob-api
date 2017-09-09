@@ -47,7 +47,8 @@ defmodule Api.Admin.TeamControllerTest do
         "gravatar_hash" => UserHelper.gravatar_hash(admin)
       }],
       "invites" => team.invites,
-      "project" => team.project
+      "project" => team.project,
+      "disqualified_at" => nil,
     }
   end
 
@@ -175,6 +176,7 @@ defmodule Api.Admin.TeamControllerTest do
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> post(admin_team_path(conn, :disqualify, team.id))
 
+    team = Repo.get!(Team, team.id)
     assert json_response(conn, 200)["data"] == %{
       "project" => nil,
       "prize_preference" => nil,
@@ -183,7 +185,8 @@ defmodule Api.Admin.TeamControllerTest do
       "invites" => nil,
       "id" => team.id,
       "eligible" => false,
-      "applied" => false
+      "applied" => false,
+      "disqualified_at" => DateTime.to_iso8601(team.disqualified_at),
     }
   end
 
