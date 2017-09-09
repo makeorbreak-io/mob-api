@@ -1,7 +1,7 @@
 defmodule Api.SessionView do
   use Api.Web, :view
 
-  alias Api.{UserHelper, InviteView, TeamMemberView, WorkshopView}
+  alias Api.{UserHelper, InviteView, TeamMemberView, WorkshopView, CompetitionActions}
 
   def render("show.json", %{data: %{jwt: jwt, user: user}}) do
     %{data: %{
@@ -17,7 +17,7 @@ defmodule Api.SessionView do
   end
 
   def render("user.json", %{user: user}) do
-    %{
+    result = %{
       id: user.id,
       email: user.email,
       first_name: user.first_name,
@@ -44,5 +44,14 @@ defmodule Api.SessionView do
         render_many(user.workshops, WorkshopView, "workshop_short.json")
       end,
     }
+
+    result = if CompetitionActions.voting_status == :ended do
+      result
+      |> Map.put(:voter_identity, user.voter_identity)
+    else
+      result
+    end
+
+    result
   end
 end
