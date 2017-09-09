@@ -2,7 +2,7 @@ defmodule Api.InviteControllerTest do
   use Api.ConnCase
   use Bamboo.Test, shared: true
 
-  alias Api.{Invite, Email, TeamMember}
+  alias Api.{Invite, Email, TeamMember, CompetitionActions}
 
   setup %{conn: conn} do
     user = create_user()
@@ -212,6 +212,25 @@ defmodule Api.InviteControllerTest do
     |> put(invite_path(conn, :accept, %Invite{id: Ecto.UUID.generate()}))
 
     assert json_response(conn, 422)["errors"] == "Invite not found"
+  end
+
+  test "membership can't be accepted after start_voting", %{conn: conn, jwt: jwt, user: user} do
+    host = create_user(%{
+      email: "example@email.com",
+      first_name: "Jane",
+      last_name: "doe",
+      password: "thisisapassword"
+    })
+    team = create_team(host)
+    invite = create_invite(%{host_id: host.id, team_id: team.id, invitee_id: user.id})
+
+    CompetitionActions.start_voting()
+
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> put(invite_path(conn, :accept, invite))
+
+    assert json_response(conn, 422)["errors"] == "Competition already started"
   end
 
   test "deletes chosen resource", %{conn: conn, jwt: jwt} do

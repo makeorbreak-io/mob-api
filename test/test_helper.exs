@@ -4,7 +4,7 @@ Ecto.Adapters.SQL.Sandbox.mode(Api.Repo, :manual)
 
 defmodule Api.TestHelper do
   alias Api.{User, Team, Repo, TeamMember, Invite, Workshop, Category,
-    StringHelper, UserActions, Vote}
+    StringHelper, UserActions, Vote, PaperVoteActions}
 
   @valid_user_attrs %{
     first_name: "john",
@@ -95,11 +95,15 @@ defmodule Api.TestHelper do
     |> Repo.insert!
   end
 
-  def check_in_everyone do
-    people = User |> Repo.all
+  def check_in_everyone(people \\ nil) do
+    people = people || Repo.all(User)
 
     people
-    |> Enum.map(&UserActions.toggle_checkin(&1.id, true))
+    |> Enum.map(fn user ->
+      user
+      |> User.admin_changeset(%{checked_in: true})
+      |> Repo.update!
+    end)
   end
 
   def make_teams_eligible(teams \\ nil) do
@@ -121,5 +125,20 @@ defmodule Api.TestHelper do
       category_id: category.id,
       ballot: ballot
     }
+  end
+ 
+  def create_paper_vote(category, admin) do
+    {:ok, pv} = PaperVoteActions.create(category, admin)
+    pv
+  end
+
+  def annul_paper_vote(paper_vote, admin) do
+    {:ok, pv} = PaperVoteActions.annul(paper_vote, admin)
+    pv
+  end
+
+  def redeem_paper_vote(paper_vote, admin) do
+    {:ok, pv} = PaperVoteActions.redeem(paper_vote, admin)
+    pv
   end
 end

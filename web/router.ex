@@ -52,6 +52,11 @@ defmodule Api.Router do
       post "/teams/:id/repo/add_users", Admin.TeamController, :add_users_to_repo
       post "/competition/start_voting", Admin.CompetitionController, :start_voting
       post "/competition/end_voting", Admin.CompetitionController, :end_voting
+
+      post "/paper_vote", Admin.PaperVoteController, :create
+      get "/paper_vote/:id", Admin.PaperVoteController, :show
+      post "/paper_vote/:id/redeem", Admin.PaperVoteController, :redeem
+      post "/paper_vote/:id/annul", Admin.PaperVoteController, :annul
     end
   end
 end

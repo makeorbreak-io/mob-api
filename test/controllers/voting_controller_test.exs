@@ -52,11 +52,8 @@ defmodule Api.VotingControllerTest do
     create_membership(t3, create_user())
     create_membership(t3, create_user())
 
-    PaperVoteActions.create(cat, admin)
-    PaperVoteActions.annul(
-      PaperVoteActions.create(cat, admin),
-      admin
-    )
+    create_paper_vote(cat, admin)
+    annul_paper_vote(create_paper_vote(cat, admin), admin)
 
     check_in_everyone()
     make_teams_eligible([t1, t2])
