@@ -48,6 +48,15 @@ defmodule ApiPaperVoteActionsTest do
     {:error, :already_redeemed} = PaperVoteActions.redeem(p, t, m, a)
   end
 
+  test "redeem not annulled", %{category: c, admin: a, member: m, team: t} do
+    {:ok, p} = PaperVoteActions.create(c, a)
+    [t] = make_teams_eligible([t])
+    CompetitionActions.start_voting()
+
+    {:ok, p} = PaperVoteActions.annul(p, a)
+    {:error, :annulled} = PaperVoteActions.redeem(p, t, m, a)
+  end
+
   test "redeem not eligible", %{category: c, admin: a, member: m, team: t} do
     {:ok, p} = PaperVoteActions.create(c, a)
     # Notice I'm not making teams eligible
