@@ -37,4 +37,6 @@ defmodule Api.Controller.Errors do
   defp message(:already_started), do: "Competition already started"
   defp message(:already_ended), do: "Competition already ended"
   defp message(:not_started), do: "Competition hasn't started yet"
+  defp message(:team_disqualified), do: "Team has been disqualified"
+  defp message(:team_not_eligible), do: "Team is not eligible"
 end
