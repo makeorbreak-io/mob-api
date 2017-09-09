@@ -1,8 +1,7 @@
 defmodule Api.VotingControllerTest do
   use Api.ConnCase
 
-  alias Api.{CompetitionActions, PaperVoteActions,
-    TeamActions, Team, Vote, Category, Repo}
+  alias Api.{CompetitionActions, TeamActions, Team, Vote, Category, Repo}
   import Api.StringHelper, only: [slugify: 1]
 
   setup %{conn: conn} do

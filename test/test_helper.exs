@@ -4,7 +4,7 @@ Ecto.Adapters.SQL.Sandbox.mode(Api.Repo, :manual)
 
 defmodule Api.TestHelper do
   alias Api.{User, Team, Repo, TeamMember, Invite, Workshop, Category,
-    StringHelper, UserActions, Vote, PaperVoteActions}
+    StringHelper, Vote, PaperVoteActions}
 
   @valid_user_attrs %{
     first_name: "john",
@@ -126,7 +126,7 @@ defmodule Api.TestHelper do
       ballot: ballot
     }
   end
- 
+
   def create_paper_vote(category, admin) do
     {:ok, pv} = PaperVoteActions.create(category, admin)
     pv
