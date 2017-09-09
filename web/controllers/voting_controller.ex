@@ -1,7 +1,11 @@
 defmodule Api.VotingController do
   use Api.Web, :controller
 
-  alias Api.{Controller.Errors, CompetitionActions, VotingView, Repo, User, PaperVote, Team}
+  alias Api.{Controller.Errors, CompetitionActions, VotingView,
+    Repo, User, PaperVote, Team, VoteActions, SessionActions}
+
+  plug Guardian.Plug.EnsureAuthenticated, [handler: Errors]
+    when action in [:upsert_votes, :get_votes]
 
   def info_begin(conn, _params) do
     case CompetitionActions.voting_status do
@@ -18,6 +22,20 @@ defmodule Api.VotingController do
           },
           teams: Team.votable(at) |> Repo.all
         )
+    end
+  end
+
+  def upsert_votes(conn, %{"votes" => votes}) do
+    case VoteActions.upsert_votes(SessionActions.current_user(conn), votes) do
+      {:ok, votes} -> render(conn, "upsert.json", votes: votes)
+      {:error, error} -> Errors.build(conn, :unprocessable_entity, error)
+    end
+  end
+
+  def get_votes(conn, _) do
+    case VoteActions.get_votes(SessionActions.current_user(conn)) do
+      {:ok, votes} -> render(conn, "index.json", votes: votes)
+      {:error, error} -> Errors.build(conn, :unprocessable_entity, error)
     end
   end
 end

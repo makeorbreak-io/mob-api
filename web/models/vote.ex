@@ -18,7 +18,7 @@ defmodule Api.Vote do
       type: :string,
     )
     belongs_to :category, Category
-    field :ballot, {:array, :string}
+    field :ballot, {:array, :binary_id}
     timestamps()
   end
 
@@ -26,7 +26,7 @@ defmodule Api.Vote do
     struct
     |> cast(params, @attrs)
     |> validate_required(@attrs)
-    |> unique_constraint(:voter_identity)
+    |> unique_constraint(:voter_identity_category_id)
     |> assoc_constraint(:voter)
     |> assoc_constraint(:category)
   end

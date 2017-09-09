@@ -1,7 +1,8 @@
 defmodule Api.VotingView do
   use Api.Web, :view
 
-  alias Api.{StringHelper, Team}
+  alias Api.{Team}
+  import Api.StringHelper, only: [slugify: 1]
 
   def render("info_begin.json", %{
     participants: %{
@@ -23,7 +24,7 @@ defmodule Api.VotingView do
         teams
         |> Enum.map(fn team ->
           {
-            StringHelper.slugify(team.name),
+            slugify(team.name),
             %{
               tie_breaker: team.tie_breaker,
               prize_preference: %{
@@ -34,5 +35,17 @@ defmodule Api.VotingView do
         end)
         |> Map.new
     }
+  end
+
+  def render("upsert.json", %{votes: votes}) do
+    Enum.reduce(votes, %{}, fn {category, vote}, acc ->
+      Map.put(acc, String.to_atom(category), vote.ballot)
+    end)
+  end
+
+  def render("index.json", %{votes: votes}) do
+    Enum.reduce(votes, %{}, fn vote, acc ->
+      Map.put(acc, String.to_atom(vote.category.name), vote.ballot)
+    end)
   end
 end

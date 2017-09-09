@@ -3,7 +3,8 @@ ExUnit.start
 Ecto.Adapters.SQL.Sandbox.mode(Api.Repo, :manual)
 
 defmodule Api.TestHelper do
-  alias Api.{User, Team, Repo, TeamMember, Invite, Workshop, Category, StringHelper, PaperVoteActions}
+  alias Api.{User, Team, Repo, TeamMember, Invite, Workshop, Category,
+    StringHelper, Vote, PaperVoteActions}
 
   @valid_user_attrs %{
     first_name: "john",
@@ -11,6 +12,13 @@ defmodule Api.TestHelper do
     password: "thisisapassword",
     github_handle: "https://github.com/nunopolonia"
   }
+  # Commenting this instead of deleting because not using this on the create_team
+  # function will break the github integration tests once they are uncommented.
+  # So I'm keeping it for future reference.
+  # @valid_team_attrs %{
+  #   name: "awesome team",
+  #   repo: %{"name" => "awesome-team"}
+  # }
   @valid_workshop_attrs %{
     name: "awesome workshop",
     slug: "awesome-workshop",
@@ -107,6 +115,16 @@ defmodule Api.TestHelper do
       |> Team.admin_changeset(%{eligible: true}, Repo)
       |> Repo.update!
     end)
+  end
+
+  def create_vote(user, category_name, ballot) do
+    category = Repo.get_by(Category, name: category_name)
+
+    Repo.insert! %Vote{
+      voter_identity: user.voter_identity,
+      category_id: category.id,
+      ballot: ballot
+    }
   end
 
   def create_paper_vote(category, admin) do

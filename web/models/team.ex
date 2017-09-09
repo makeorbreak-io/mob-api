@@ -65,7 +65,7 @@ defmodule Api.Team do
     at = at || DateTime.utc_now
 
     from(
-      t in Api.Team,
+      t in __MODULE__,
       where: t.eligible == true,
       where: is_nil(t.disqualified_at) or t.disqualified_at > ^at,
     )
