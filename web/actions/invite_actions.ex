@@ -5,7 +5,7 @@ defmodule Api.InviteActions do
   @team_user_limit Application.get_env(:api, :team_user_limit)
   @http Application.get_env(:api, :http_lib)
 
-  alias Api.{Email, Invite, Mailer, Repo, TeamMember, User, UserActions}
+  alias Api.{Email, Invite, Mailer, Repo, TeamMember, User, UserActions, CompetitionActions}
   alias Ecto.Changeset
 
   def for_current_user(current_user) do
@@ -111,12 +111,18 @@ defmodule Api.InviteActions do
   end
 
   defp create_membership(invite) do
-    changeset = TeamMember.changeset(%TeamMember{},
-      %{user_id: invite.invitee_id, team_id: invite.team_id})
-
-    case Repo.insert(changeset) do
-      {:ok, _} -> Repo.delete(invite)
-      {:error, _} -> {:error, "Unable to create membership"}
+    case CompetitionActions.voting_status do
+      :started ->
+        {:error, :already_started}
+      _ ->
+        changeset = TeamMember.changeset(
+          %TeamMember{},
+          %{user_id: invite.invitee_id, team_id: invite.team_id}
+        )
+        case Repo.insert(changeset) do
+          {:ok, _} -> Repo.delete(invite)
+          {:error, _} -> {:error, "Unable to create membership"}
+        end
     end
   end
 

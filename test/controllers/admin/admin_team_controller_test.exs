@@ -1,7 +1,7 @@
 defmodule Api.Admin.TeamControllerTest do
   use Api.ConnCase
 
-  alias Api.{Team, TeamMember}
+  alias Api.{Team, TeamMember, CompetitionActions}
   # import Api.StringHelper
 
   @valid_attrs %{name: "some content"}
@@ -61,6 +61,17 @@ defmodule Api.Admin.TeamControllerTest do
 
     assert json_response(conn, 200)["data"]["id"]
     assert Repo.get_by(Team, @valid_attrs)
+  end
+
+  test "doesn't update eligible if voting has started", %{conn: conn, jwt: jwt, admin: admin} do
+    team = create_team(admin)
+    CompetitionActions.start_voting()
+
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> put(admin_team_path(conn, :update, team), team: Map.merge(@valid_attrs, %{"eligible": true}))
+
+    assert json_response(conn, 200)["data"]["eligible"] == false
   end
 
   test "doesn't update team when request is invalid", %{conn: conn, admin: admin} do
@@ -141,6 +152,19 @@ defmodule Api.Admin.TeamControllerTest do
 
     assert response(conn, 422)
     assert json_response(conn, 422)["errors"] == "User isn't a member of team"
+  end
+
+  test "can't remove membership if voting has started", %{conn: conn, jwt: jwt, admin: admin} do
+    owner = create_user(%{email: "user@example.com", password: "thisisapassword"})
+    team = create_team(owner)
+    Repo.insert! %TeamMember{user_id: admin.id, team_id: team.id}
+    CompetitionActions.start_voting()
+
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> delete(admin_team_path(conn, :remove, team, admin.id))
+
+    assert json_response(conn, 422)["errors"] == "Competition already started"
   end
 
   test "disqualify", %{conn: conn, jwt: jwt} do
