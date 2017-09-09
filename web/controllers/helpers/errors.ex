@@ -39,4 +39,6 @@ defmodule Api.Controller.Errors do
   defp message(:not_started), do: "Competition hasn't started yet"
   defp message(:team_disqualified), do: "Team has been disqualified"
   defp message(:team_not_eligible), do: "Team is not eligible"
+  defp message(:already_redeemed), do: "Paper vote has already been redeemed"
+  defp message(:annulled), do: "Paper vote has annulled"
 end

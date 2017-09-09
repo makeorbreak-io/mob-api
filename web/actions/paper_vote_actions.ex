@@ -26,24 +26,23 @@ defmodule Api.PaperVoteActions do
     cond do
       !team.eligible -> {:error, :team_not_eligible}
       team.disqualified_at -> {:error, :team_disqualified}
+      paper_vote.redeemed_at -> {:error, :already_redeemed}
+      paper_vote.annulled_at -> {:error, :annulled}
+      CompetitionActions.voting_status == :not_started -> {:error, :not_started}
+      CompetitionActions.voting_status == :ended -> {:error, :already_ended}
       true ->
-        case CompetitionActions.voting_status do
-          :not_started -> {:error, :not_started}
-          :ended -> {:error, :already_ended}
-          _ ->
-            {
-              :ok,
-              paper_vote
-              |> PaperVote.changeset(%{
-                redeemed_at: at,
-                redeeming_admin_id: admin.id,
-                redeeming_member_id: member.id,
-                team_id: team.id,
-              })
-              |> Repo.update!
-              |> Repo.preload(:category)
-            }
-        end
+        {
+          :ok,
+          paper_vote
+          |> PaperVote.changeset(%{
+            redeemed_at: at,
+            redeeming_admin_id: admin.id,
+            redeeming_member_id: member.id,
+            team_id: team.id,
+          })
+          |> Repo.update!
+          |> Repo.preload(:category)
+        }
     end
   end
 
