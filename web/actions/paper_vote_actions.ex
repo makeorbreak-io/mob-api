@@ -1,7 +1,7 @@
 defmodule Api.PaperVoteActions do
   use Api.Web, :action
 
-  alias Api.{CompetitionActions, PaperVote, User}
+  alias Api.{CompetitionActions, PaperVote}
 
   def create(category, admin) do
     case CompetitionActions.voting_status do

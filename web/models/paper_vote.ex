@@ -1,7 +1,7 @@
 defmodule Api.PaperVote do
   use Api.Web, :model
 
-  alias Api.{Crypto, Team, Category, User}
+  alias Api.{Team, Category, User}
   alias Api.EctoHelper
 
   @required_attrs [
