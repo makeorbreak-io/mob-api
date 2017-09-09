@@ -1,7 +1,7 @@
 defmodule Api.Admin.TeamController do
   use Api.Web, :controller
 
-  alias Api.{TeamActions, Controller.Errors}
+  alias Api.{TeamActions, Controller.Errors, Team}
   alias Guardian.{Plug, Plug.EnsureAuthenticated, Plug.EnsurePermissions}
 
   plug :scrub_params, "team" when action in [:update]
@@ -37,7 +37,7 @@ defmodule Api.Admin.TeamController do
 
   def disqualify(conn, %{"id" => id}) do
     TeamActions.disqualify(id, Plug.current_resource(conn))
-    send_resp(conn, :no_content, "")
+    render(conn, "show.json", team: Repo.get!(Team, id))
   end
 
   def create_repo(conn, %{"id" => id}) do

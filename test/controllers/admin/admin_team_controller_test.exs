@@ -175,7 +175,16 @@ defmodule Api.Admin.TeamControllerTest do
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> post(admin_team_path(conn, :disqualify, team.id))
 
-    assert response(conn, 204)
+    assert json_response(conn, 200)["data"] == %{
+      "project" => nil,
+      "prize_preference" => nil,
+      "name" => team.name,
+      "members" => nil,
+      "invites" => nil,
+      "id" => team.id,
+      "eligible" => false,
+      "applied" => false
+    }
   end
 
   # test "create repo works", %{conn: conn, admin: admin, jwt: jwt} do
