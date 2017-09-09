@@ -17,11 +17,17 @@ defmodule Api.VoteActions do
       multi = Enum.reduce(votes, multi, fn {key, ballot}, multi ->
         category = Repo.get_by(Category, name: key)
 
-        Multi.insert_or_update(multi, key, Vote.changeset(%Vote{}, %{
-          voter_identity: user.voter_identity,
-          category_id: category.id,
-          ballot: ballot
-        }))
+        Multi.insert_or_update(multi,
+          key,
+          Vote.changeset(
+            get_struct(user, category),
+            %{
+              voter_identity: user.voter_identity,
+              category_id: category.id,
+              ballot: ballot
+            }
+          )
+        )
       end)
 
       Repo.transaction(multi)
@@ -69,4 +75,15 @@ defmodule Api.VoteActions do
 
   defp not_on_own_team(nil, _), do: false
   defp not_on_own_team(team, user), do: user.team.team_id != team.id
+
+  defp get_struct(user, category) do
+    query = from v in Vote,
+      where: v.voter_identity == ^user.voter_identity,
+      where: v.category_id == ^category.id
+
+    case Repo.one(query) do
+      nil -> %Vote{}
+      vote -> vote
+    end
+  end
 end

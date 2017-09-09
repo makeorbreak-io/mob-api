@@ -145,7 +145,45 @@ defmodule Api.VotingControllerTest do
     assert vote.ballot == [t2.id]
   end
 
-    test "invalid votes return error", %{conn: conn, jwt: jwt, user: u1} do
+  test "user can edit his votes", %{conn: conn, jwt: jwt, user: u1} do
+    create_team(u1)
+
+    t2 = create_team(create_user())
+    t3 = create_team(create_user())
+
+    check_in_everyone()
+    make_teams_eligible()
+
+    CompetitionActions.start_voting()
+
+    create_vote(u1, "useful", [t2.id])
+    create_vote(u1, "hardcore", [t3.id])
+    create_vote(u1, "funny", [t2.id, t3.id])
+
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> post(voting_path(conn, :upsert_votes), votes: %{
+      useful: [t3.id, t2.id],
+      hardcore: [t2.id],
+      funny: [t3.id, t2.id]
+    })
+
+    assert json_response(conn, 200) == %{
+      "useful" => [t3.id, t2.id],
+      "hardcore" => [t2.id],
+      "funny" => [t3.id, t2.id]
+    }
+
+    category = Repo.get_by(Category, name: "useful")
+
+    vote = Repo.one(from v in Vote,
+      where: v.voter_identity == ^u1.voter_identity
+        and v.category_id == ^category.id)
+
+    assert vote.ballot == [t3.id, t2.id]
+  end
+
+  test "invalid votes return error", %{conn: conn, jwt: jwt, user: u1} do
     t1 = create_team(u1)
 
     t2 = create_team(create_user())
