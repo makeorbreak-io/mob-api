@@ -32,6 +32,8 @@ defmodule Api.Router do
     delete "/workshops/:id/leave", WorkshopController, :leave
 
     get "/voting/info_begin", VotingController, :info_begin
+    post "/voting/vote", VotingController, :upsert_votes
+    get "/voting/vote", VotingController, :get_votes
 
     scope "/admin", as: :admin do
       resources "/users", Admin.UserController, except: [:new, :edit, :create]

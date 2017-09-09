@@ -18,7 +18,7 @@ defmodule Api.Vote do
       type: :string,
     )
     belongs_to :category, Category
-    field :ballot, {:array, :string}
+    field :ballot, {:array, :binary_id}
     timestamps()
   end
 
