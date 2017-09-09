@@ -1,7 +1,7 @@
 defmodule Api.UserActions do
   use Api.Web, :action
 
-  alias Api.{User, UserActions, Invite, Email, Mailer}
+  alias Api.{User, UserActions, Invite, Email, Mailer, CompetitionActions}
 
   def all do
     Enum.map(Repo.all(User), fn(user) -> UserActions.preload_user_data(user) end)
@@ -58,17 +58,20 @@ defmodule Api.UserActions do
   end
 
   def toggle_checkin(id, value) do
-    user = Repo.get!(User, id)
+    case CompetitionActions.voting_status do
+      :started ->
+        {:error, :already_started}
+      _ ->
+        user = Repo.get!(User, id)
 
-    changeset = User.admin_changeset(user, %{checked_in: value})
+        changeset = User.admin_changeset(user, %{checked_in: value})
 
-    case Repo.update(changeset) do
-      {:ok, user} ->
-        if value do
-          Email.checkin_email(user) |> Mailer.deliver_later
+        case Repo.update(changeset) do
+          {:ok, user} ->
+            value && (Email.checkin_email(user) |> Mailer.deliver_later)
+            {:ok, preload_user_data(user)}
+          {:error, changeset} -> {:error, changeset}
         end
-        {:ok, preload_user_data(user)}
-      {:error, changeset} -> {:error, changeset}
     end
   end
 

@@ -1,7 +1,7 @@
 defmodule Api.TeamActions do
   use Api.Web, :action
 
-  alias Api.{Team, User, TeamMember, Email, Mailer, GithubActions}
+  alias Api.{Team, User, TeamMember, Email, Mailer, GithubActions, CompetitionActions}
   alias Ecto.{Changeset, Multi}
 
   def all do
@@ -51,34 +51,45 @@ defmodule Api.TeamActions do
   end
 
   def remove(current_user, team_id, user_id) do
-    team = Repo.get!(Team, team_id)
-
-    case Repo.get(User, user_id) do
-      nil ->
-        {:error, "User not found"}
-      user ->
-        query = from(t in TeamMember, where:
-          t.user_id == ^user.id and t.team_id == ^team.id)
-
-        if is_team_member?(team, current_user) do
-          if team.applied do
-            {:error, "Can't remove users after applying to the event"}
-          else
-            case Repo.delete_all(query) do
-              {1, _} ->
-                {:ok}
-              {0, _} ->
-                {:error, "User isn't a member of team"}
-            end
-          end
-        else
-          {:unauthorized}
-        end
+    if CompetitionActions.voting_status == :started do
+      throw {:error, :already_started}
     end
+
+    team = Repo.get!(Team, team_id)
+    user = Repo.get(User, user_id) || throw {:error, "User not found"}
+
+    if !is_team_member?(team, current_user) do
+      throw {:unauthorized}
+    end
+
+    if team.applied do
+      throw {:error, "Can't remove users after applying to the event"}
+    end
+
+    case Repo.delete_all(from(
+        t in TeamMember,
+        where: t.user_id == ^user.id and t.team_id == ^team.id
+    )) do
+      {1, _} ->
+        {:ok}
+      {0, _} ->
+        {:error, "User isn't a member of team"}
+    end
+  catch
+    e -> e
   end
 
   def update_any(id, team_params) do
     team = get(id)
+
+    team_params = case CompetitionActions.voting_status do
+      :started ->
+        {_, team_params} = Map.pop(team_params, :eligible)
+        {_, team_params} = Map.pop(team_params, "eligible")
+        team_params
+      _ ->
+        team_params
+    end
 
     Team.admin_changeset(team, team_params, Repo)
     |> email_if_applying(team)
@@ -90,19 +101,21 @@ defmodule Api.TeamActions do
   end
 
   def remove_any(team_id, user_id) do
-    case Repo.get(User, user_id) do
-      nil -> {:error, "User not found"}
-      user ->
-        query = from(t in TeamMember, where:
-          t.user_id == ^user.id and t.team_id == ^team_id)
-
-        case Repo.delete_all(query) do
-          {1, _} ->
-            {:ok}
-          {0, _} ->
-            {:error, "User isn't a member of team"}
-        end
+    if CompetitionActions.voting_status == :started do
+        throw {:error, :already_started}
     end
+    user = Repo.get(User, user_id) || throw {:error, "User not found"}
+    case Repo.delete_all(from(
+        t in TeamMember,
+        where: t.user_id == ^user.id and t.team_id == ^team_id
+    )) do
+      {1, _} ->
+        {:ok}
+      {0, _} ->
+        {:error, "User isn't a member of team"}
+    end
+  catch
+    e -> e
   end
 
   def shuffle_tie_breakers do

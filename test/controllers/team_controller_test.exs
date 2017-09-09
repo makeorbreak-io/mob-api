@@ -2,7 +2,7 @@ defmodule Api.TeamControllerTest do
   use Api.ConnCase
   use Bamboo.Test, shared: true
 
-  alias Api.{Team, TeamMember, Email}
+  alias Api.{Team, TeamMember, Email, CompetitionActions}
 
   @valid_attrs %{name: "some content"}
   @invalid_attrs %{name: ""}
@@ -262,5 +262,19 @@ defmodule Api.TeamControllerTest do
 
     assert response(conn, 422)
     assert json_response(conn, 422)["errors"] == "Can't remove users after applying to the event"
+  end
+
+  test "remove membership doesn't work if voting has started", %{conn: conn, jwt: jwt, user: user} do
+    member = create_user()
+    team = create_team(user, %{name: "awesome team", applied: true})
+    Repo.insert! %TeamMember{user_id: member.id, team_id: team.id}
+    CompetitionActions.start_voting()
+
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> delete(team_path(conn, :remove, team, member.id))
+
+    assert response(conn, 422)
+    assert json_response(conn, 422)["errors"] == "Competition already started"
   end
 end
