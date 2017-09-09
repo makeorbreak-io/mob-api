@@ -4,8 +4,6 @@ defmodule Api.PaperVoteActions do
   alias Api.{CompetitionActions, PaperVote, User}
 
   def create(category, admin) do
-    %User{role: "admin"} = admin = Repo.get!(User, admin.id)
-
     case CompetitionActions.voting_status do
       :ended -> {:error, :already_ended}
       _ ->
@@ -23,8 +21,6 @@ defmodule Api.PaperVoteActions do
 
   def redeem(paper_vote, team, member, admin, at \\ nil) do
     at = at || DateTime.utc_now
-
-    %User{role: "admin"} = admin = Repo.get!(User, admin.id)
 
     cond do
       !team.eligible -> {:error, :team_not_eligible}
@@ -51,8 +47,6 @@ defmodule Api.PaperVoteActions do
 
   def annul(paper_vote, admin, at \\ nil) do
     at = at || DateTime.utc_now
-
-    %User{role: "admin"} = admin = Repo.get!(User, admin.id)
 
     case CompetitionActions.voting_status do
       :ended -> {:error, :already_ended}
