@@ -13,5 +13,6 @@ defmodule Api.Admin.PaperVoteView do
       :redeeming_member_id,
       :team_id,
     ])
+    |> Map.merge(%{category_name: pv.category.name})
   end
 end
