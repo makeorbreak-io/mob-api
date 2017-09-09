@@ -24,6 +24,7 @@ defmodule Api.Admin.PaperVoteController do
   def show(conn, %{"id" => pv_id}) do
     _respond(conn, {:ok,
       Repo.get!(PaperVote, pv_id)
+      |> Repo.preload(:category)
     })
   end
 

@@ -14,7 +14,8 @@ defmodule Api.PaperVoteActions do
             category_id: category.id,
             created_by_id: admin.id,
           })
-          |> Repo.insert!,
+          |> Repo.insert!
+          |> Repo.preload(:category)
         }
     end
   end
@@ -39,7 +40,8 @@ defmodule Api.PaperVoteActions do
                 redeeming_member_id: member.id,
                 team_id: team.id,
               })
-              |> Repo.update!,
+              |> Repo.update!
+              |> Repo.preload(:category)
             }
         end
     end
@@ -58,7 +60,8 @@ defmodule Api.PaperVoteActions do
             annulled_at: at,
             annulled_by_id: admin.id,
           })
-          |> Repo.update!,
+          |> Repo.update!
+          |> Repo.preload(:category)
         }
     end
   end
