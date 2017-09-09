@@ -26,6 +26,7 @@ defmodule Api.PaperVoteActions do
     cond do
       !team.eligible -> {:error, :team_not_eligible}
       team.disqualified_at -> {:error, :team_disqualified}
+      paper_vote.redeemed_at -> {:error, :already_redeemed}
       true ->
         case CompetitionActions.voting_status do
           :not_started -> {:error, :not_started}
