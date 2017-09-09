@@ -1,7 +1,7 @@
 defmodule Api.SessionControllerTest do
   use Api.ConnCase
 
-  alias Api.{WorkshopAttendance}
+  alias Api.{WorkshopAttendance, CompetitionActions}
 
   @valid_credentials %{
     email: "johndoe@example.com",
@@ -118,6 +118,19 @@ defmodule Api.SessionControllerTest do
         "short_speaker" => workshop.short_speaker
       }]
     }
+  end
+
+  test "shows voter_identity when the voting has ended", %{conn: conn} do
+    user = create_user()
+    {:ok, jwt, _} = Guardian.encode_and_sign(user)
+    CompetitionActions.start_voting()
+    CompetitionActions.end_voting()
+
+    conn = conn
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> get(session_path(conn, :me))
+
+    assert json_response(conn, 200)["data"]["voter_identity"] == user.voter_identity
   end
 
   test "jwt checking returns 401 without token", %{conn: conn} do

@@ -27,6 +27,7 @@ defmodule Api.TeamView do
       invites: if Ecto.assoc_loaded?(team.invites) do
         render_many(team.invites, InviteView, "invite.json")
       end,
+      disqualified_at: team.disqualified_at,
     }
   end
 
