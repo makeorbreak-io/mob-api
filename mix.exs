@@ -70,7 +70,8 @@ defmodule Api.Mixfile do
       # Don't allow Plug 1.4 until there's a new Phoenix 1.2.x version
       # https://github.com/phoenixframework/phoenix/issues/2400
       {:plug, "~> 1.3.0"},
-      {:tentacat, "~> 0.5"}
+      {:tentacat, "~> 0.5"},
+      {:markus, "~> 0.1.0"},
     ]
   end
 

@@ -75,4 +75,13 @@ defmodule Api.PaperVote do
       where: is_nil(p.annulled_at) or p.annulled_at > ^at,
     )
   end
+
+  def countable(at \\ nil) do
+    at = at || DateTime.utc_now
+
+    from(
+      pv in not_annuled(at),
+      where: not is_nil(pv.team_id)
+    )
+  end
 end
