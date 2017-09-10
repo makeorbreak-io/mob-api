@@ -146,6 +146,20 @@ defmodule Api.TestHelper do
     %{"id" => t.id, "name" => t.name}
   end
 
+  def team_view(t) do
+    %{
+      "applied" => t.applied,
+      "disqualified_at" => t.disqualified_at,
+      "eligible" => t.eligible,
+      "id" => t.id,
+      "invites" => nil,
+      "members" => nil,
+      "name" => t.name,
+      "prize_preference" => t.prize_preference,
+      "project" => nil
+    }
+  end
+
   def admin_user_short_view(u) do
     %{
       "display_name" => UserHelper.display_name(u),

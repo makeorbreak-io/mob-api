@@ -1,7 +1,7 @@
 defmodule Api.Admin.CompetitionControllerTest do
   use Api.ConnCase
 
-  alias Api.{CompetitionActions}
+  alias Api.{CompetitionActions, Team}
   alias Guardian.{Permissions}
 
   setup %{conn: conn} do
@@ -87,6 +87,9 @@ defmodule Api.Admin.CompetitionControllerTest do
     # Remember this shuffles the tie breakers.
     CompetitionActions.start_voting()
 
+    t2 = Repo.get(Team, t2.id)
+    t3 = Repo.get(Team, t3.id)
+
     pv = create_paper_vote(cat, admin)
 
     conn = conn
@@ -113,7 +116,7 @@ defmodule Api.Admin.CompetitionControllerTest do
     assert Enum.member?(
       missing_voters,
       %{
-        "team" => team_short_view(t2),
+        "team" => team_view(t2),
         "users" => [u2, u3]
           |> Enum.sort_by(&(&1.id))
           |> Enum.map(fn u -> admin_user_short_view(u) end)
@@ -123,7 +126,7 @@ defmodule Api.Admin.CompetitionControllerTest do
     assert Enum.member?(
       missing_voters,
       %{
-        "team" => team_short_view(t3),
+        "team" => team_view(t3),
         "users" => [admin_user_short_view(u4)]
       }
     )
