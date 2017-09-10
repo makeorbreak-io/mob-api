@@ -10,7 +10,7 @@ defmodule Api.VotingController do
   def info_begin(conn, _params) do
     case CompetitionActions.voting_status do
       :not_started ->
-        Errors.build(conn, :not_found, "Voting hasn't started yet")
+        Errors.build(conn, :not_found, :not_started)
       _ ->
         at = CompetitionActions.voting_started_at()
         render(conn, VotingView, "info_begin.json",

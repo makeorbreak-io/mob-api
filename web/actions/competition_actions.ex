@@ -64,8 +64,9 @@ defmodule Api.CompetitionActions do
     case voting_status() do
       :not_started -> {:error, :not_started}
       :started ->
-        resolve_voting!()
-        _change(%{voting_ended_at: DateTime.utc_now})
+        at = DateTime.utc_now
+        resolve_voting!(at)
+        _change(%{voting_ended_at: at})
       :ended -> {:error, :already_ended}
     end
   end
@@ -89,17 +90,21 @@ defmodule Api.CompetitionActions do
     _get().voting_ended_at
   end
 
-  def ballots(category) do
+  def ballots(category, at \\ nil) do
+    at = at || DateTime.utc_now
+
     votes =
       Repo.all(from(
-        v in Vote,
-        where: v.category_id == ^(category.id)
+        u in User.able_to_vote(at),
+        join: v in assoc(u, :votes),
+        where: v.category_id == ^(category.id),
+        select: v
       ))
       |> Enum.map(&({&1.voter_identity, &1.ballot}))
 
     paper_votes =
       Repo.all(from(
-        pv in PaperVote.countable(),
+        pv in PaperVote.countable(at),
         where: pv.category_id == ^(category.id)
       ))
       |> Enum.map(&({&1.id, [&1.team_id]}))
@@ -107,24 +112,24 @@ defmodule Api.CompetitionActions do
     (paper_votes ++ votes)
   end
 
-  def resolve_voting! do
+  def resolve_voting!(at \\ nil) do
     Enum.map(
       Repo.all(Category),
       fn c ->
         c
-        |> Changeset.change(podium: calculate_podium(c))
+        |> Changeset.change(podium: calculate_podium(c, at))
         |> Repo.update!
       end
     )
   end
 
-  def calculate_podium(category) do
+  def calculate_podium(category, at \\ nil) do
     valid_team_ids =
-      Repo.all(Team.votable(), select: :id)
+      Repo.all(Team.votable(at), select: :id)
       |> Enum.map(&Map.get(&1, :id))
 
     votes =
-      ballots(category)
+      ballots(category, at)
       |> Enum.map(fn {_id, ballot} ->
         Enum.filter(ballot, &Enum.member?(valid_team_ids, &1))
       end)

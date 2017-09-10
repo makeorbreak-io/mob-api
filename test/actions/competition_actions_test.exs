@@ -82,6 +82,7 @@ defmodule Api.CompetitionActionsTest.CalculatePodium do
     create_vote(create_user(), cat.name, [t3.id])
     create_vote(create_user(), cat.name, [t4.id])
 
+    check_in_everyone()
     assert CompetitionActions.calculate_podium(cat) == [
       t1.id,
       t2.id,
@@ -101,6 +102,7 @@ defmodule Api.CompetitionActionsTest.CalculatePodium do
     Changeset.change(t2, tie_breaker: 10) |> Repo.update!
     Changeset.change(t1, tie_breaker: 20) |> Repo.update!
 
+    check_in_everyone()
     assert CompetitionActions.calculate_podium(cat) == [
       t2.id,
       t1.id,
@@ -130,6 +132,7 @@ defmodule Api.CompetitionActionsTest.CalculatePodium do
     create_vote(create_user(), "hardcore", [t3.id])
     create_vote(create_user(), "hardcore", [t3.id])
 
+    check_in_everyone()
     CompetitionActions.resolve_voting!
 
     assert Repo.get_by!(Category, name: "useful").podium == [

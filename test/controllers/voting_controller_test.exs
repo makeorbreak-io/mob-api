@@ -20,7 +20,7 @@ defmodule Api.VotingControllerTest do
     conn = get conn, voting_path(conn, :info_begin)
 
     assert json_response(conn, 404) == %{
-      "errors" => "Voting hasn't started yet"
+      "errors" => "Competition hasn't started yet"
     }
   end
 

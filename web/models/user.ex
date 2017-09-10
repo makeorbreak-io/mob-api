@@ -1,6 +1,6 @@
 defmodule Api.User do
   use Api.Web, :model
-  alias Api.{EctoHelper, Crypto, Invite, TeamMember, Workshop, WorkshopAttendance}
+  alias Api.{EctoHelper, Crypto, Invite, TeamMember, Workshop, WorkshopAttendance, Vote}
 
   alias Comeonin.Bcrypt
 
@@ -27,6 +27,9 @@ defmodule Api.User do
     field :tshirt_size, :string
     field :checked_in, :boolean, default: false
     field :voter_identity, :string
+
+    has_many :votes, Vote, references: :voter_identity, foreign_key: :voter_identity
+
     timestamps()
 
     # Virtual fields
@@ -78,8 +81,8 @@ defmodule Api.User do
 
     from(
       u in Api.User,
-      join: tm in assoc(u, :teams),
-      join: t in assoc(tm, :team),
+      left_join: tm in assoc(u, :teams),
+      left_join: t in assoc(tm, :team),
       where: u.checked_in == true and u.role == "participant",
       where: is_nil(t.disqualified_at) or t.disqualified_at > ^at,
     )
