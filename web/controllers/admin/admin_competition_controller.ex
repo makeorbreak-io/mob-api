@@ -20,4 +20,8 @@ defmodule Api.Admin.CompetitionController do
       {:error, error} -> Errors.build(conn, :unprocessable_entity, error)
     end
   end
+
+  def status(conn, _) do
+    render(conn, "status.json", status: CompetitionActions.status())
+  end
 end
