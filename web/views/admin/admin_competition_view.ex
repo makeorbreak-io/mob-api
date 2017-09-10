@@ -12,7 +12,7 @@ defmodule Api.Admin.CompetitionView do
         "paper_vote.json"),
       missing_voters: Enum.map(status.missing_voters, fn(team_users) ->
         %{
-          team: render_one(team_users.team, TeamView, "team_short.json"),
+          team: render_one(team_users.team, TeamView, "team.json"),
           users: render_many(team_users.users, UserView, "user_short.json")
         }
       end)
