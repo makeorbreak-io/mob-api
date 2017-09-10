@@ -17,6 +17,7 @@ defmodule Api.CompetitionActions do
     case voting_status() do
       :not_started ->
         TeamActions.shuffle_tie_breakers
+        TeamActions.assign_missing_preferences
         _change(%{voting_started_at: DateTime.utc_now})
       :started -> {:error, :already_started}
       :ended -> {:error, :already_ended}
