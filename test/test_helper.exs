@@ -4,7 +4,7 @@ Ecto.Adapters.SQL.Sandbox.mode(Api.Repo, :manual)
 
 defmodule Api.TestHelper do
   alias Api.{User, Team, Repo, TeamMember, Invite, Workshop, Category,
-    StringHelper, Vote, PaperVoteActions}
+    StringHelper, Vote, PaperVoteActions, UserHelper}
 
   @valid_user_attrs %{
     first_name: "john",
@@ -140,5 +140,21 @@ defmodule Api.TestHelper do
   def redeem_paper_vote(paper_vote, admin) do
     {:ok, pv} = PaperVoteActions.redeem(paper_vote, admin)
     pv
+  end
+
+  def team_short_view(t) do
+    %{"id" => t.id, "name" => t.name}
+  end
+
+  def admin_user_short_view(u) do
+    %{
+      "display_name" => UserHelper.display_name(u),
+      "first_name" => u.first_name,
+      "last_name" => u.last_name,
+      "gravatar_hash" => UserHelper.gravatar_hash(u),
+      "id" => u.id,
+      "tshirt_size" => u.tshirt_size,
+      "email" => u.email
+    }
   end
 end

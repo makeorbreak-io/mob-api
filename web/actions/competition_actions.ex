@@ -1,7 +1,7 @@
 defmodule Api.CompetitionActions do
   use Api.Web, :action
 
-  alias Api.{Competition, TeamActions, Vote, PaperVote, Team, Category}
+  alias Api.{Competition, TeamActions, Vote, PaperVote, Team, Category, User}
   alias Ecto.{Changeset}
 
   defp _get do
@@ -12,6 +12,41 @@ defmodule Api.CompetitionActions do
     _get()
     |> Competition.changeset(params)
     |> Repo.insert_or_update
+  end
+
+  defp missing_voters do
+    voters =
+      from(
+        v in Vote,
+        join: u in assoc(v, :voter),
+        select: u.id
+      )
+      |> Repo.all()
+
+    missing_voters = from(
+      u in User,
+      join: tm in assoc(u, :teams),
+      join: t in assoc(tm, :team),
+      where: not (u.id in ^voters),
+      order_by: [asc: u.id],
+      select: {t, u}
+    )
+
+    Repo.all(missing_voters)
+    |> Enum.group_by(fn {team, _} -> team end, fn {_, user} -> user end)
+    |> Enum.map(fn {k, v} -> %{
+      team: k,
+      users: v
+    } end)
+
+  end
+
+  defp unredeemed_paper_votes do
+    paper_votes = from pv in PaperVote,
+      where: is_nil(pv.redeemed_at) and is_nil(pv.annulled_at),
+      preload: [:category]
+
+      Repo.all(paper_votes)
   end
 
   def start_voting do
@@ -114,5 +149,13 @@ defmodule Api.CompetitionActions do
       |> Enum.map(&elem(&1, 1))
     end)
     |> Enum.take(3)
+  end
+
+  def status do
+    %{
+      voting_status: voting_status(),
+      unredeemed_paper_votes: unredeemed_paper_votes(),
+      missing_voters: missing_voters()
+    }
   end
 end
