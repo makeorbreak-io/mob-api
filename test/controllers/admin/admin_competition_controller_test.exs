@@ -1,7 +1,7 @@
 defmodule Api.Admin.CompetitionControllerTest do
   use Api.ConnCase
 
-  alias Api.{CompetitionActions, UserHelper}
+  alias Api.{CompetitionActions}
   alias Guardian.{Permissions}
 
   setup %{conn: conn} do
@@ -93,65 +93,39 @@ defmodule Api.Admin.CompetitionControllerTest do
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> get(admin_competition_path(conn, :status))
 
-    assert json_response(conn, 200) == %{
-      "unredeemed_paper_votes" => [%{
-        "annulled_at" => nil,
-        "annulled_by_id" => nil,
-        "category_id" => cat.id,
-        "category_name" => cat.name,
-        "created_by_id" => admin.id,
-        "id" => pv.id,
-        "redeemed_at" => nil,
-        "redeeming_admin_id" => nil,
-        "redeeming_member_id" => nil,
-        "team_id" => nil
-      }],
-      "voting_status" => "started",
-      "missing_voters" => [
-        %{
-          "team" => %{
-            "id" => t2.id,
-            "name" => t2.name
-          },
-          "users" => [
-            %{
-              "display_name" => UserHelper.display_name(u2),
-              "first_name" => u2.first_name,
-              "last_name" => u2.last_name,
-              "gravatar_hash" => UserHelper.gravatar_hash(u2),
-              "id" => u2.id,
-              "tshirt_size" => u2.tshirt_size,
-              "email" => u2.email
-            },
-            %{
-              "display_name" => UserHelper.display_name(u3),
-              "first_name" => u3.first_name,
-              "last_name" => u3.last_name,
-              "gravatar_hash" => UserHelper.gravatar_hash(u3),
-              "id" => u3.id,
-              "tshirt_size" => u3.tshirt_size,
-              "email" => u3.email
-            }
-          ]
-        },
-        %{
-          "team" => %{
-            "id" => t3.id,
-            "name" => t3.name
-          },
-          "users" => [
-            %{
-              "display_name" => UserHelper.display_name(u4),
-              "first_name" => u4.first_name,
-              "last_name" => u4.last_name,
-              "gravatar_hash" => UserHelper.gravatar_hash(u4),
-              "id" => u4.id,
-              "tshirt_size" => u4.tshirt_size,
-              "email" => u4.email
-            }
-          ]
-        }
-      ]
-    }
+    assert json_response(conn, 200)["unredeemed_paper_votes"] == [%{
+      "annulled_at" => nil,
+      "annulled_by_id" => nil,
+      "category_id" => cat.id,
+      "category_name" => cat.name,
+      "created_by_id" => admin.id,
+      "id" => pv.id,
+      "redeemed_at" => nil,
+      "redeeming_admin_id" => nil,
+      "redeeming_member_id" => nil,
+      "team_id" => nil
+    }]
+
+    assert json_response(conn, 200)["voting_status"] == "started"
+
+    missing_voters = json_response(conn, 200)["missing_voters"]
+
+    assert Enum.member?(
+      missing_voters,
+      %{
+        "team" => team_short_view(t2),
+        "users" => [u2, u3]
+          |> Enum.sort_by(&(&1.id))
+          |> Enum.map(fn u -> admin_user_short_view(u) end)
+      }
+    )
+
+    assert Enum.member?(
+      missing_voters,
+      %{
+        "team" => team_short_view(t3),
+        "users" => [admin_user_short_view(u4)]
+      }
+    )
   end
 end
