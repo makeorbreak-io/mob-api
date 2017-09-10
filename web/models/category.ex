@@ -11,6 +11,7 @@ defmodule Api.Category do
 
   schema "categories" do
     field :name, :string
+    field :podium, {:array, :binary_id}
     timestamps()
   end
 

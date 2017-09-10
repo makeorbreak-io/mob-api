@@ -37,12 +37,10 @@ end
 defmodule Api.CompetitionActionsTest.CalculatePodium do
   use Api.ModelCase
 
-  alias Api.{CompetitionActions}
+  alias Api.{CompetitionActions, Category}
   alias Ecto.{Changeset}
 
   setup do
-    cat = create_category()
-
     u1 = create_user()
     t1 = create_team(u1)
 
@@ -69,12 +67,12 @@ defmodule Api.CompetitionActionsTest.CalculatePodium do
         t2: t2,
         t3: t3,
         t4: t4,
-        category: cat,
       },
     }
   end
 
-  test "calculate_podium", %{category: cat, t1: t1, t2: t2, t3: t3, t4: t4} do
+  test "calculate_podium", %{t1: t1, t2: t2, t3: t3, t4: t4} do
+    cat = create_category()
     create_vote(create_user(), cat.name, [t1.id, t2.id])
     create_vote(create_user(), cat.name, [t1.id])
     create_vote(create_user(), cat.name, [t1.id])
@@ -91,21 +89,63 @@ defmodule Api.CompetitionActionsTest.CalculatePodium do
     ]
   end
 
-  test "calculate_podium tie", %{category: cat, t1: t1, t2: t2, t4: t4} do
+  test "calculate_podium tie", %{t1: t1, t2: t2, t3: t3} do
+    cat = create_category()
     create_vote(create_user(), cat.name, [t1.id])
     create_vote(create_user(), cat.name, [t1.id])
     create_vote(create_user(), cat.name, [t2.id])
     create_vote(create_user(), cat.name, [t2.id])
-    create_vote(create_user(), cat.name, [t4.id])
+    create_vote(create_user(), cat.name, [t3.id])
 
-    Changeset.change(t4, tie_breaker: 0) |> Repo.update!
+    Changeset.change(t3, tie_breaker: 0) |> Repo.update!
     Changeset.change(t2, tie_breaker: 10) |> Repo.update!
     Changeset.change(t1, tie_breaker: 20) |> Repo.update!
 
     assert CompetitionActions.calculate_podium(cat) == [
       t2.id,
       t1.id,
-      t4.id,
+      t3.id,
+    ]
+  end
+
+  test "resolve_voting", %{t1: t1, t2: t2, t3: t3} do
+    create_vote(create_user(), "useful", [t1.id])
+    create_vote(create_user(), "useful", [t1.id])
+    create_vote(create_user(), "useful", [t1.id])
+    create_vote(create_user(), "useful", [t2.id])
+    create_vote(create_user(), "useful", [t2.id])
+    create_vote(create_user(), "useful", [t3.id])
+
+    create_vote(create_user(), "funny", [t1.id])
+    create_vote(create_user(), "funny", [t2.id])
+    create_vote(create_user(), "funny", [t2.id])
+    create_vote(create_user(), "funny", [t2.id])
+    create_vote(create_user(), "funny", [t3.id])
+    create_vote(create_user(), "funny", [t3.id])
+
+    create_vote(create_user(), "hardcore", [t1.id])
+    create_vote(create_user(), "hardcore", [t1.id])
+    create_vote(create_user(), "hardcore", [t2.id])
+    create_vote(create_user(), "hardcore", [t3.id])
+    create_vote(create_user(), "hardcore", [t3.id])
+    create_vote(create_user(), "hardcore", [t3.id])
+
+    CompetitionActions.resolve_voting!
+
+    assert Repo.get_by!(Category, name: "useful").podium == [
+      t1.id,
+      t2.id,
+      t3.id,
+    ]
+    assert Repo.get_by!(Category, name: "funny").podium == [
+      t2.id,
+      t3.id,
+      t1.id,
+    ]
+    assert Repo.get_by!(Category, name: "hardcore").podium == [
+      t3.id,
+      t1.id,
+      t2.id,
     ]
   end
 end

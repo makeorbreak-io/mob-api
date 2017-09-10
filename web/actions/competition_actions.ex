@@ -1,7 +1,7 @@
 defmodule Api.CompetitionActions do
   use Api.Web, :action
 
-  alias Api.{Competition, TeamActions, Vote, PaperVote, Team}
+  alias Api.{Competition, TeamActions, Vote, PaperVote, Team, Category}
   alias Ecto.{Changeset}
 
   defp _get do
@@ -29,6 +29,7 @@ defmodule Api.CompetitionActions do
     case voting_status() do
       :not_started -> {:error, :not_started}
       :started ->
+        resolve_voting!()
         _change(%{voting_ended_at: DateTime.utc_now})
       :ended -> {:error, :already_ended}
     end
@@ -69,6 +70,17 @@ defmodule Api.CompetitionActions do
       |> Enum.map(&({&1.id, [&1.team_id]}))
 
     (paper_votes ++ votes)
+  end
+
+  def resolve_voting! do
+    Enum.map(
+      Repo.all(Category),
+      fn c ->
+        c
+        |> Changeset.change(podium: calculate_podium(c))
+        |> Repo.update!
+      end
+    )
   end
 
   def calculate_podium(category) do
