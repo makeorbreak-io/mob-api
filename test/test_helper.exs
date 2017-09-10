@@ -137,8 +137,8 @@ defmodule Api.TestHelper do
     pv
   end
 
-  def redeem_paper_vote(paper_vote, admin) do
-    {:ok, pv} = PaperVoteActions.redeem(paper_vote, admin)
+  def redeem_paper_vote(paper_vote, team, member, admin) do
+    {:ok, pv} = PaperVoteActions.redeem(paper_vote, team, member, admin)
     pv
   end
 

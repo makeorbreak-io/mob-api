@@ -35,6 +35,7 @@ defmodule Api.Router do
     delete "/workshops/:id/leave", WorkshopController, :leave
 
     get "/voting/info_begin", VotingController, :info_begin
+    get "/voting/info_end", VotingController, :info_end
     get "/voting/vote", VotingController, :get_votes
     post "/voting/vote", VotingController, :upsert_votes
 

@@ -79,6 +79,119 @@ defmodule Api.VotingControllerTest do
     }
   end
 
+  test "ended with some people 1", %{conn: conn, user: u1} do
+    admin = create_admin()
+
+    # Useful
+    t1 = create_team(u1)
+
+    # Funny
+    u2 = create_user()
+    t2 = create_team(u2)
+
+    # Hardcore
+    u3 = create_user()
+    t3 = create_team(u3)
+
+    # Disqualified
+    u4 = create_user()
+    t4 = create_team(u4)
+
+    # Not eligible
+    u5 = create_user()
+    create_team(u5)
+
+
+    [
+      useful,
+      funny,
+      hardcore,
+    ] = [
+      Repo.get_by!(Category, name: "useful"),
+      Repo.get_by!(Category, name: "funny"),
+      Repo.get_by!(Category, name: "hardcore"),
+    ]
+
+    annul_paper_vote(create_paper_vote(useful, admin), admin)
+
+    voters =
+      (1..3)
+      |> Enum.map(fn _n -> create_user() end)
+
+    check_in_everyone()
+    [t1, t2, t3, t4] = make_teams_eligible([t1, t2, t3, t4])
+    CompetitionActions.start_voting()
+    [t1, t2, t3, t4] = [t1, t2, t3, t4] |> Enum.map(fn t -> Repo.get!(Team, t.id) end)
+
+    TeamActions.disqualify(t4.id, admin)
+
+    voters |> Enum.map(fn uv ->
+      create_vote(uv, "useful", [t1.id])
+      create_vote(uv, "funny", [t2.id])
+      create_vote(uv, "hardcore", [t3.id])
+    end)
+
+    redeem_paper_vote(create_paper_vote(useful, admin), t2, u1, admin)
+    redeem_paper_vote(create_paper_vote(useful, admin), t2, u1, admin)
+    redeem_paper_vote(create_paper_vote(useful, admin), t3, u1, admin)
+
+    redeem_paper_vote(create_paper_vote(funny, admin), t3, u1, admin)
+    redeem_paper_vote(create_paper_vote(funny, admin), t3, u1, admin)
+    redeem_paper_vote(create_paper_vote(funny, admin), t1, u1, admin)
+
+    redeem_paper_vote(create_paper_vote(hardcore, admin), t1, u1, admin)
+    redeem_paper_vote(create_paper_vote(hardcore, admin), t1, u1, admin)
+    redeem_paper_vote(create_paper_vote(hardcore, admin), t2, u1, admin)
+
+    CompetitionActions.end_voting()
+    conn = get conn, voting_path(conn, :info_end)
+    assert json_response(conn, 200) ==  %{
+      "paper_votes" => %{"initial_count" => 9, "final_count" => 9},
+      "participants" => %{"initial_count" => 8, "final_count" => 7},
+      "teams" => %{
+        slugify(t1.name) => %{
+          "prize_preference" => %{
+            "hmac" => Team.preference_hmac(t1),
+            "key" => t1.prize_preference_hmac_secret,
+            "contents" => Enum.join(t1.prize_preference || [], ","),
+          },
+          "tie_breaker" => t1.tie_breaker,
+          "disqualified" => false,
+        },
+        slugify(t2.name) => %{
+          "prize_preference" => %{
+            "hmac" => Team.preference_hmac(t2),
+            "key" => t2.prize_preference_hmac_secret,
+            "contents" => Enum.join(t2.prize_preference || [], ","),
+          },
+          "tie_breaker" => t2.tie_breaker,
+          "disqualified" => false,
+        },
+        slugify(t3.name) => %{
+          "prize_preference" => %{
+            "hmac" => Team.preference_hmac(t3),
+            "key" => t3.prize_preference_hmac_secret,
+            "contents" => Enum.join(t3.prize_preference || [], ","),
+          },
+          "tie_breaker" => t3.tie_breaker,
+          "disqualified" => false,
+        },
+        slugify(t4.name) => %{
+          "prize_preference" => %{
+            "hmac" => Team.preference_hmac(t4),
+          },
+          "tie_breaker" => t4.tie_breaker,
+          "disqualified" => true,
+        },
+      },
+      "podiums" => %{
+        "useful" => [slugify(t1.name), slugify(t2.name), slugify(t3.name)],
+        "funny" => [slugify(t2.name), slugify(t3.name), slugify(t1.name)],
+        "hardcore" => [slugify(t3.name), slugify(t1.name), slugify(t2.name)],
+      },
+    }
+  end
+
   test "started shows who could vote at the start", %{conn: conn, user: u1} do
     t1 = create_team(u1)
     create_membership(t1, create_user())

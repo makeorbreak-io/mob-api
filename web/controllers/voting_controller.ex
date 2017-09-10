@@ -2,7 +2,7 @@ defmodule Api.VotingController do
   use Api.Web, :controller
 
   alias Api.{Controller.Errors, CompetitionActions, VotingView,
-    Repo, User, PaperVote, Team, VoteActions, SessionActions}
+    Repo, User, PaperVote, Team, VoteActions, SessionActions, Category}
 
   plug Guardian.Plug.EnsureAuthenticated, [handler: Errors]
     when action in [:upsert_votes, :get_votes]
@@ -21,6 +21,31 @@ defmodule Api.VotingController do
             initial_count: Repo.aggregate(PaperVote.not_annuled(at), :count, :id),
           },
           teams: Team.votable(at) |> Repo.all
+        )
+    end
+  end
+
+  def info_end(conn, _params) do
+    case CompetitionActions.voting_status do
+      :not_started ->
+        Errors.build(conn, :not_found, :not_started)
+      :started ->
+        Errors.build(conn, :not_found, :not_ended)
+      _ ->
+        begun_at = CompetitionActions.voting_started_at()
+        ended_at = CompetitionActions.voting_ended_at()
+
+        render(conn, VotingView, "info_end.json",
+          participants: %{
+            initial_count: Repo.aggregate(User.able_to_vote(begun_at), :count, :id),
+            final_count: Repo.aggregate(User.able_to_vote(ended_at), :count, :id),
+          },
+          paper_votes: %{
+            initial_count: Repo.aggregate(PaperVote.not_annuled(begun_at), :count, :id),
+            final_count: Repo.aggregate(PaperVote.countable(ended_at), :count, :id),
+          },
+          teams: Team.votable(begun_at) |> Repo.all,
+          categories: Repo.all(Category),
         )
     end
   end
