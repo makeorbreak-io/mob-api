@@ -1,7 +1,7 @@
 defmodule Api.Admin.CompetitionView do
   use Api.Web, :view
 
-  alias Api.{Admin.PaperVoteView, TeamView, UserView}
+  alias Api.{Admin.PaperVoteView, TeamView, Admin.UserView}
 
   def render("status.json", %{status: status}) do
     %{

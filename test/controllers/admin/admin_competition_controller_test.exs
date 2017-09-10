@@ -120,7 +120,8 @@ defmodule Api.Admin.CompetitionControllerTest do
               "last_name" => u2.last_name,
               "gravatar_hash" => UserHelper.gravatar_hash(u2),
               "id" => u2.id,
-              "tshirt_size" => u2.tshirt_size
+              "tshirt_size" => u2.tshirt_size,
+              "email" => u2.email
             },
             %{
               "display_name" => UserHelper.display_name(u3),
@@ -128,7 +129,8 @@ defmodule Api.Admin.CompetitionControllerTest do
               "last_name" => u3.last_name,
               "gravatar_hash" => UserHelper.gravatar_hash(u3),
               "id" => u3.id,
-              "tshirt_size" => u3.tshirt_size
+              "tshirt_size" => u3.tshirt_size,
+              "email" => u3.email
             }
           ]
         },
@@ -144,7 +146,8 @@ defmodule Api.Admin.CompetitionControllerTest do
               "last_name" => u4.last_name,
               "gravatar_hash" => UserHelper.gravatar_hash(u4),
               "id" => u4.id,
-              "tshirt_size" => u4.tshirt_size
+              "tshirt_size" => u4.tshirt_size,
+              "email" => u4.email
             }
           ]
         }
