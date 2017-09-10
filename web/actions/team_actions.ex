@@ -1,7 +1,7 @@
 defmodule Api.TeamActions do
   use Api.Web, :action
 
-  alias Api.{Team, User, TeamMember, Email, Mailer, GithubActions, CompetitionActions}
+  alias Api.{Team, User, TeamMember, Email, Mailer, GithubActions, CompetitionActions, Category}
   alias Ecto.{Changeset, Multi}
 
   def all do
@@ -215,5 +215,16 @@ defmodule Api.TeamActions do
       ]]
     )
     |> Repo.update_all([])
+  end
+
+  def assign_missing_preferences do
+    cats = Repo.all(Category) |> Enum.map(&(&1.name))
+
+    Repo.all(from(t in Team, where: is_nil(t.prize_preference)))
+    |> Enum.map(fn t ->
+      t
+      |> Changeset.change(prize_preference: cats |> Enum.shuffle)
+      |> Repo.update!
+    end)
   end
 end

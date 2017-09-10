@@ -45,4 +45,13 @@ defmodule Api.TeamActionsTest do
     assert t.disqualified_at == d1
     assert t.disqualified_by_id == admin.id
   end
+
+  test "assign_missing_preferences" do
+    t = create_team(create_user())
+
+    assert t.prize_preference == nil
+    TeamActions.assign_missing_preferences
+    assert Repo.get!(Team, t.id).prize_preference |> Enum.sort ==
+      ["funny", "hardcore", "useful"] |> Enum.sort
+  end
 end
