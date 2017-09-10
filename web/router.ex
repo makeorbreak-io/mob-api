@@ -24,16 +24,19 @@ defmodule Api.Router do
 
     get "/me", SessionController, :me
     post "/login", SessionController, :create
-    put "/invites/:id/accept", InviteController, :accept
-    post "/invites/invite_to_slack", InviteController, :invite_to_slack
     delete "/logout", SessionController, :delete
+
+    post "/invites/invite_to_slack", InviteController, :invite_to_slack
+    put "/invites/:id/accept", InviteController, :accept
+
     delete "/teams/:id/remove/:user_id", TeamController, :remove
+
     post "/workshops/:id/join", WorkshopController, :join
     delete "/workshops/:id/leave", WorkshopController, :leave
 
     get "/voting/info_begin", VotingController, :info_begin
-    post "/voting/vote", VotingController, :upsert_votes
     get "/voting/vote", VotingController, :get_votes
+    post "/voting/vote", VotingController, :upsert_votes
 
     scope "/admin", as: :admin do
       resources "/users", Admin.UserController, except: [:new, :edit, :create]
@@ -41,20 +44,26 @@ defmodule Api.Router do
       resources "/teams", Admin.TeamController, except: [:new, :edit, :create]
 
       get "/stats", Admin.StatsController, :stats
-      delete "/teams/:id/remove/:user_id", Admin.TeamController, :remove
+
       post "/teams/:id/disqualify", Admin.TeamController, :disqualify
-      post "/invites/sync", Admin.InviteController, :sync
-      post "/checkin/:id", Admin.UserController, :checkin
-      delete "/checkin/:id", Admin.UserController, :remove_checkin
-      post "/workshops/:id/checkin/:user_id", Admin.WorkshopController, :checkin
-      delete "/workshops/:id/checkin/:user_id", Admin.WorkshopController, :remove_checkin
       post "/teams/:id/repo", Admin.TeamController, :create_repo
       post "/teams/:id/repo/add_users", Admin.TeamController, :add_users_to_repo
+      delete "/teams/:id/remove/:user_id", Admin.TeamController, :remove
+
+      post "/invites/sync", Admin.InviteController, :sync
+
+      post "/checkin/:id", Admin.UserController, :checkin
+      delete "/checkin/:id", Admin.UserController, :remove_checkin
+
+      post "/workshops/:id/checkin/:user_id", Admin.WorkshopController, :checkin
+      delete "/workshops/:id/checkin/:user_id", Admin.WorkshopController, :remove_checkin
+
+      get "/competition/status", Admin.CompetitionController, :status
       post "/competition/start_voting", Admin.CompetitionController, :start_voting
       post "/competition/end_voting", Admin.CompetitionController, :end_voting
 
-      post "/paper_vote", Admin.PaperVoteController, :create
       get "/paper_vote/:id", Admin.PaperVoteController, :show
+      post "/paper_vote", Admin.PaperVoteController, :create
       post "/paper_vote/:id/redeem", Admin.PaperVoteController, :redeem
       post "/paper_vote/:id/annul", Admin.PaperVoteController, :annul
     end

@@ -179,6 +179,86 @@ defmodule Api.VotingControllerTest do
     assert vote.ballot == [t3.id, t2.id]
   end
 
+  test "user can't edit his votes before the competition begins", %{conn: conn0, jwt: jwt, user: u1} do
+    create_team(u1)
+
+    t2 = create_team(create_user())
+    t3 = create_team(create_user())
+
+    check_in_everyone()
+    make_teams_eligible()
+
+    conn1 = conn0
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> post(voting_path(conn0, :upsert_votes), votes: %{
+      useful: [t3.id, t2.id],
+      hardcore: [t2.id],
+      funny: [t3.id, t2.id]
+    })
+
+    assert json_response(conn1, 422)["errors"] == "Competition hasn't started yet"
+  end
+
+  test "user can't edit his votes after competition end", %{conn: conn0, jwt: jwt, user: u1} do
+    create_team(u1)
+
+    t2 = create_team(create_user())
+    t3 = create_team(create_user())
+
+    check_in_everyone()
+    make_teams_eligible()
+
+    CompetitionActions.start_voting()
+
+    create_vote(u1, "useful", [t2.id])
+    create_vote(u1, "hardcore", [t3.id])
+    create_vote(u1, "funny", [t2.id, t3.id])
+
+    conn1 = conn0
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> post(voting_path(conn0, :upsert_votes), votes: %{
+      useful: [t3.id, t2.id],
+      hardcore: [t2.id],
+      funny: [t3.id, t2.id]
+    })
+
+    assert json_response(conn1, 200) == %{
+      "useful" => [t3.id, t2.id],
+      "hardcore" => [t2.id],
+      "funny" => [t3.id, t2.id]
+    }
+
+    CompetitionActions.end_voting()
+
+    conn2 = conn0
+    |> put_req_header("authorization", "Bearer #{jwt}")
+    |> post(voting_path(conn0, :upsert_votes), votes: %{
+      useful: [t2.id],
+      hardcore: [t3.id],
+      funny: [t2.id],
+    })
+
+    assert json_response(conn2, 422)["errors"] == "Competition already ended"
+
+    assert Repo.get_by!(
+      Vote,
+      voter_identity: u1.voter_identity,
+      category_id: Repo.get_by!(Category, name: "useful").id
+    ).ballot == [t3.id, t2.id]
+
+    assert Repo.get_by!(
+      Vote,
+      voter_identity: u1.voter_identity,
+      category_id: Repo.get_by!(Category, name: "hardcore").id
+    ).ballot == [t2.id]
+
+    assert Repo.get_by!(
+      Vote,
+      voter_identity: u1.voter_identity,
+      category_id: Repo.get_by!(Category, name: "funny").id
+    ).ballot == [t3.id, t2.id]
+  end
+
   test "invalid votes return error", %{conn: conn, jwt: jwt, user: u1} do
     t1 = create_team(u1)
 
