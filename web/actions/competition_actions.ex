@@ -15,15 +15,22 @@ defmodule Api.CompetitionActions do
   end
 
   defp missing_voters do
-    voters = from(v in Vote,
-      join: u in assoc(v, :voter),
-      select: u.id) |> Repo.all()
+    voters =
+      from(
+        v in Vote,
+        join: u in assoc(v, :voter),
+        select: u.id
+      )
+      |> Repo.all()
 
-    missing_voters = from u in User,
+    missing_voters = from(
+      u in User,
       join: tm in assoc(u, :teams),
       join: t in assoc(tm, :team),
-      where: u.id not in ^voters,
+      where: not (u.id in ^voters),
+      order_by: u.id,
       select: {t, u}
+    )
 
     Repo.all(missing_voters)
     |> Enum.group_by(fn {team, _} -> team end, fn {_, user} -> user end)
