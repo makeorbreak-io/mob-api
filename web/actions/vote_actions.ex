@@ -1,7 +1,7 @@
 defmodule Api.VoteActions do
   use Api.Web, :action
 
-  alias Api.{Vote, Category, Team}
+  alias Api.{Vote, Category, Team, CompetitionActions}
   alias Ecto.{Multi}
 
   def upsert_votes(user, votes) do
@@ -13,27 +13,36 @@ defmodule Api.VoteActions do
       if validate_ballot(ballot, user), do: acc + length(ballot), else: acc
     end)
 
-    if votes_length == valid_votes_length do
-      multi = Enum.reduce(votes, multi, fn {key, ballot}, multi ->
-        category = Repo.get_by(Category, name: key)
-
-        Multi.insert_or_update(multi,
-          key,
-          Vote.changeset(
-            get_struct(user, category),
-            %{
-              voter_identity: user.voter_identity,
-              category_id: category.id,
-              ballot: ballot
-            }
-          )
-        )
-      end)
-
-      Repo.transaction(multi)
-    else
-      {:error, "Invalid vote"}
+    if votes_length != valid_votes_length do
+      throw {:error, "Invalid vote"}
     end
+
+    if CompetitionActions.voting_status == :not_started do
+      throw {:error, :not_started}
+    end
+    if CompetitionActions.voting_status == :ended do
+      throw {:error, :already_ended}
+    end
+
+    multi = Enum.reduce(votes, multi, fn {key, ballot}, multi ->
+      category = Repo.get_by(Category, name: key)
+
+      Multi.insert_or_update(multi,
+        key,
+        Vote.changeset(
+          get_struct(user, category),
+          %{
+            voter_identity: user.voter_identity,
+            category_id: category.id,
+            ballot: ballot
+          }
+        )
+      )
+    end)
+
+    Repo.transaction(multi)
+  catch
+    e -> e
   end
 
   def get_votes(user) do
