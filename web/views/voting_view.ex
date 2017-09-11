@@ -22,7 +22,7 @@ defmodule Api.VotingView do
       },
       teams:
         teams
-        |> Enum.map(fn team ->
+        |> Map.new(fn team ->
           {
             slugify(team.name),
             %{
@@ -33,7 +33,6 @@ defmodule Api.VotingView do
             }
           }
         end)
-        |> Map.new
     }
   end
 
@@ -48,7 +47,7 @@ defmodule Api.VotingView do
     },
     teams: teams,
     categories: categories,
-    votes: votes,
+    categories_to_votes: categories_to_votes,
     all_teams: all_teams,
   }) do
     winning_ids =
@@ -69,7 +68,7 @@ defmodule Api.VotingView do
       },
       teams:
         teams
-        |> Enum.map(fn team ->
+        |> Map.new(fn team ->
           {
             slugify(team.name),
             %{
@@ -90,8 +89,7 @@ defmodule Api.VotingView do
               disqualified: team.disqualified_at && true || false,
             }
           }
-        end)
-        |> Map.new,
+        end),
       podiums:
         categories
         |> Map.new(fn category ->
@@ -102,7 +100,20 @@ defmodule Api.VotingView do
           }
         end),
       votes:
-        votes
+        categories_to_votes
+        |> Map.new(fn {c, votes} ->
+          {
+            c.name,
+            votes
+            |> Map.new(fn {id, ballot} ->
+              {
+                id,
+                ballot
+                |> Enum.map(&team_name_map[&1])
+              }
+            end)
+          }
+        end)
     }
   end
 
