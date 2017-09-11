@@ -125,23 +125,23 @@ defmodule Api.VotingControllerTest do
 
     TeamActions.disqualify(t4.id, admin)
 
-    voters |> Enum.map(fn uv ->
+    [v1, v2, v3] = voters |> Enum.map(fn uv ->
       create_vote(uv, "useful", [t1.id])
       create_vote(uv, "funny", [t2.id])
       create_vote(uv, "hardcore", [t3.id])
     end)
 
-    redeem_paper_vote(create_paper_vote(useful, admin), t2, u1, admin)
-    redeem_paper_vote(create_paper_vote(useful, admin), t2, u1, admin)
-    redeem_paper_vote(create_paper_vote(useful, admin), t3, u1, admin)
+    pv_a_u2 = redeem_paper_vote(create_paper_vote(useful, admin), t2, u1, admin)
+    pv_b_u2 = redeem_paper_vote(create_paper_vote(useful, admin), t2, u1, admin)
+    pv_c_u3 = redeem_paper_vote(create_paper_vote(useful, admin), t3, u1, admin)
 
-    redeem_paper_vote(create_paper_vote(funny, admin), t3, u1, admin)
-    redeem_paper_vote(create_paper_vote(funny, admin), t3, u1, admin)
-    redeem_paper_vote(create_paper_vote(funny, admin), t1, u1, admin)
+    pv_a_f3 = redeem_paper_vote(create_paper_vote(funny, admin), t3, u1, admin)
+    pv_b_f3 = redeem_paper_vote(create_paper_vote(funny, admin), t3, u1, admin)
+    pv_c_f1 = redeem_paper_vote(create_paper_vote(funny, admin), t1, u1, admin)
 
-    redeem_paper_vote(create_paper_vote(hardcore, admin), t1, u1, admin)
-    redeem_paper_vote(create_paper_vote(hardcore, admin), t1, u1, admin)
-    redeem_paper_vote(create_paper_vote(hardcore, admin), t2, u1, admin)
+    pv_a_h1 = redeem_paper_vote(create_paper_vote(hardcore, admin), t1, u1, admin)
+    pv_b_h1 = redeem_paper_vote(create_paper_vote(hardcore, admin), t1, u1, admin)
+    pv_c_h2 = redeem_paper_vote(create_paper_vote(hardcore, admin), t2, u1, admin)
 
     CompetitionActions.end_voting()
     conn = get conn, voting_path(conn, :info_end)
@@ -188,6 +188,32 @@ defmodule Api.VotingControllerTest do
         "useful" => [slugify(t1.name), slugify(t2.name), slugify(t3.name)],
         "funny" => [slugify(t2.name), slugify(t3.name), slugify(t1.name)],
         "hardcore" => [slugify(t3.name), slugify(t1.name), slugify(t2.name)],
+      },
+      "votes" => %{
+        "useful" => %{
+          v1.voter_identity => [t1.name],
+          v2.voter_identity => [t1.name],
+          v3.voter_identity => [t1.name],
+          pv_a_u2.id => [t2.name],
+          pv_b_u2.id => [t2.name],
+          pv_c_u3.id => [t3.name],
+        },
+        "funny" => %{
+          v1.voter_identity => [t2.name],
+          v2.voter_identity => [t2.name],
+          v3.voter_identity => [t2.name],
+          pv_a_f3.id => [t3.name],
+          pv_b_f3.id => [t3.name],
+          pv_c_f1.id => [t1.name],
+        },
+        "hardcore" => %{
+          v1.voter_identity => [t3.name],
+          v2.voter_identity => [t3.name],
+          v3.voter_identity => [t3.name],
+          pv_a_h1.id => [t1.name],
+          pv_b_h1.id => [t1.name],
+          pv_c_h2.id => [t2.name],
+        },
       },
     }
   end
