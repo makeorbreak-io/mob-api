@@ -125,8 +125,8 @@ defmodule Api.CompetitionActions do
 
   def calculate_podium(category, at \\ nil) do
     valid_team_ids =
-      Repo.all(Team.votable(at), select: :id)
-      |> Enum.map(&Map.get(&1, :id))
+      Repo.all(Team.votable(at))
+      |> Enum.map(&(&1.id))
 
     votes =
       ballots(category, at)

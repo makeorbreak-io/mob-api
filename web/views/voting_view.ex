@@ -48,9 +48,15 @@ defmodule Api.VotingView do
     },
     teams: teams,
     categories: categories,
+    votes: votes,
   }) do
-    winning_ids = Enum.flat_map(categories, fn c -> c.podium end)
-    team_name_map = Repo.all(Team) |> Enum.map(&({&1.id, slugify(&1.name)})) |> Map.new
+    winning_ids =
+      categories
+      |> Enum.flat_map(&(&1.podium))
+    team_name_map =
+      Repo.all(Team)
+      |> Map.new(&{&1.id, slugify(&1.name)})
+
     %{
       participants: %{
         initial_count: participant_initial_count,
@@ -87,13 +93,15 @@ defmodule Api.VotingView do
         |> Map.new,
       podiums:
         categories
-        |> Enum.map(fn category ->
+        |> Map.new(fn category ->
           {
             category.name,
-            category.podium |> Enum.map(fn tid -> team_name_map[tid] end),
+            category.podium
+            |> Enum.map(&team_name_map[&1]),
           }
-        end)
-        |> Map.new
+        end),
+      votes:
+        votes
     }
   end
 
