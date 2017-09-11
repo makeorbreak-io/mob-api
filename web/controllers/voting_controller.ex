@@ -38,9 +38,6 @@ defmodule Api.VotingController do
           CompetitionActions.voting_ended_at()
         categories =
           Repo.all(Category)
-        map_team_id_name =
-          Repo.all(Team)
-          |> Map.new(&{&1.id, &1.name})
 
         render(conn, VotingView, "info_end.json",
           participants: %{
@@ -62,19 +59,12 @@ defmodule Api.VotingController do
             categories,
           all_teams:
             Repo.all(Team),
-          votes:
+          categories_to_votes:
             categories
             |> Map.new(fn c ->
               {
-                c.name,
-                CompetitionActions.ballots(c, ended_at)
-                |> Map.new(fn {id, ballot} ->
-                  {
-                    id,
-                    ballot
-                    |> Enum.map(&Map.get(map_team_id_name, &1)),
-                  }
-                end)
+                c,
+                CompetitionActions.ballots(c, ended_at),
               }
             end)
         )
