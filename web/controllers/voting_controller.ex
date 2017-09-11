@@ -60,6 +60,8 @@ defmodule Api.VotingController do
             |> Repo.all,
           categories:
             categories,
+          all_teams:
+            Repo.all(Team),
           votes:
             categories
             |> Map.new(fn c ->

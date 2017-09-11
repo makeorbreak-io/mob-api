@@ -1,7 +1,7 @@
 defmodule Api.VotingView do
   use Api.Web, :view
 
-  alias Api.{Team, Repo}
+  alias Api.{Team}
   import Api.StringHelper, only: [slugify: 1]
 
   def render("info_begin.json", %{
@@ -49,12 +49,13 @@ defmodule Api.VotingView do
     teams: teams,
     categories: categories,
     votes: votes,
+    all_teams: all_teams,
   }) do
     winning_ids =
       categories
       |> Enum.flat_map(&(&1.podium))
     team_name_map =
-      Repo.all(Team)
+      all_teams
       |> Map.new(&{&1.id, slugify(&1.name)})
 
     %{
