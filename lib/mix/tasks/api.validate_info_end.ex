@@ -118,9 +118,9 @@ defmodule Mix.Tasks.Api.ValidateInfoEnd do
         |> Mix.shell.info
 
         Mix.shell.info ""
-          scores
-          |> Markus.schwartz_set(valid_team_ids)
-          |> _print_inspect(label: "Schwartz set")
+        scores
+        |> Markus.schwartz_set(valid_team_ids)
+        |> _print_inspect(label: "Schwartz set")
 
         Mix.shell.info ""
         scores
