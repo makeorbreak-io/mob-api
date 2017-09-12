@@ -124,35 +124,46 @@ defmodule Api.CompetitionActions do
   end
 
   def calculate_podium(category, at \\ nil) do
+    votable_teams =
+      Team.votable(at)
+      |> Repo.all()
+
     valid_team_ids =
-      Repo.all(Team.votable(at))
+      votable_teams
       |> Enum.map(&(&1.id))
 
     votes =
       ballots(category, at)
-      |> Enum.map(fn {_id, ballot} ->
-        Enum.filter(ballot, &Enum.member?(valid_team_ids, &1))
-      end)
-      |> Enum.reject(&Enum.empty?/1)
+      |> clean_votes_into_ballots(valid_team_ids)
 
+    tie_breakers =
+      votable_teams
+      |> Map.new(fn t ->
+        {
+          t.id,
+          t.tie_breaker,
+        }
+      end)
+
+    calculate_podium(votes, valid_team_ids, tie_breakers)
+  end
+
+  def clean_votes_into_ballots(votes, valid_team_ids) do
     votes
-    |> Enum.flat_map(&Markus.ballot_to_pairs(&1, valid_team_ids))
-    |> Markus.pairs_to_preferences(valid_team_ids)
-    |> Markus.normalize_margins(valid_team_ids)
-    |> Markus.widen_paths(valid_team_ids)
-    |> Markus.rank_candidates(valid_team_ids)
-    |> Enum.map(&elem(&1, 1))
-    |> Enum.flat_map(fn level ->
-      Enum.map(
-        level,
-        fn team_id ->
-          t = Repo.get!(Team, team_id)
-          {t.tie_breaker, t.id}
-        end
-      )
-      |> Enum.sort
-      |> Enum.map(&elem(&1, 1))
+    |> Enum.map(fn {_id, ballot} ->
+      ballot
+      |> Enum.filter(&Enum.member?(valid_team_ids, &1))
     end)
+    |> Enum.reject(&Enum.empty?/1)
+  end
+
+  def calculate_podium(votes, team_ids, tie_breakers) do
+    votes
+    |> Enum.flat_map(&Markus.ballot_to_pairs(&1, team_ids))
+    |> Markus.pairs_to_preferences(team_ids)
+    |> Markus.normalize_margins(team_ids)
+    |> Markus.widen_paths(team_ids)
+    |> Markus.sort_candidates_with_tie_breakers(team_ids, tie_breakers)
     |> Enum.take(3)
   end
 

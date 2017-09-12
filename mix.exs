@@ -71,7 +71,8 @@ defmodule Api.Mixfile do
       # https://github.com/phoenixframework/phoenix/issues/2400
       {:plug, "~> 1.3.0"},
       {:tentacat, "~> 0.5"},
-      {:markus, "~> 0.1.0"},
+      {:markus, "~> 0.3.0"},
+      {:poison, ">= 2.2.0"},
     ]
   end
 
