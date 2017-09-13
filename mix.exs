@@ -34,12 +34,13 @@ defmodule Api.Mixfile do
         :cowboy,
         :httpoison,
         :logger,
+        :markus,
         :phoenix,
         :phoenix_ecto,
         :phoenix_html,
         :postgrex,
         :sentry,
-        :tentacat
+        :tentacat,
       ]
     ]
   end
