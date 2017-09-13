@@ -76,8 +76,8 @@ defmodule Api.CompetitionActions do
     now = DateTime.utc_now
 
     cond do
-      c.voting_ended_at && c.voting_ended_at <= now -> :ended
-      c.voting_started_at && c.voting_started_at <= now -> :started
+      c.voting_ended_at && DateTime.compare(c.voting_ended_at, now) == :lt -> :ended
+      c.voting_started_at && DateTime.compare(c.voting_started_at, now) == :lt -> :started
       true -> :not_started
     end
   end
