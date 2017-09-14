@@ -154,7 +154,9 @@ defmodule Api.TeamActions do
           Multi.update(
             multi,
             "#{team.id} to shuffled",
-            Changeset.change(team, tie_breaker: new_tb)
+            team
+            |> Changeset.change()
+            |> Changeset.force_change(:tie_breaker, new_tb)
           )
         end
       )
