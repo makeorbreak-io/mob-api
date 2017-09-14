@@ -18,7 +18,11 @@ defmodule Api.Mixfile do
         "coveralls.detail": :test,
         "coveralls.post": :test,
         "coveralls.html": :test
-      ]
+      ],
+      dialyzer: [
+        plt_add_deps: :transitive,
+        ignore_warnings: "dialyzer.ignore-warnings",
+      ],
     ]
   end
 
@@ -74,6 +78,7 @@ defmodule Api.Mixfile do
       {:tentacat, "~> 0.5"},
       {:markus, "~> 0.3.0"},
       {:poison, ">= 2.2.0"},
+      {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
     ]
   end
 
