@@ -1,7 +1,7 @@
 defmodule Api.UserActions do
   use Api.Web, :action
 
-  alias Api.{User, UserActions, Invite, Email, Mailer, CompetitionActions}
+  alias Api.{User, UserActions, UserHelper, Invite, Email, Mailer, CompetitionActions}
 
   def all do
     Enum.map(Repo.all(User), fn(user) -> UserActions.preload_user_data(user) end)
@@ -92,5 +92,43 @@ defmodule Api.UserActions do
     membership = List.first(user.teams)
 
     Map.put(user, :team, membership)
+  end
+
+  def get_token(email) do
+    Repo.get_by(User, email: email)
+    |> add_pwd_recovery_data()
+  end
+
+  def recover_password(token, new_password) do
+    Repo.get_by(User, pwd_recovery_token: token)
+    |> maybe_update_password(new_password)
+  end
+
+  defp add_pwd_recovery_data(nil), do: :user_not_found
+  defp add_pwd_recovery_data(user) do
+    changeset = User.changeset(user, %{
+      pwd_recovery_token: UserHelper.generate_token(),
+      pwd_recovery_token_expiration: UserHelper.calculate_token_expiration()
+    })
+
+    case Repo.update(changeset) do
+      {:ok, user} ->
+        Email.recover_password_email(user) |> Mailer.deliver_later
+        {:ok, user}
+      {:error, changeset} -> {:error, changeset}
+    end
+  end
+
+  defp maybe_update_password(nil, _), do: :invalid_token
+  defp maybe_update_password(user, new_password) do
+    now = DateTime.utc_now
+
+    if DateTime.compare(now, user.pwd_recovery_token_expiration) == :lt do
+      changeset = User.registration_changeset(user, %{password: new_password})
+
+      Repo.update(changeset)
+    else
+      :expired_token
+    end
   end
 end

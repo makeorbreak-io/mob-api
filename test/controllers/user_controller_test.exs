@@ -3,6 +3,7 @@ defmodule Api.UserControllerTest do
   use Bamboo.Test, shared: true
 
   alias Api.{User, TeamMember, Email}
+  alias Comeonin.Bcrypt
 
   @valid_attrs %{
     email: "johndoe@example.com",
@@ -211,5 +212,69 @@ defmodule Api.UserControllerTest do
     conn = delete(conn, user_path(conn, :delete, user))
 
     assert json_response(conn, 401)["errors"] == "Authentication required"
+  end
+
+  test "get token adds correct data to user and sends email", %{conn: conn} do
+    user = create_user()
+
+    conn = get(conn, user_path(conn, :get_token), email: user.email)
+
+    assert response(conn, 204)
+
+    updated_user = Repo.get(User, user.id)
+
+    assert_delivered_email Email.recover_password_email(updated_user)
+    assert not is_nil updated_user.pwd_recovery_token
+    assert not is_nil updated_user.pwd_recovery_token_expiration
+  end
+
+  test "recover password works if token exists and it hasn't expired", %{conn: conn} do
+    user = create_user()
+
+    conn1 = get(conn, user_path(conn, :get_token), email: user.email)
+
+    assert response(conn1, 204)
+
+    user1 = Repo.get(User, user.id)
+
+    conn2 = post(conn1, user_path(conn, :recover_password),
+      token: user1.pwd_recovery_token,
+      password: "thisisanewpassword")
+
+    assert response(conn2, 204)
+
+    user2 = Repo.get(User, user.id)
+
+    assert Bcrypt.checkpw("thisisanewpassword", user2.password_hash)
+  end
+
+  test "recover password fails if token doesn't exist", %{conn: conn} do
+    conn = post(conn, user_path(conn, :recover_password),
+      token: UserHelper.generate_token(),
+      password: "thisisanewpassword")
+
+    assert json_response(conn, 422)
+    assert json_response(conn, 422)["errors"] == "Recover password token is invalid"
+  end
+
+  test "recover password fails if token is expired", %{conn: conn} do
+    user = create_user(%{
+      pwd_recovery_token: UserHelper.generate_token(),
+      pwd_recovery_token_expiration: Ecto.DateTime.to_iso8601(%Ecto.DateTime{
+        year: 2017,
+        month: 5,
+        day: 10,
+        hour: 10,
+        min: 14,
+        sec: 15}),
+      password: "thisisapassword"
+    })
+
+    conn = post(conn, user_path(conn, :recover_password),
+      token: user.pwd_recovery_token,
+      password: "thisisanewpassword")
+
+    assert json_response(conn, 422)
+    assert json_response(conn, 422)["errors"] == "Recover password token has expired"
   end
 end
