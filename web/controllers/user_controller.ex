@@ -50,7 +50,7 @@ defmodule Api.UserController do
   def recover_password(conn, %{"token" => token, "password" => password}) do
     case UserActions.recover_password(token, password) do
       {:error, changeset} -> Errors.changeset(conn, changeset)
-      {:ok, user} -> send_resp(conn, :no_content, "")
+      {:ok, _} -> send_resp(conn, :no_content, "")
       code -> Errors.build(conn, :unprocessable_entity, code)
     end
   end
