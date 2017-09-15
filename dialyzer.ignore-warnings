@@ -1,0 +1,2 @@
+lib/mix/tasks/api.validate_info_end.ex:1: Callback info about the 'Elixir.Mix.Task' behaviour is not available
+:0: Unknown function 'Elixir.Mix':shell/0
