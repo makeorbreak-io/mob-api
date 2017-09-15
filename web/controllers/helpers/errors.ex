@@ -25,6 +25,7 @@ defmodule Api.Controller.Errors do
   end
 
   defp message(:team_user_limit), do: "Team user limit reached"
+  defp message(:user_not_found), do: "User not found"
   defp message(:user_without_team), do: "Couldn't make changes to your team"
   defp message(:wrong_credentials), do: "Wrong email or password"
   defp message(:unauthorized), do: "Unauthorized"
@@ -42,4 +43,6 @@ defmodule Api.Controller.Errors do
   defp message(:team_not_eligible), do: "Team is not eligible"
   defp message(:already_redeemed), do: "Paper vote has already been redeemed"
   defp message(:annulled), do: "Paper vote has annulled"
+  defp message(:invalid_token), do: "Recover password token is invalid"
+  defp message(:expired_token), do: "Recover password token has expired"
 end

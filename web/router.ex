@@ -39,6 +39,9 @@ defmodule Api.Router do
     get "/voting/vote", VotingController, :get_votes
     post "/voting/vote", VotingController, :upsert_votes
 
+    get "/users/password/get_token", UserController, :get_token
+    post "/users/password/recover", UserController, :recover_password
+
     scope "/admin", as: :admin do
       resources "/users", Admin.UserController, except: [:new, :edit, :create]
       resources "/workshops", Admin.WorkshopController, except: [:new, :edit]

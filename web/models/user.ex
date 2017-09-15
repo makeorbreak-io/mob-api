@@ -6,7 +6,7 @@ defmodule Api.User do
 
   @valid_attrs ~w(email first_name last_name password birthday employment_status college
                   company github_handle twitter_handle linkedin_url bio tshirt_size
-                  )
+                  pwd_recovery_token pwd_recovery_token_expiration)
   @admin_attrs @valid_attrs ++ ~w(role checked_in)
   @required_attrs ~w(email voter_identity)a
 
@@ -27,6 +27,8 @@ defmodule Api.User do
     field :tshirt_size, :string
     field :checked_in, :boolean, default: false
     field :voter_identity, :string
+    field :pwd_recovery_token, :string
+    field :pwd_recovery_token_expiration, :utc_datetime, default: nil
 
     has_many :votes, Vote, references: :voter_identity, foreign_key: :voter_identity
 
@@ -55,6 +57,7 @@ defmodule Api.User do
     |> validate_length(:email, min: 1, max: 255)
     |> validate_format(:email, ~r/@/)
     |> unique_constraint(:email)
+    |> unique_constraint(:password_recovery_token)
   end
 
   def registration_changeset(struct, params \\ %{}) do

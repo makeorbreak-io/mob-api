@@ -38,4 +38,20 @@ defmodule Api.UserController do
       _ -> send_resp(conn, :no_content, "")
     end
   end
+
+  def get_token(conn, %{"email" => email}) do
+    case UserActions.get_token(email) do
+      {:error, changeset} -> Errors.changeset(conn, changeset)
+      {:ok, _} -> send_resp(conn, :no_content, "")
+      code -> Errors.build(conn, :not_found, code)
+    end
+  end
+
+  def recover_password(conn, %{"token" => token, "password" => password}) do
+    case UserActions.recover_password(token, password) do
+      {:error, changeset} -> Errors.changeset(conn, changeset)
+      {:ok, _} -> send_resp(conn, :no_content, "")
+      code -> Errors.build(conn, :unprocessable_entity, code)
+    end
+  end
 end

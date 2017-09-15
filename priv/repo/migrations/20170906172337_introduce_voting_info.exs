@@ -16,14 +16,14 @@ defmodule Api.Repo.Migrations.IntroduceVotingInfo do
     end
     flush()
 
-    Repo.all(from u in User)
-    |> Enum.map(fn
-      user ->
-        user
-        |> Changeset.change(voter_identity: Crypto.random_hmac())
-        |> Repo.update!
-    end)
-    flush()
+    # Repo.all(from u in User)
+    # |> Enum.map(fn
+    #   user ->
+    #     user
+    #     |> Changeset.change(voter_identity: Crypto.random_hmac())
+    #     |> Repo.update!
+    # end)
+    # flush()
 
     create unique_index(:users, [:voter_identity])
     alter table(:users) do

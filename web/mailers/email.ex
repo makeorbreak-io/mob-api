@@ -67,6 +67,17 @@ defmodule Api.Email do
     |> render("checkin.html")
   end
 
+  def recover_password_email(recipient) do
+    base_email()
+    |> to(recipient)
+    |> subject("Reset your MoB password.")
+    |> put_html_layout({Api.LayoutView, "email.html"})
+    |> assign(:title, "Reset your password")
+    |> assign(:name, UserHelper.display_name(recipient))
+    |> assign(:token, recipient.pwd_recovery_token)
+    |> render("recover_password.html")
+  end
+
   defp base_email do
     # Here you can set a default from, default headers, etc.
     new_email()

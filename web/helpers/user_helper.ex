@@ -6,4 +6,18 @@ defmodule Api.UserHelper do
 
   # gravatar hash
   def gravatar_hash(%{email: email}), do: :crypto.hash(:md5, String.trim(email)) |> Base.encode16(case: :lower)
+
+  # generate password recovery token
+  def generate_token(length \\ 32) do
+    :crypto.strong_rand_bytes(length)
+    |> Base.encode64
+    |> binary_part(0, length)
+  end
+
+  def calculate_token_expiration do
+    :erlang.universaltime
+    |> :calendar.datetime_to_gregorian_seconds
+    |> Kernel.+(30 * 60)
+    |> DateTime.from_unix!
+  end
 end
