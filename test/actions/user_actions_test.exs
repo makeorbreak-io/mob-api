@@ -1,7 +1,7 @@
-defmodule Api.UserActionTest do
-  use Api.ModelCase
+defmodule ApiWeb.UserActionTest do
+  use ApiWeb.ModelCase
 
-  alias Api.{UserActions, CompetitionActions}
+  alias ApiWeb.{UserActions, CompetitionActions}
 
 
   test "able_to_vote checked in" do

@@ -12,6 +12,6 @@ defmodule Api.Repo.Migrations.AddRoleToUser do
 
     flush()
 
-    from(u in "users", update: [set: [role: "participant"]]) |> Api.Repo.update_all([])
+    from(u in "users", update: [set: [role: "participant"]]) |> ApiWeb.Repo.update_all([])
   end
 end

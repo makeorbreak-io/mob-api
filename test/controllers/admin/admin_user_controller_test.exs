@@ -1,8 +1,8 @@
-defmodule Api.AdminUserControllerTest do
-  use Api.ConnCase
+defmodule ApiWeb.AdminUserControllerTest do
+  use ApiWeb.ConnCase
   use Bamboo.Test, shared: true
 
-  alias Api.{User, WorkshopAttendance, Email}
+  alias ApiWeb.{User, WorkshopAttendance, Email}
 
   @valid_attrs %{
     email: "user@example.com",

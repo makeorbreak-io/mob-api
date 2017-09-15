@@ -50,8 +50,8 @@ defmodule Api.Mixfile do
   end
 
   # Specifies which paths to compile per environment.
-  defp elixirc_paths(:test), do: ["lib", "web", "test/support"]
-  defp elixirc_paths(_),     do: ["lib", "web"]
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_),     do: ["lib"]
 
   # Specifies your project dependencies.
   #
@@ -67,18 +67,15 @@ defmodule Api.Mixfile do
       {:excoveralls, "~> 0.7", only: :test},
       {:guardian, "~> 0.14"},
       {:httpoison, "~> 0.13"},
-      {:phoenix, "~> 1.2.1"},
+      {:phoenix, "~> 1.3.0"},
       {:markus, "~> 0.3.0"},
       {:phoenix_ecto, "~> 3.0"},
       {:phoenix_html, "~> 2.6"},
-      # Don't allow Plug 1.4 until there's a new Phoenix 1.2.x version
-      # https://github.com/phoenixframework/phoenix/issues/2400
-      {:plug, "~> 1.3.0"},
       {:poison, ">= 2.2.0"},
       {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
       {:postgrex, "~> 0.13.3"},
       {:sentry, "~> 5.0.1"},
-      {:tentacat, "~> 0.5"},
+      {:tentacat, "~> 0.6.2"},
     ]
   end
 
@@ -106,7 +103,7 @@ defmodule Api.Mixfile do
         "coveralls"
       ],
       "server": [
-        "phoenix.server"
+        "phx.server"
       ],
       "sentry_recompile": [
         "clean", "compile"

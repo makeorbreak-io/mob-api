@@ -1,8 +1,8 @@
-defmodule Api.WorkshopControllerTest do
-  use Api.ConnCase
+defmodule ApiWeb.WorkshopControllerTest do
+  use ApiWeb.ConnCase
   use Bamboo.Test, shared: true
 
-  alias Api.{WorkshopAttendance, Email}
+  alias ApiWeb.{WorkshopAttendance, Email}
 
   setup %{conn: conn} do
     user = create_user()

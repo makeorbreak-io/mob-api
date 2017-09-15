@@ -1,7 +1,7 @@
-defmodule Api.InviteTest do
-  use Api.ModelCase
+defmodule ApiWeb.InviteTest do
+  use ApiWeb.ModelCase
 
-  alias Api.Invite
+  alias ApiWeb.{Invite}
 
   @valid_attrs %{
     host_id: Ecto.UUID.generate(),

@@ -1,7 +1,7 @@
-defmodule Api.GuardianSerializerTest do
+defmodule ApiWeb.GuardianSerializerTest do
 	use ExUnit.Case, async: true
 
-	alias Api.{User, Repo, GuardianSerializer}
+	alias ApiWeb.{User, Repo, GuardianSerializer}
 
 	setup do
    	:ok = Ecto.Adapters.SQL.Sandbox.checkout(Repo)

@@ -1,4 +1,4 @@
-defmodule Api.ModelCase do
+defmodule ApiWeb.ModelCase do
   @moduledoc """
   This module defines the test case to be used by
   model tests.
@@ -16,22 +16,22 @@ defmodule Api.ModelCase do
 
   using do
     quote do
-      alias Api.Repo
+      alias ApiWeb.Repo
 
-      import Api.TestHelper
+      import ApiWeb.TestHelper
 
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
-      import Api.ModelCase
+      import ApiWeb.ModelCase
     end
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Api.Repo)
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(ApiWeb.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(Api.Repo, {:shared, self()})
+      Ecto.Adapters.SQL.Sandbox.mode(ApiWeb.Repo, {:shared, self()})
     end
 
     :ok

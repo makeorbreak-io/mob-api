@@ -1,7 +1,7 @@
 defmodule Api do
   use Application
 
-  alias Api.{Endpoint, Repo}
+  alias ApiWeb.{Endpoint, Repo}
 
   # See http://elixir-lang.org/docs/stable/elixir/Application.html
   # for more information on OTP Applications

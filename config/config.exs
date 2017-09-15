@@ -7,7 +7,7 @@ use Mix.Config
 
 # General application configuration
 config :api,
-  ecto_repos: [Api.Repo],
+  ecto_repos: [ApiWeb.Repo],
   # Use this tutorial to get a Slack token with client privileges
   # https://medium.com/@andrewarrow/how-to-get-slack-api-tokens-with-client-scope-e311856ebe9
   slack_token: System.get_env("SLACK_TOKEN"),
@@ -16,10 +16,10 @@ config :api,
   github_token: System.get_env("GITHUB_TOKEN")
 
 # Configures the endpoint
-config :api, Api.Endpoint,
+config :api, ApiWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: System.get_env("SECRET_KEY_BASE"),
-  render_errors: [view: Api.ErrorView, accepts: ~w(json)]
+  render_errors: [view: ApiWeb.ErrorView, accepts: ~w(json)]
 
 # Configures Elixir's Logger
 config :logger, :console,
@@ -27,7 +27,7 @@ config :logger, :console,
   metadata: [:request_id]
 
 # Configure your database
-config :api, Api.Repo,
+config :api, ApiWeb.Repo,
   adapter: Ecto.Adapters.Postgres,
   url: System.get_env("DB_URL")
 
@@ -39,14 +39,14 @@ config :guardian, Guardian,
   ttl: { 30, :days },
   verify_issuer: true, # optional
   secret_key: System.get_env("SECRET_KEY_BASE"),
-  serializer: Api.GuardianSerializer,
+  serializer: ApiWeb.GuardianSerializer,
   permissions: %{
     admin: [:full],
     participant: [:full]
   }
 
 # Bamboo configuration
-config :api, Api.Mailer,
+config :api, ApiWeb.Mailer,
   adapter: Bamboo.LocalAdapter
 
 # Sentry.io configuration

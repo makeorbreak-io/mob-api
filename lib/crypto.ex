@@ -1,4 +1,4 @@
-defmodule Api.Crypto do
+defmodule ApiWeb.Crypto do
   def hmac(key, text) do
     Base.encode16(:crypto.hmac(:sha256, key, text))
   end

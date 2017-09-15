@@ -1,7 +1,7 @@
-defmodule Api.TeamTest do
-  use Api.ModelCase
+defmodule ApiWeb.TeamTest do
+  use ApiWeb.ModelCase
 
-  alias Api.Team
+  alias ApiWeb.Team
   alias Ecto.Changeset
 
   @valid_attrs %{name: "awesome team"}

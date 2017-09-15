@@ -1,8 +1,8 @@
-defmodule Api.TeamControllerTest do
-  use Api.ConnCase
+defmodule ApiWeb.TeamControllerTest do
+  use ApiWeb.ConnCase
   use Bamboo.Test, shared: true
 
-  alias Api.{Team, TeamMember, Email, CompetitionActions}
+  alias ApiWeb.{Team, TeamMember, Email, CompetitionActions}
 
   @valid_attrs %{name: "some content"}
   @invalid_attrs %{name: ""}

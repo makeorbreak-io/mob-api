@@ -1,7 +1,7 @@
-defmodule ApiPaperVoteActionsTest do
-  use Api.ModelCase
+defmodule ApiWeb.PaperVoteActionsTest do
+  use ApiWeb.ModelCase
 
-  alias Api.{CompetitionActions, PaperVoteActions, TeamActions, Team}
+  alias ApiWeb.{CompetitionActions, PaperVoteActions, TeamActions, Team}
 
   setup do
     member = create_user()

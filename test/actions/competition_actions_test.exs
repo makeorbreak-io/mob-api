@@ -1,7 +1,7 @@
-defmodule Api.CompetitionActionsTest do
-  use Api.ModelCase
+defmodule ApiWeb.CompetitionActionsTest do
+  use ApiWeb.ModelCase
 
-  alias Api.{CompetitionActions}
+  alias ApiWeb.{CompetitionActions}
 
   test "before start" do
     assert CompetitionActions.voting_status == :not_started
@@ -34,10 +34,10 @@ defmodule Api.CompetitionActionsTest do
   end
 end
 
-defmodule Api.CompetitionActionsTest.CalculatePodium do
-  use Api.ModelCase
+defmodule ApiWeb.CompetitionActionsTest.CalculatePodium do
+  use ApiWeb.ModelCase
 
-  alias Api.{CompetitionActions, Category}
+  alias ApiWeb.{CompetitionActions, Category}
   alias Ecto.{Changeset}
 
   setup do

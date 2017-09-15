@@ -1,7 +1,7 @@
-defmodule Api.TeamMemberTest do
-  use Api.ModelCase
+defmodule ApiWeb.TeamMemberTest do
+  use ApiWeb.ModelCase
 
-  alias Api.TeamMember
+  alias ApiWeb.{TeamMember}
 
   @valid_attrs %{user_id: Ecto.UUID.generate(), team_id: Ecto.UUID.generate()}
   @invalid_attrs %{}

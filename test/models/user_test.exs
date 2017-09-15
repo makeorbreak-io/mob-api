@@ -1,8 +1,7 @@
-defmodule Api.UserTest do
-  use Api.ModelCase
+defmodule ApiWeb.UserTest do
+  use ApiWeb.ModelCase
 
-  alias Api.User
-  alias Api.{UserActions, TeamActions}
+  alias ApiWeb.{UserActions, TeamActions, User}
 
   @valid_attrs %{
     email: "johndoe@example.com",

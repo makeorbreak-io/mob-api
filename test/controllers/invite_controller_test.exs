@@ -1,8 +1,8 @@
-defmodule Api.InviteControllerTest do
-  use Api.ConnCase
+defmodule ApiWeb.InviteControllerTest do
+  use ApiWeb.ConnCase
   use Bamboo.Test, shared: true
 
-  alias Api.{Invite, Email, TeamMember, CompetitionActions}
+  alias ApiWeb.{Invite, Email, TeamMember, CompetitionActions}
 
   setup %{conn: conn} do
     user = create_user()

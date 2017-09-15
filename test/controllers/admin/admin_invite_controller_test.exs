@@ -1,7 +1,7 @@
-defmodule Api.Admin.InviteControllerTest do
-  use Api.ConnCase
+defmodule ApiWeb.Admin.InviteControllerTest do
+  use ApiWeb.ConnCase
 
-  alias Api.{Invite, Repo}
+  alias ApiWeb.{Invite, Repo}
   alias Guardian.{Permissions}
 
   setup %{conn: conn} do

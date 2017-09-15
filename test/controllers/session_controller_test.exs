@@ -1,7 +1,7 @@
-defmodule Api.SessionControllerTest do
-  use Api.ConnCase
+defmodule ApiWeb.SessionControllerTest do
+  use ApiWeb.ConnCase
 
-  alias Api.{WorkshopAttendance, CompetitionActions}
+  alias ApiWeb.{WorkshopAttendance, CompetitionActions}
 
   @valid_credentials %{
     email: "johndoe@example.com",

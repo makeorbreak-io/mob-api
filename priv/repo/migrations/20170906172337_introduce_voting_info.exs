@@ -3,7 +3,7 @@ defmodule Api.Repo.Migrations.IntroduceVotingInfo do
 
   import Ecto.Query
 
-  alias Api.{Crypto, Repo, User, Team, Category}
+  alias ApiWeb.{Crypto, Repo, User, Team, Category}
   alias Ecto.{Changeset}
 
   defp fk(table, on_delete \\ :nilify_all, type \\ :uuid) do
