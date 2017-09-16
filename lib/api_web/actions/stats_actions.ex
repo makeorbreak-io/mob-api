@@ -1,7 +1,7 @@
 defmodule ApiWeb.StatsActions do
   use Api.Web, :action
 
-  alias ApiWeb.{Project, Repo, Team, TeamMember, User, Workshop, WorkshopAttendance}
+  alias ApiWeb.{Repo, Team, TeamMember, User, Workshop, WorkshopAttendance}
 
   def stats do
     roles = from(
@@ -29,7 +29,6 @@ defmodule ApiWeb.StatsActions do
         applied: Repo.aggregate(applied_teams, :count, :id)
       },
       workshops: workshop_stats(),
-      projects: Repo.aggregate(Project, :count, :id)
     }
   end
 

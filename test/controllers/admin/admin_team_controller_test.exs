@@ -28,7 +28,7 @@ defmodule ApiWeb.Admin.TeamControllerTest do
 
   test "shows chosen team", %{conn: conn, admin: admin, jwt: jwt} do
     team = create_team(admin)
-    |> Repo.preload([:members, :project, :invites])
+    |> Repo.preload([:members, :invites])
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
@@ -47,8 +47,10 @@ defmodule ApiWeb.Admin.TeamControllerTest do
         "gravatar_hash" => UserHelper.gravatar_hash(admin)
       }],
       "invites" => team.invites,
-      "project" => team.project,
       "disqualified_at" => nil,
+      "project_name" => team.project_name,
+      "project_desc" => team.project_desc,
+      "technologies" => team.technologies
     }
   end
 
@@ -168,7 +170,7 @@ defmodule ApiWeb.Admin.TeamControllerTest do
     assert json_response(conn, 422)["errors"] == "Competition already started"
   end
 
-  test "disqualify", %{conn: conn, jwt: jwt} do
+  test "disqualify works", %{conn: conn, jwt: jwt} do
     user = create_user()
     team = create_team(user)
 
@@ -178,7 +180,6 @@ defmodule ApiWeb.Admin.TeamControllerTest do
 
     team = Repo.get!(Team, team.id)
     assert json_response(conn, 200)["data"] == %{
-      "project" => nil,
       "prize_preference" => nil,
       "name" => team.name,
       "members" => nil,
@@ -187,6 +188,9 @@ defmodule ApiWeb.Admin.TeamControllerTest do
       "eligible" => false,
       "applied" => false,
       "disqualified_at" => DateTime.to_iso8601(team.disqualified_at),
+      "project_name" => team.project_name,
+      "project_desc" => team.project_desc,
+      "technologies" => team.technologies
     }
   end
 

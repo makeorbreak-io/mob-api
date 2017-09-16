@@ -82,7 +82,6 @@ defmodule ApiWeb.UserActions do
       teams: [
         team: [
           :invites,
-          :project,
           members: [:user]
         ]
       ]

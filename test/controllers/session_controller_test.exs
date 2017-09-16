@@ -50,7 +50,6 @@ defmodule ApiWeb.SessionControllerTest do
           "role" => "owner"
         }],
         "role" => "owner",
-        "project" => nil
       },
       "tshirt_size" => user.tshirt_size,
       "twitter_handle" => user.twitter_handle,
@@ -106,8 +105,7 @@ defmodule ApiWeb.SessionControllerTest do
           "display_name" => "#{user.first_name} #{user.last_name}",
           "gravatar_hash" => UserHelper.gravatar_hash(user),
           "role" => "owner"
-        }],
-        "project" => nil
+        }]
       },
       "invitations" => [],
       "role" => user.role,

@@ -53,7 +53,10 @@ defmodule ApiWeb.InviteControllerTest do
       "open" => invite.open,
       "team" => %{
         "id" => team.id,
-        "name" => team.name
+        "name" => team.name,
+        "applied" => team.applied,
+        "eligible" => team.eligible,
+        "prize_preference" => team.prize_preference
       }
     }]
   end
@@ -68,7 +71,10 @@ defmodule ApiWeb.InviteControllerTest do
       "description" => invite.description,
       "team" => %{
         "id" => team.id,
-        "name" => team.name
+        "name" => team.name,
+        "applied" => team.applied,
+        "eligible" => team.eligible,
+        "prize_preference" => team.prize_preference
       },
       "host" => %{
         "id" => user.id,

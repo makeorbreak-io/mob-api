@@ -16,7 +16,6 @@ defmodule ApiWeb.Router do
   scope "/api", ApiWeb do
     pipe_through :api
 
-    resources "/projects", ProjectController, except: [:new, :edit]
     resources "/teams", TeamController, except: [:new, :edit]
     resources "/users", UserController, except: [:new, :edit]
     resources "/invites", InviteController, except: [:new, :edit, :update]
