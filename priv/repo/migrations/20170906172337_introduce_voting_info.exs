@@ -38,8 +38,8 @@ defmodule Api.Repo.Migrations.IntroduceVotingInfo do
       add :prize_preference_hmac_secret, :string
       add :tie_breaker, :integer
     end
-    flush()
 
+    #flush()
     # teams = Repo.all(from t in Team, order_by: :inserted_at)
     # Enum.zip([
     #   teams,
