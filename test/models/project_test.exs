@@ -1,7 +1,7 @@
-defmodule Api.ProjectTest do
-  use Api.ModelCase
+defmodule ApiWeb.ProjectTest do
+  use ApiWeb.ModelCase
 
-  alias Api.Project
+  alias ApiWeb.Project
 
   @valid_attrs %{
     description: "some content",

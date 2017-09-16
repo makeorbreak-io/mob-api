@@ -1,7 +1,7 @@
-defmodule Api.CompetitionTest do
-  use Api.ModelCase
+defmodule ApiWeb.CompetitionTest do
+  use ApiWeb.ModelCase
 
-  alias Api.Competition
+  alias ApiWeb.Competition
 
   @valid_attrs %{
   }

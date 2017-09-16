@@ -1,4 +1,4 @@
-defmodule Api.ConnCase do
+defmodule ApiWeb.ConnCase do
   @moduledoc """
   This module defines the test case to be used by
   tests that require setting up a connection.
@@ -20,25 +20,25 @@ defmodule Api.ConnCase do
       # Import conveniences for testing with connections
       use Phoenix.ConnTest
 
-      alias Api.Repo
-      alias Api.UserHelper
+      alias ApiWeb.Repo
+      alias ApiWeb.UserHelper
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
 
-      import Api.Router.Helpers
-      import Api.TestHelper
+      import ApiWeb.Router.Helpers
+      import ApiWeb.TestHelper
 
       # The default endpoint for testing
-      @endpoint Api.Endpoint
+      @endpoint ApiWeb.Endpoint
     end
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Api.Repo)
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(ApiWeb.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(Api.Repo, {:shared, self()})
+      Ecto.Adapters.SQL.Sandbox.mode(ApiWeb.Repo, {:shared, self()})
     end
 
     {:ok, conn: Phoenix.ConnTest.build_conn()}

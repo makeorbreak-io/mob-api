@@ -1,7 +1,7 @@
-defmodule Api.AdminStatsControllerTest do
-  use Api.ConnCase
+defmodule ApiWeb.AdminStatsControllerTest do
+  use ApiWeb.ConnCase
 
-  alias Api.{Project, WorkshopAttendance}
+  alias ApiWeb.{Project, WorkshopAttendance}
   alias Guardian.Permissions
 
   setup %{conn: conn} do

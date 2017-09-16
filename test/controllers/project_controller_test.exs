@@ -1,7 +1,7 @@
-defmodule Api.ProjectControllerTest do
-  use Api.ConnCase
+defmodule ApiWeb.ProjectControllerTest do
+  use ApiWeb.ConnCase
 
-  alias Api.Project
+  alias ApiWeb.{Project}
 
   @valid_attrs %{
     description: "some content",

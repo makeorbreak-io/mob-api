@@ -1,7 +1,7 @@
-defmodule Api.VoteTest do
-  use Api.ModelCase
+defmodule ApiWeb.VoteTest do
+  use ApiWeb.ModelCase
 
-  alias Api.Vote
+  alias ApiWeb.Vote
 
   setup %{} do
     {:ok, %{

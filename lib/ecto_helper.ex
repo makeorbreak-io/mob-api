@@ -1,4 +1,4 @@
-defmodule Api.EctoHelper do
+defmodule ApiWeb.EctoHelper do
   alias Ecto.{Changeset}
 
   def if_missing(changeset, field, value) do

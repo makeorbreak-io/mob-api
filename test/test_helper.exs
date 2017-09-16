@@ -1,9 +1,9 @@
 ExUnit.start
 
-Ecto.Adapters.SQL.Sandbox.mode(Api.Repo, :manual)
+Ecto.Adapters.SQL.Sandbox.mode(ApiWeb.Repo, :manual)
 
-defmodule Api.TestHelper do
-  alias Api.{User, Team, Repo, TeamMember, Invite, Workshop, Category,
+defmodule ApiWeb.TestHelper do
+  alias ApiWeb.{User, Team, Repo, TeamMember, Invite, Workshop, Category,
     StringHelper, Vote, PaperVoteActions, UserHelper}
 
   @valid_user_attrs %{

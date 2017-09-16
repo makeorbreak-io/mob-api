@@ -1,8 +1,8 @@
-defmodule Api.VotingControllerTest do
-  use Api.ConnCase
+defmodule ApiWeb.VotingControllerTest do
+  use ApiWeb.ConnCase
 
-  alias Api.{CompetitionActions, TeamActions, Team, Vote, Category, Repo}
-  import Api.StringHelper, only: [slugify: 1]
+  alias ApiWeb.{CompetitionActions, TeamActions, Team, Vote, Category, Repo}
+  import ApiWeb.StringHelper, only: [slugify: 1]
 
   setup %{conn: conn} do
     user = create_user()

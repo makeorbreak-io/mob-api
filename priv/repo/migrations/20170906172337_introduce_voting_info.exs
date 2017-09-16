@@ -3,7 +3,7 @@ defmodule Api.Repo.Migrations.IntroduceVotingInfo do
 
   import Ecto.Query
 
-  alias Api.{Crypto, Repo, User, Team, Category}
+  alias ApiWeb.{Crypto, Repo, User, Team, Category}
   alias Ecto.{Changeset}
 
   defp fk(table, on_delete \\ :nilify_all, type \\ :uuid) do
@@ -38,8 +38,8 @@ defmodule Api.Repo.Migrations.IntroduceVotingInfo do
       add :prize_preference_hmac_secret, :string
       add :tie_breaker, :integer
     end
-    flush()
 
+    #flush()
     # teams = Repo.all(from t in Team, order_by: :inserted_at)
     # Enum.zip([
     #   teams,

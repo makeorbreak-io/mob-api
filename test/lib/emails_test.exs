@@ -1,8 +1,8 @@
-defmodule Api.EmailsTest do
-  use Api.ConnCase
+defmodule ApiWeb.EmailsTest do
+  use ApiWeb.ConnCase
   use Bamboo.Test
 
-  alias Api.{Email, UserHelper}
+  alias ApiWeb.{Email, UserHelper}
 
   test "invite email" do
     host = create_user(%{email: "host@example.com", password: "thisisapassword"})

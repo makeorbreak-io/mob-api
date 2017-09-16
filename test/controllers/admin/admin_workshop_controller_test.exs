@@ -1,7 +1,7 @@
-defmodule Api.Admin.WorkshopControllerTest do
-  use Api.ConnCase
+defmodule ApiWeb.Admin.WorkshopControllerTest do
+  use ApiWeb.ConnCase
 
-  alias Api.{Workshop, WorkshopAttendance}
+  alias ApiWeb.{Workshop, WorkshopAttendance}
 
   @valid_attrs %{
     slug: "some-content",

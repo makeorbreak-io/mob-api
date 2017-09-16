@@ -1,7 +1,7 @@
-defmodule Api.Admin.CompetitionControllerTest do
-  use Api.ConnCase
+defmodule ApiWeb.Admin.CompetitionControllerTest do
+  use ApiWeb.ConnCase
 
-  alias Api.{CompetitionActions, Team}
+  alias ApiWeb.{CompetitionActions, Team}
   alias Guardian.{Permissions}
 
   setup %{conn: conn} do

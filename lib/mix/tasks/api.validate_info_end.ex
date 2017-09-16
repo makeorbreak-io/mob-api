@@ -7,7 +7,7 @@ defmodule Mix.Tasks.Api.ValidateInfoEnd do
       You can get an info_end.json on your User Dashboard after the voting ends.
     """
 
-  alias Api.CompetitionActions
+  alias ApiWeb.{CompetitionActions}
 
   def run(file_path) do
     file = if file_path == "-", do: :stdio, else: File.open!(file_path)

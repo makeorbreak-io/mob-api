@@ -1,7 +1,7 @@
-defmodule Api.TeamActionsTest do
-  use Api.ModelCase
+defmodule ApiWeb.TeamActionsTest do
+  use ApiWeb.ModelCase
 
-  alias Api.{Team, TeamActions}
+  alias ApiWeb.{Team, TeamActions}
 
   @valid_attrs %{name: "awesome team"}
 

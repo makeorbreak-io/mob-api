@@ -1,7 +1,7 @@
-defmodule Api.CategoryTest do
-  use Api.ModelCase
+defmodule ApiWeb.CategoryTest do
+  use ApiWeb.ModelCase
 
-  alias Api.Category
+  alias ApiWeb.Category
 
   @valid_attrs %{
     name: "some name"

@@ -1,7 +1,7 @@
-defmodule Api.Admin.TeamControllerTest do
-  use Api.ConnCase
+defmodule ApiWeb.Admin.TeamControllerTest do
+  use ApiWeb.ConnCase
 
-  alias Api.{Team, TeamMember, CompetitionActions}
+  alias ApiWeb.{Team, TeamMember, CompetitionActions}
   # import Api.StringHelper
 
   @valid_attrs %{name: "some content"}
