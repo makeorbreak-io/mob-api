@@ -23,13 +23,15 @@ defmodule ApiWeb.Admin.BlogPostControllerTest do
     }}
   end
 
-  test "creates blogpost when data is valid", %{conn: conn, jwt: jwt} do
+  test "creates blogpost when data is valid", %{conn: conn, jwt: jwt, admin: admin} do
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
     |> post(admin_blog_post_path(conn, :create), blogpost: @valid_attrs)
 
     assert json_response(conn, 201)["data"]["slug"]
-    assert Repo.get_by(BlogPost, slug: @valid_attrs.slug)
+    blogpost = Repo.get_by(BlogPost, slug: @valid_attrs.slug)
+
+    assert blogpost.user_id == admin.id
   end
 
   test "doesn't create blogpost when data is invalid", %{conn: conn, jwt: jwt} do

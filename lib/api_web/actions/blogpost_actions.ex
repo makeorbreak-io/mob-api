@@ -13,8 +13,8 @@ defmodule ApiWeb.BlogPostActions do
     |> Repo.preload(:user)
   end
 
-  def create(blogpost_params) do
-    changeset = BlogPost.changeset(%BlogPost{}, blogpost_params)
+  def create(user, blogpost_params) do
+    changeset = BlogPost.changeset(%BlogPost{user_id: user.id}, blogpost_params)
 
     case Repo.insert(changeset) do
       {:ok, blogpost} -> {:ok, blogpost |> Repo.preload(:user)}
