@@ -11,7 +11,7 @@ defmodule ApiWeb.BlogPostView do
     %{data: render_one(blogpost, __MODULE__, "blogpost.json")}
   end
 
-  def render("blogpost.json", %{blogpost: blogpost}) do
+  def render("blogpost.json", %{blog_post: blogpost}) do
     %{
       slug: blogpost.slug,
       title: blogpost.title,
@@ -25,11 +25,11 @@ defmodule ApiWeb.BlogPostView do
     }
   end
 
-  def render("blogpost_short.json", %{blogpost: blogpost}) do
+  def render("blogpost_short.json", %{blog_post: blogpost}) do
     %{
       slug: blogpost.slug,
-      name: blogpost.title,
-      short_speaker: blogpost.category
+      title: blogpost.title,
+      category: blogpost.category
     }
   end
 end

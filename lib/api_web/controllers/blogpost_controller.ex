@@ -4,10 +4,10 @@ defmodule ApiWeb.BlogPostController do
   alias ApiWeb.{BlogPostActions}
 
   def index(conn, _params) do
-    render(conn, "index.json", workshops: BlogPostActions.all)
+    render(conn, "index.json", blogposts: BlogPostActions.all)
   end
 
   def show(conn, %{"id" => id}) do
-    render(conn, "show.json", workshop: BlogPostActions.get(id))
+    render(conn, "show.json", blogpost: BlogPostActions.get(id))
   end
 end
