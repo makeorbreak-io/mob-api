@@ -13,7 +13,7 @@ defmodule ApiWeb.Admin.BlogPostController do
       {:ok, blogpost} ->
         conn
         |> put_status(:created)
-        |> put_resp_header("location", blogpost_path(conn, :show, blogpost))
+        |> put_resp_header("location", blog_post_path(conn, :show, blogpost))
         |> render("show.json", blogpost: blogpost)
       {:error, changeset} -> Errors.changeset(conn, changeset)
     end
