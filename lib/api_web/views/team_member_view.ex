@@ -1,7 +1,7 @@
 defmodule ApiWeb.TeamMemberView do
   use Api.Web, :view
 
-  alias ApiWeb.{ProjectView, InviteView, UserHelper}
+  alias ApiWeb.{InviteView, UserHelper}
 
   def render("member_user.json", %{membership: membership}) do
     %{

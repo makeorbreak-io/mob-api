@@ -1,24 +1,22 @@
 defmodule ApiWeb.Admin.CompetitionController do
   use Api.Web, :controller
 
-  alias ApiWeb.{CompetitionActions, Controller.Errors}
+  alias ApiWeb.{CompetitionActions, ErrorController}
   alias Guardian.Plug.{EnsureAuthenticated, EnsurePermissions}
 
-  plug EnsureAuthenticated, [handler: Errors]
-  plug EnsurePermissions, [handler: Errors, admin: ~w(full)]
+  action_fallback ErrorController
+
+  plug EnsureAuthenticated, [handler: ErrorController]
+  plug EnsurePermissions, [handler: ErrorController, admin: ~w(full)]
 
   def start_voting(conn, _) do
-    case CompetitionActions.start_voting do
-      {:ok, _} -> send_resp(conn, :no_content, "")
-      {:error, error} -> Errors.build(conn, :unprocessable_entity, error)
-    end
+    with {:ok, _} <- CompetitionActions.start_voting(),
+      do: send_resp(conn, :no_content, "")
   end
 
   def end_voting(conn, _) do
-    case CompetitionActions.end_voting do
-      {:ok, _} -> send_resp(conn, :no_content, "")
-      {:error, error} -> Errors.build(conn, :unprocessable_entity, error)
-    end
+    with {:ok, _} <- CompetitionActions.end_voting(),
+      do: send_resp(conn, :no_content, "")
   end
 
   def status(conn, _) do

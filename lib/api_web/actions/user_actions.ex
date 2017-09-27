@@ -46,9 +46,9 @@ defmodule ApiWeb.UserActions do
     user = Repo.get!(User, id)
 
     if user.id == current_user.id do
-      Repo.delete(user)
+      {Repo.delete(user)}
     else
-      :unauthorized
+      {:unauthorized, :unauthorized}
     end
   end
 
@@ -59,8 +59,7 @@ defmodule ApiWeb.UserActions do
 
   def toggle_checkin(id, value) do
     case CompetitionActions.voting_status do
-      :started ->
-        {:error, :already_started}
+      :started -> :already_started
       _ ->
         user = Repo.get!(User, id)
 

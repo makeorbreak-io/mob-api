@@ -37,7 +37,7 @@ defmodule ApiWeb.TeamActions do
       |> email_if_applying(team)
       |> Repo.update
     else
-      {:unauthorized}
+      {:unauthorized, :unauthorized}
     end
   end
 
@@ -45,35 +45,33 @@ defmodule ApiWeb.TeamActions do
     team = Repo.get!(Team, id)
 
     case is_team_member?(team, current_user) do
-      true -> Repo.delete!(team)
-      false -> {:unauthorized}
+      true -> {Repo.delete!(team)}
+      false -> {:unauthorized, :unauthorized}
     end
   end
 
   def remove(current_user, team_id, user_id) do
     if CompetitionActions.voting_status == :started do
-      throw {:error, :already_started}
+      throw :already_started
     end
 
     team = Repo.get!(Team, team_id)
-    user = Repo.get(User, user_id) || throw {:error, "User not found"}
+    user = Repo.get(User, user_id) || throw :user_not_found
 
     if !is_team_member?(team, current_user) do
-      throw {:unauthorized}
+      throw {:unauthorized, :unauthorized}
     end
 
     if team.applied do
-      throw {:error, "Can't remove users after applying to the event"}
+      throw :team_locked
     end
 
     case Repo.delete_all(from(
         t in TeamMember,
         where: t.user_id == ^user.id and t.team_id == ^team.id
     )) do
-      {1, _} ->
-        {:ok}
-      {0, _} ->
-        {:error, "User isn't a member of team"}
+      {1, _} -> :ok
+      {0, _} -> :membership_not_found
     end
   catch
     e -> e
@@ -102,17 +100,16 @@ defmodule ApiWeb.TeamActions do
 
   def remove_any(team_id, user_id) do
     if CompetitionActions.voting_status == :started do
-        throw {:error, :already_started}
+        throw :already_started
     end
-    user = Repo.get(User, user_id) || throw {:error, "User not found"}
+    user = Repo.get(User, user_id) || throw :user_not_found
     case Repo.delete_all(from(
         t in TeamMember,
         where: t.user_id == ^user.id and t.team_id == ^team_id
     )) do
       {1, _} ->
         {:ok}
-      {0, _} ->
-        {:error, "User isn't a member of team"}
+      {0, _} -> :membership_not_found
     end
   catch
     e -> e
@@ -171,7 +168,7 @@ defmodule ApiWeb.TeamActions do
       {:ok, repo} ->
         __MODULE__.update_any(id, %{repo: repo})
         :ok
-      {:error, error} -> {:error, error}
+      {:error, error} -> error
     end
   end
 

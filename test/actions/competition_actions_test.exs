@@ -20,17 +20,17 @@ defmodule ApiWeb.CompetitionActionsTest do
 
   test "start_voting twice" do
     {:ok, _} = CompetitionActions.start_voting()
-    {:error, :already_started} = CompetitionActions.start_voting()
+    :already_started = CompetitionActions.start_voting()
   end
 
   test "end_voting without starting" do
-    {:error, :not_started} = CompetitionActions.end_voting()
+    :not_started = CompetitionActions.end_voting()
   end
 
   test "end_voting twice" do
     {:ok, _} = CompetitionActions.start_voting()
     {:ok, _} = CompetitionActions.end_voting()
-    {:error, :already_ended} = CompetitionActions.end_voting()
+    :already_ended = CompetitionActions.end_voting()
   end
 end
 

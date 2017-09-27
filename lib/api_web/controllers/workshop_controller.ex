@@ -1,9 +1,11 @@
 defmodule ApiWeb.WorkshopController do
   use Api.Web, :controller
 
-  alias ApiWeb.{Controller.Errors, SessionActions, WorkshopActions}
+  alias ApiWeb.{ErrorController, SessionActions, WorkshopActions}
 
-  plug Guardian.Plug.EnsureAuthenticated, [handler: Errors] when action in [:join, :leave]
+  action_fallback ErrorController
+
+  plug Guardian.Plug.EnsureAuthenticated, [handler: ErrorController] when action in [:join, :leave]
 
   def index(conn, _params) do
     render(conn, "index.json", workshops: WorkshopActions.all)
@@ -14,16 +16,14 @@ defmodule ApiWeb.WorkshopController do
   end
 
   def join(conn, %{"id" => id}) do
-    case WorkshopActions.join(SessionActions.current_user(conn), id) do
-      {:ok, _} -> send_resp(conn, :created, "")
-      {:error, error} -> Errors.build(conn, :unprocessable_entity, error)
-    end
+    user = SessionActions.current_user(conn)
+
+    with {:ok, _} <- WorkshopActions.join(user, id), do: send_resp(conn, :created, "")
   end
 
   def leave(conn, %{"id" => id}) do
-    case WorkshopActions.leave(SessionActions.current_user(conn), id) do
-      {:ok} -> send_resp(conn, :no_content, "")
-      {:error, error} -> Errors.build(conn, :unprocessable_entity, error)
-    end
+    user = SessionActions.current_user(conn)
+
+    with {:ok} <- WorkshopActions.leave(user, id), do: send_resp(conn, :no_content, "")
   end
 end

@@ -52,10 +52,10 @@ defmodule ApiWeb.WorkshopActions do
         {:ok, attendance} ->
           Email.joined_workshop_email(current_user, workshop) |> Mailer.deliver_later
           {:ok, attendance}
-        {:error, _} -> {:error, :join_workshop}
+        {:error, _} -> :join_workshop
       end
     else
-      {:error, :workshop_full}
+      :workshop_full
     end
   end
 
@@ -68,7 +68,7 @@ defmodule ApiWeb.WorkshopActions do
 
     case Repo.delete_all(query) do
       {1, nil} -> {:ok}
-      {0, nil} -> {:error, :workshop_attendee}
+      {0, nil} -> :workshop_attendee
     end
   end
 
@@ -87,7 +87,7 @@ defmodule ApiWeb.WorkshopActions do
         |> add_participant_count()
 
         {:ok, workshop}
-      {0, _} -> if value, do: {:error, :checkin}, else: {:error, :remove_checkin}
+      {0, _} -> if value, do: :checkin, else: :remove_checkin
     end
   end
 

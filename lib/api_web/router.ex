@@ -53,8 +53,6 @@ defmodule ApiWeb.Router do
       post "/teams/:id/repo/add_users", Admin.TeamController, :add_users_to_repo
       delete "/teams/:id/remove/:user_id", Admin.TeamController, :remove
 
-      post "/invites/sync", Admin.InviteController, :sync
-
       post "/checkin/:id", Admin.UserController, :checkin
       delete "/checkin/:id", Admin.UserController, :remove_checkin
 

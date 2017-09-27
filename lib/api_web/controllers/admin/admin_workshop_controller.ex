@@ -1,12 +1,14 @@
 defmodule ApiWeb.Admin.WorkshopController do
   use Api.Web, :controller
 
-  alias ApiWeb.{WorkshopActions, Controller.Errors}
+  alias ApiWeb.{WorkshopActions, ErrorController}
   alias Guardian.Plug.{EnsureAuthenticated, EnsurePermissions}
 
+  action_fallback ErrorController
+
   plug :scrub_params, "workshop" when action in [:create, :update]
-  plug EnsureAuthenticated, [handler: Errors]
-  plug EnsurePermissions, [handler: Errors, admin: ~w(full)]
+  plug EnsureAuthenticated, [handler: ErrorController]
+  plug EnsurePermissions, [handler: ErrorController, admin: ~w(full)]
 
   def index(conn, _params) do
     render(conn, "index.json", workshops: WorkshopActions.all)
@@ -17,22 +19,17 @@ defmodule ApiWeb.Admin.WorkshopController do
   end
 
   def create(conn, %{"workshop" => workshop_params}) do
-    case WorkshopActions.create(workshop_params) do
-      {:ok, workshop} ->
-        conn
-        |> put_status(:created)
-        |> put_resp_header("location", workshop_path(conn, :show, workshop))
-        |> render("show.json", workshop: workshop)
-      {:error, changeset} -> Errors.changeset(conn, changeset)
+    with {:ok, workshop} <- WorkshopActions.create(workshop_params) do
+      conn
+      |> put_status(:created)
+      |> put_resp_header("location", workshop_path(conn, :show, workshop))
+      |> render("show.json", workshop: workshop)
     end
   end
 
   def update(conn, %{"id" => id, "workshop" => workshop_params}) do
-    case WorkshopActions.update(id, workshop_params) do
-      {:ok, workshop} ->
-        render(conn, "show.json", workshop: workshop)
-      {:error, changeset} -> Errors.changeset(conn, changeset)
-    end
+    with {:ok, workshop} <- WorkshopActions.update(id, workshop_params),
+      do: render(conn, "show.json", workshop: workshop)
   end
 
   def delete(conn, %{"id" => id}) do
@@ -41,16 +38,12 @@ defmodule ApiWeb.Admin.WorkshopController do
   end
 
   def checkin(conn, %{"id" => id, "user_id" => user_id}) do
-    case WorkshopActions.toggle_checkin(id, user_id, true) do
-      {:ok, workshop} -> render(conn, "show.json", workshop: workshop)
-      {:error, error} -> Errors.build(conn, :unprocessable_entity, error)
-    end
+    with {:ok, workshop} <- WorkshopActions.toggle_checkin(id, user_id, true),
+      do: render(conn, "show.json", workshop: workshop)
   end
 
   def remove_checkin(conn, %{"id" => id, "user_id" => user_id}) do
-    case WorkshopActions.toggle_checkin(id, user_id, false) do
-      {:ok, workshop} -> render(conn, "show.json", workshop: workshop)
-      {:error, error} -> Errors.build(conn, :unprocessable_entity, error)
-    end
+    with {:ok, workshop} <- WorkshopActions.toggle_checkin(id, user_id, false),
+      do: render(conn, "show.json", workshop: workshop)
   end
 end
