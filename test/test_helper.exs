@@ -4,7 +4,7 @@ Ecto.Adapters.SQL.Sandbox.mode(ApiWeb.Repo, :manual)
 
 defmodule ApiWeb.TestHelper do
   alias ApiWeb.{User, Team, Repo, TeamMember, Invite, Workshop, Category,
-    StringHelper, Vote, PaperVoteActions, UserHelper, BlogPost}
+    StringHelper, Vote, PaperVoteActions, UserHelper}
 
   @valid_user_attrs %{
     first_name: "john",
@@ -24,13 +24,6 @@ defmodule ApiWeb.TestHelper do
     slug: "awesome-workshop",
     participant_limit: 1,
     short_date: "SUNDAY 10TH — 10:30"
-  }
-
-  @valid_blogpost_attrs %{
-    title: "awesome blogpost",
-    slug: "awesome-blogpost",
-    category: "MOB17",
-    content: "lorem ipsum"
   }
 
   defp add_email(params) do
@@ -88,12 +81,6 @@ defmodule ApiWeb.TestHelper do
       user_id: user.id,
       team_id: team.id,
     })
-    |> Repo.insert!
-  end
-
-  def create_blogpost(user, params \\ @valid_blogpost_attrs) do
-    %BlogPost{user_id: user.id}
-    |> BlogPost.changeset(params)
     |> Repo.insert!
   end
 
