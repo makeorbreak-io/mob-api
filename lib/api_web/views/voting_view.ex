@@ -6,19 +6,19 @@ defmodule ApiWeb.VotingView do
 
   def render("info_begin.json", %{
     participants: %{
-      initial_count: participant_initial_count
+      initial_count: participant_initial_count,
     },
     paper_votes: %{
-      initial_count: paper_votes_initial_count
+      initial_count: paper_votes_initial_count,
     },
     teams: teams,
   }) do
     %{
       participants: %{
-        initial_count: participant_initial_count
+        initial_count: participant_initial_count,
       },
       paper_votes: %{
-        initial_count: paper_votes_initial_count
+        initial_count: paper_votes_initial_count,
       },
       teams:
         teams
@@ -29,21 +29,21 @@ defmodule ApiWeb.VotingView do
               tie_breaker: team.tie_breaker,
               prize_preference: %{
                 hmac: Team.preference_hmac(team),
-              }
+              },
             }
           }
-        end)
+        end),
     }
   end
 
   def render("info_end.json", %{
     participants: %{
       initial_count: participant_initial_count,
-      final_count: participant_final_count
+      final_count: participant_final_count,
     },
     paper_votes: %{
       initial_count: paper_votes_initial_count,
-      final_count: paper_votes_final_count
+      final_count: paper_votes_final_count,
     },
     teams: teams,
     categories: categories,
@@ -113,7 +113,7 @@ defmodule ApiWeb.VotingView do
               }
             end)
           }
-        end)
+        end),
     }
   end
 

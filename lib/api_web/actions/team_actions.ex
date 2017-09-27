@@ -210,7 +210,7 @@ defmodule ApiWeb.TeamActions do
       where: is_nil(t.disqualified_at),
       update: [set: [
         disqualified_at: ^(DateTime.utc_now),
-        disqualified_by_id: ^(admin.id)
+        disqualified_by_id: ^(admin.id),
       ]]
     )
     |> Repo.update_all([])

@@ -22,7 +22,7 @@ defmodule ApiWeb.WorkshopView do
       speaker_image: workshop.speaker_image,
       banner_image: workshop.banner_image,
       short_speaker: workshop.short_speaker,
-      short_date: workshop.short_date
+      short_date: workshop.short_date,
     }
   end
 
@@ -30,7 +30,7 @@ defmodule ApiWeb.WorkshopView do
     %{
       slug: workshop.slug,
       name: workshop.name,
-      short_speaker: workshop.short_speaker
+      short_speaker: workshop.short_speaker,
     }
   end
 end

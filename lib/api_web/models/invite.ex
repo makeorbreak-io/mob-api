@@ -3,8 +3,19 @@ defmodule ApiWeb.Invite do
 
   alias ApiWeb.{User, Team}
 
-  @valid_attrs ~w(invitee_id team_id host_id description open email)
-  @required_attrs ~w(host_id team_id)a
+  @valid_attrs ~w(
+    invitee_id
+    team_id
+    host_id
+    description
+    open
+    email
+  )a
+
+  @required_attrs ~w(
+    host_id
+    team_id
+  )a
 
   schema "invites" do
     field :open, :boolean, default: false

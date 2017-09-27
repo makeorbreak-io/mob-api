@@ -3,21 +3,21 @@ defmodule ApiWeb.PaperVote do
 
   alias ApiWeb.{Team, Category, User, EctoHelper, PaperVote}
 
-  @required_attrs [
-    :category_id,
-    :created_by_id,
-  ]
+  @valid_attrs ~w(
+    category_id
+    created_by_id
+    redeemed_at
+    redeeming_admin_id
+    redeeming_member_id
+    team_id
+    annulled_at
+    annulled_by_id
+  )a
 
-  @valid_attrs [
-    :category_id,
-    :created_by_id,
-    :redeemed_at,
-    :redeeming_admin_id,
-    :redeeming_member_id,
-    :team_id,
-    :annulled_at,
-    :annulled_by_id,
-  ]
+  @required_attrs ~w(
+    category_id
+    created_by_id
+  )a
 
   schema "paper_votes" do
     belongs_to :category, Category
@@ -80,7 +80,7 @@ defmodule ApiWeb.PaperVote do
 
     from(
       pv in not_annuled(at),
-      where: not is_nil(pv.team_id)
+      where: not is_nil(pv.team_id),
     )
   end
 end

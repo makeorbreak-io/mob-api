@@ -53,7 +53,7 @@ defmodule ApiWeb.CompetitionActions do
         u in User.able_to_vote(at),
         join: v in assoc(u, :votes),
         where: v.category_id == ^(category.id),
-        select: v
+        select: v,
       ))
       |> Enum.map(&({&1.voter_identity, &1.ballot}))
 
@@ -126,7 +126,7 @@ defmodule ApiWeb.CompetitionActions do
     %{
       voting_status: voting_status(),
       unredeemed_paper_votes: unredeemed_paper_votes(),
-      missing_voters: missing_voters()
+      missing_voters: missing_voters(),
     }
   end
 
@@ -155,14 +155,14 @@ defmodule ApiWeb.CompetitionActions do
       join: t in assoc(tm, :team),
       where: not (u.id in ^voters),
       order_by: [asc: u.id],
-      select: {t, u}
+      select: {t, u},
     )
 
     Repo.all(missing_voters)
     |> Enum.group_by(fn {team, _} -> team end, fn {_, user} -> user end)
     |> Enum.map(fn {k, v} -> %{
       team: k,
-      users: v
+      users: v,
     } end)
 
   end

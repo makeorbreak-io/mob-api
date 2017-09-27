@@ -8,7 +8,7 @@ defmodule ApiWeb.StatsActions do
       u in User,
       group_by: :role,
       order_by: :role,
-      select: %{role: u.role, total: count(u.id)}
+      select: %{role: u.role, total: count(u.id)},
     )
     applied_teams = from t in Team, where: t.applied == true
     applied_users = from u in TeamMember,
@@ -21,12 +21,12 @@ defmodule ApiWeb.StatsActions do
       users: %{
         total: Repo.aggregate(User, :count, :id),
         hackathon: Repo.aggregate(applied_users, :count, :user_id),
-        checked_in: Repo.aggregate(checked_in_users, :count, :id)
+        checked_in: Repo.aggregate(checked_in_users, :count, :id),
       },
       roles: Repo.all(roles),
       teams: %{
         total: Repo.aggregate(Team, :count, :id),
-        applied: Repo.aggregate(applied_teams, :count, :id)
+        applied: Repo.aggregate(applied_teams, :count, :id),
       },
       workshops: workshop_stats(),
     }
@@ -44,7 +44,7 @@ defmodule ApiWeb.StatsActions do
         name: workshop.name,
         slug: workshop.slug,
         participants: attendees_count,
-        participant_limit: workshop.participant_limit
+        participant_limit: workshop.participant_limit,
       }
     end)
   end

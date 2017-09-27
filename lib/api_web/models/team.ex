@@ -3,9 +3,22 @@ defmodule ApiWeb.Team do
 
   alias ApiWeb.{EctoHelper, Crypto, Invite, TeamMember, User, Team}
 
-  @valid_attrs ~w(name applied prize_preference project_name project_desc technologies)
-  @admin_attrs @valid_attrs ++ ~w(eligible repo)
-  @required_attrs ~w(name prize_preference_hmac_secret tie_breaker)a
+  @valid_attrs ~w(
+    name
+    applied
+    prize_preference
+    project_name
+    project_desc
+    technologies
+  )a
+
+  @admin_attrs @valid_attrs ++ ~w(eligible repo)a
+
+  @required_attrs ~w(
+    name
+    prize_preference_hmac_secret
+    tie_breaker
+  )a
 
   schema "teams" do
     field :name, :string

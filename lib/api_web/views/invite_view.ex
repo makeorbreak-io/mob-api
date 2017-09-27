@@ -25,7 +25,7 @@ defmodule ApiWeb.InviteView do
       end,
       team: if Ecto.assoc_loaded?(invite.team) do
         render_one(invite.team, TeamView, "team_short.json")
-      end
+      end,
     }
   end
 end

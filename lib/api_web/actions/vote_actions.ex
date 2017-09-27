@@ -34,7 +34,7 @@ defmodule ApiWeb.VoteActions do
           %{
             voter_identity: user.voter_identity,
             category_id: category.id,
-            ballot: ballot
+            ballot: ballot,
           }
         )
       )
@@ -63,7 +63,7 @@ defmodule ApiWeb.VoteActions do
       paper_votes: %{
         initial_count: Repo.aggregate(PaperVote.not_annuled(at), :count, :id),
       },
-      teams: Team.votable(at) |> Repo.all()
+      teams: Team.votable(at) |> Repo.all(),
     }
   end
 
@@ -93,7 +93,7 @@ defmodule ApiWeb.VoteActions do
           c,
           CompetitionActions.ballots(c, ended_at),
         }
-      end)
+      end),
     }
   end
 

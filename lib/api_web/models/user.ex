@@ -3,11 +3,33 @@ defmodule ApiWeb.User do
   alias ApiWeb.{EctoHelper, Crypto, Invite, TeamMember, Workshop, WorkshopAttendance, Vote, User}
   alias Comeonin.Bcrypt
 
-  @valid_attrs ~w(email first_name last_name password birthday employment_status college
-                  company github_handle twitter_handle linkedin_url bio tshirt_size
-                  pwd_recovery_token pwd_recovery_token_expiration)
-  @admin_attrs @valid_attrs ++ ~w(role checked_in)
-  @required_attrs ~w(email voter_identity)a
+  @valid_attrs ~w(
+    email
+    first_name
+    last_name
+    password
+    birthday
+    employment_status
+    college
+    company
+    github_handle
+    twitter_handle
+    linkedin_url
+    bio
+    tshirt_size
+    pwd_recovery_token
+    pwd_recovery_token_expiration
+  )a
+
+  @admin_attrs @valid_attrs ++ ~w(
+    role
+    checked_in
+  )a
+
+  @required_attrs ~w(
+    email
+    voter_identity
+  )a
 
   schema "users" do
     field :email, :string

@@ -3,9 +3,24 @@ defmodule ApiWeb.Workshop do
 
   alias ApiWeb.{WorkshopAttendance}
 
-  @valid_attrs ~w(name slug summary description speaker participant_limit
-    year speaker_image banner_image short_date short_speaker)
-  @required_attrs ~w(name slug)a
+  @valid_attrs ~w(
+    name
+    slug
+    summary
+    description
+    speaker
+    participant_limit
+    year
+    speaker_image
+    banner_image
+    short_date
+    short_speaker
+  )a
+
+  @required_attrs ~w(
+    name
+    slug
+  )a
 
   @derive {Phoenix.Param, key: :slug}
 

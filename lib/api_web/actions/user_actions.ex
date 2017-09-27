@@ -81,9 +81,9 @@ defmodule ApiWeb.UserActions do
       teams: [
         team: [
           :invites,
-          members: [:user]
+          members: [:user],
         ]
-      ]
+      ],
     ])
 
     # Change this condition when year are added to teams

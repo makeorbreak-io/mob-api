@@ -136,7 +136,7 @@ defmodule ApiWeb.InviteActions do
         {:error, %Ecto.Changeset{
           valid?: false,
           types: %{email: :string},
-          errors: [email: {message, []}]
+          errors: [email: {message, []}],
         }}
     end
   end

@@ -30,7 +30,7 @@ defmodule ApiWeb.SessionActions do
     {:ok, jwt, _} = Guardian.encode_and_sign(
       user,
       :token,
-      perms: %{"#{user.role}": Permissions.max}
+      perms: %{"#{user.role}": Permissions.max},
     )
     {:ok, jwt, UserActions.preload_user_data(user)}
   end

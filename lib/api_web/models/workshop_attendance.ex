@@ -4,8 +4,17 @@ defmodule ApiWeb.WorkshopAttendance do
   alias ApiWeb.{User, Workshop}
 
   @primary_key false
-  @valid_attrs ~w(user_id workshop_id checked_in)
-  @required_attrs ~w(user_id workshop_id)a
+
+  @valid_attrs ~w(
+    user_id
+    workshop_id
+    checked_in
+  )a
+
+  @required_attrs ~w(
+    user_id
+    workshop_id
+  )a
 
   schema "users_workshops" do
     field :checked_in, :boolean, default: false
