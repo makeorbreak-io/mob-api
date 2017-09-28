@@ -1,7 +1,7 @@
 defmodule ApiWeb.VoteTest do
   use Api.DataCase
 
-  alias ApiWeb.Vote
+  alias Api.Voting.Vote
 
   setup %{} do
     {:ok, %{
