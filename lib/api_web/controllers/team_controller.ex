@@ -1,20 +1,22 @@
 defmodule ApiWeb.TeamController do
   use Api.Web, :controller
 
-  alias ApiWeb.{SessionActions, TeamActions, ErrorController}
+  alias Api.Accounts
+  alias ApiWeb.{TeamActions, ErrorController}
+  alias Guardian.Plug.EnsureAuthenticated
 
   action_fallback ErrorController
 
   plug :scrub_params, "team" when action in [:create, :update]
-  plug Guardian.Plug.EnsureAuthenticated,
-    [handler: ErrorController] when action in [:create, :update, :delete, :remove]
+  plug EnsureAuthenticated, [handler: ErrorController]
+    when action in [:create, :update, :delete, :remove]
 
   def index(conn, _params) do
     render(conn, "index.json", teams: TeamActions.all)
   end
 
   def create(conn, %{"team" => team_params}) do
-    user = SessionActions.current_user(conn)
+    user = Accounts.current_user(conn)
 
     with {:ok, team} <- TeamActions.create(user, team_params) do
       conn
@@ -29,7 +31,7 @@ defmodule ApiWeb.TeamController do
   end
 
   def update(conn, %{"id" => id, "team" => team_params}) do
-    user = SessionActions.current_user(conn)
+    user = Accounts.current_user(conn)
 
     with {:ok, team} <- TeamActions.update(user, id, team_params) do
       render(conn, "show.json", team: team)
@@ -37,7 +39,7 @@ defmodule ApiWeb.TeamController do
   end
 
   def delete(conn, %{"id" => id}) do
-    user = SessionActions.current_user(conn)
+    user = Accounts.current_user(conn)
 
     with {_} <- TeamActions.delete(user, id) do
       send_resp(conn, :no_content, "")
@@ -45,7 +47,7 @@ defmodule ApiWeb.TeamController do
   end
 
   def remove(conn, %{"id" => id, "user_id" => user_id}) do
-    user = SessionActions.current_user(conn)
+    user = Accounts.current_user(conn)
 
     with :ok <- TeamActions.remove(user, id, user_id) do
       send_resp(conn, :no_content, "")

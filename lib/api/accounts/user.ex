@@ -1,7 +1,10 @@
-defmodule ApiWeb.User do
-  use Api.Web, :model
+defmodule Api.Accounts.User do
+  use Ecto.Schema
+  import Ecto.Changeset
+  import Ecto.Query
 
-  alias ApiWeb.{EctoHelper, Crypto, Invite, TeamMember, Workshop, WorkshopAttendance, Vote, User}
+  alias Api.Accounts.User
+  alias ApiWeb.{EctoHelper, Crypto, Invite, TeamMember, Workshop, WorkshopAttendance, Vote}
   alias Comeonin.Bcrypt
 
   @valid_attrs ~w(
@@ -32,6 +35,8 @@ defmodule ApiWeb.User do
     voter_identity
   )a
 
+  @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type :binary_id
   schema "users" do
     field :email, :string
     field :first_name, :string

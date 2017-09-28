@@ -1,19 +1,39 @@
-defmodule ApiWeb.UserActions do
-  use Api.Web, :action
+defmodule Api.Accounts do
+  import Ecto.Query, warn: false
+
+  alias Api.{Mailer, Repo}
+  alias Api.Accounts.User
 
   alias Api.{Mailer}
-  alias ApiWeb.{User, UserActions, UserHelper, Invite, Email, CompetitionActions}
+  alias ApiWeb.{UserHelper, Invite, Email, CompetitionActions}
+  alias Comeonin.Bcrypt
+  alias Guardian.{Plug, Permissions}
 
-  def all do
-    Enum.map(Repo.all(User), fn(user) -> UserActions.preload_user_data(user) end)
+  def current_user(conn) do
+    Plug.current_resource(conn)
+    |> preload_user_data
   end
 
-  def get(id) do
+  def create_session(email, password) do
+    Repo.get_by(User, email: email)
+    |> check_password(password)
+    |> sign_user
+  end
+
+  def delete_session(conn) do
+    revoke_claims(conn)
+  end
+
+  def list_users do
+    Enum.map(Repo.all(User), fn(user) -> preload_user_data(user) end)
+  end
+
+  def get_user(id) do
     Repo.get!(User, id)
     |> preload_user_data
   end
 
-  def create(user_params) do
+  def create_user(user_params) do
     changeset = User.registration_changeset(%User{}, user_params)
 
     case Repo.insert(changeset) do
@@ -31,7 +51,7 @@ defmodule ApiWeb.UserActions do
     end
   end
 
-  def update(current_user, id, user_params) do
+  def update_user(current_user, id, user_params) do
     user = Repo.get!(User, id)
 
     changeset = apply(User, String.to_atom("#{current_user.role}_changeset"),
@@ -43,7 +63,7 @@ defmodule ApiWeb.UserActions do
     end
   end
 
-  def delete(current_user, id) do
+  def delete_user(current_user, id) do
     user = Repo.get!(User, id)
 
     if user.id == current_user.id do
@@ -53,7 +73,7 @@ defmodule ApiWeb.UserActions do
     end
   end
 
-  def delete_any(id) do
+  def delete_any_user(id) do
     user = Repo.get!(User, id)
     Repo.delete!(user)
   end
@@ -87,13 +107,13 @@ defmodule ApiWeb.UserActions do
       ],
     ])
 
-    # Change this condition when year are added to teams
+    # Change this condition when years are added to teams
     membership = List.first(user.teams)
 
     Map.put(user, :team, membership)
   end
 
-  def get_token(email) do
+  def get_auth_token(email) do
     Repo.get_by(User, email: email)
     |> add_pwd_recovery_data()
   end
@@ -101,6 +121,30 @@ defmodule ApiWeb.UserActions do
   def recover_password(token, new_password) do
     Repo.get_by(User, pwd_recovery_token: token)
     |> maybe_update_password(new_password)
+  end
+
+  defp check_password(nil, _password), do: {:error, :wrong_credentials}
+  defp check_password(user, password) do
+    Bcrypt.checkpw(password, user.password_hash) && {:ok, user} || {:error, :wrong_credentials}
+  end
+
+  defp sign_user({:error, error}), do: error
+  defp sign_user({:ok, user}) do
+    {:ok, jwt, _} = Guardian.encode_and_sign(
+      user,
+      :token,
+      perms: %{"#{user.role}": Permissions.max},
+    )
+    {:ok, jwt, preload_user_data(user)}
+  end
+
+  defp revoke_claims(conn) do
+    {:ok, claims} = Plug.claims(conn)
+
+    Plug.current_token(conn)
+    |> Guardian.revoke!(claims)
+
+    conn
   end
 
   defp add_pwd_recovery_data(nil), do: {:ok, nil} # do not leak existent / inexistent emails

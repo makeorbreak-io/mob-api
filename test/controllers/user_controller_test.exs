@@ -2,7 +2,8 @@ defmodule ApiWeb.UserControllerTest do
   use ApiWeb.ConnCase
   use Bamboo.Test, shared: true
 
-  alias ApiWeb.{User, TeamMember, Email}
+  alias Api.Accounts.User
+  alias ApiWeb.{TeamMember, Email}
   alias Comeonin.Bcrypt
 
   @valid_attrs %{

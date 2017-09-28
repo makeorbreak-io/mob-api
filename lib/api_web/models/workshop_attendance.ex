@@ -1,7 +1,8 @@
 defmodule ApiWeb.WorkshopAttendance do
   use Api.Web, :model
 
-  alias ApiWeb.{User, Workshop}
+  alias Api.Accounts.User
+  alias ApiWeb.Workshop
 
   @primary_key false
 

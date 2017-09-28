@@ -1,8 +1,9 @@
 defmodule ApiWeb.VotingController do
   use Api.Web, :controller
 
+  alias Api.Accounts
   alias ApiWeb.{ErrorController, CompetitionActions, VotingView,
-    VoteActions, SessionActions}
+    VoteActions}
 
   plug Guardian.Plug.EnsureAuthenticated, [handler: ErrorController]
     when action in [:upsert_votes, :get_votes]
@@ -28,14 +29,14 @@ defmodule ApiWeb.VotingController do
   end
 
   def upsert_votes(conn, %{"votes" => votes}) do
-    case VoteActions.upsert_votes(SessionActions.current_user(conn), votes) do
+    case VoteActions.upsert_votes(Accounts.current_user(conn), votes) do
       {:ok, votes} -> render(conn, "upsert.json", votes: votes)
       {:error, error} -> ErrorController.call(conn, error)
     end
   end
 
   def get_votes(conn, _) do
-    case VoteActions.get_votes(SessionActions.current_user(conn)) do
+    case VoteActions.get_votes(Accounts.current_user(conn)) do
       {:ok, votes} -> render(conn, "index.json", votes: votes)
       {:error, error} -> ErrorController.call(conn, error)
     end
