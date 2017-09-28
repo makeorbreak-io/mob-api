@@ -16,7 +16,7 @@ defmodule ApiWeb.ModelCase do
 
   using do
     quote do
-      alias ApiWeb.Repo
+      alias Api.Repo
 
       import ApiWeb.TestHelper
 
@@ -28,10 +28,10 @@ defmodule ApiWeb.ModelCase do
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(ApiWeb.Repo)
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Api.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(ApiWeb.Repo, {:shared, self()})
+      Ecto.Adapters.SQL.Sandbox.mode(Api.Repo, {:shared, self()})
     end
 
     :ok

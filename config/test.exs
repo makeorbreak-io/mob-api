@@ -10,7 +10,7 @@ config :api, ApiWeb.Endpoint,
 config :logger, level: :warn
 
 # Configure your database
-config :api, ApiWeb.Repo,
+config :api, Api.Repo,
   pool: Ecto.Adapters.SQL.Sandbox,
   adapter: Ecto.Adapters.Postgres,
   url: "#{System.get_env("DB_URL")}-test"
@@ -20,7 +20,7 @@ config :api,
   http_lib: FakeHTTPoison
 
 # Bamboo configuration
-config :api, ApiWeb.Mailer,
+config :api, Api.Mailer,
   adapter: Bamboo.TestAdapter
 
 # Comeonin bcrypt test options

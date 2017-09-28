@@ -33,7 +33,7 @@ defmodule Api.Web do
     quote do
       use Phoenix.Controller, namespace: ApiWeb
 
-      alias ApiWeb.Repo
+      alias Api.Repo
 
       import Ecto
       import Ecto.Query
@@ -43,7 +43,7 @@ defmodule Api.Web do
 
   def action do
     quote do
-      alias ApiWeb.Repo
+      alias Api.Repo
 
       import Ecto
       import Ecto.Query

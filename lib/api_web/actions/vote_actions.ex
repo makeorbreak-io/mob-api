@@ -1,7 +1,7 @@
 defmodule ApiWeb.VoteActions do
   use Api.Web, :action
 
-  alias ApiWeb.{Repo, Vote, Category, Team, CompetitionActions, User, PaperVote}
+  alias ApiWeb.{Vote, Category, Team, CompetitionActions, User, PaperVote}
   alias Ecto.{Multi}
 
   def upsert_votes(user, votes) do

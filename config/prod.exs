@@ -21,7 +21,7 @@ config :api, ApiWeb.Endpoint,
 config :logger, level: :info
 
 # Bamboo configuration
-config :api, ApiWeb.Mailer,
+config :api, Api.Mailer,
   adapter: Bamboo.MailgunAdapter,
   api_key: System.get_env("MAILGUN_API_KEY"),
   domain: System.get_env("MAILGUN_API_DOMAIN")

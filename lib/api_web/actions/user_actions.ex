@@ -1,7 +1,8 @@
 defmodule ApiWeb.UserActions do
   use Api.Web, :action
 
-  alias ApiWeb.{User, UserActions, UserHelper, Invite, Email, Mailer, CompetitionActions}
+  alias Api.{Mailer}
+  alias ApiWeb.{User, UserActions, UserHelper, Invite, Email, CompetitionActions}
 
   def all do
     Enum.map(Repo.all(User), fn(user) -> UserActions.preload_user_data(user) end)

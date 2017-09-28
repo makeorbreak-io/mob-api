@@ -1,7 +1,7 @@
 defmodule ApiWeb.SessionActions do
   use Api.Web, :action
 
-  alias ApiWeb.{User, Repo, UserActions}
+  alias ApiWeb.{User, UserActions}
   alias Comeonin.Bcrypt
   alias Guardian.{Plug, Permissions}
 
