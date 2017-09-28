@@ -1,11 +1,12 @@
-defmodule ApiWeb.StatsActions do
-  use Api.Web, :action
+defmodule Api.Stats do
+  import Ecto.Query, warn: false
 
+  alias Api.Repo
   alias Api.Accounts.User
   alias Api.{Workshops.Workshop, Workshops.Attendance}
   alias ApiWeb.{Team, TeamMember}
 
-  def stats do
+  def get do
     roles = from(
       u in User,
       group_by: :role,
