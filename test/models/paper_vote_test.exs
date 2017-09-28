@@ -1,5 +1,5 @@
 defmodule ApiWeb.PaperVoteTest do
-  use ApiWeb.ModelCase
+  use Api.DataCase
 
   alias ApiWeb.{PaperVote}
 

@@ -1,5 +1,5 @@
 defmodule ApiWeb.UserTest do
-  use ApiWeb.ModelCase
+  use Api.DataCase
 
   alias Api.{Accounts, Accounts.User}
   alias ApiWeb.TeamActions

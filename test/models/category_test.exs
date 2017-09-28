@@ -1,5 +1,5 @@
 defmodule ApiWeb.CategoryTest do
-  use ApiWeb.ModelCase
+  use Api.DataCase
 
   alias ApiWeb.Category
 

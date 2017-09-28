@@ -1,5 +1,5 @@
 defmodule ApiWeb.PaperVoteActionsTest do
-  use ApiWeb.ModelCase
+  use Api.DataCase
 
   alias ApiWeb.{CompetitionActions, PaperVoteActions, TeamActions, Team}
 
