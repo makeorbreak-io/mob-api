@@ -1,7 +1,7 @@
 defmodule ApiWeb.AdminStatsControllerTest do
   use ApiWeb.ConnCase
 
-  alias ApiWeb.{WorkshopAttendance}
+  alias Api.Workshops.Attendance
   alias Guardian.Permissions
 
   setup %{conn: conn} do
@@ -30,7 +30,7 @@ defmodule ApiWeb.AdminStatsControllerTest do
       password: "thisisapassword"
     })
 
-    Repo.insert! %WorkshopAttendance{user_id: workshop_attendee.id, workshop_id: workshop.id}
+    Repo.insert! %Attendance{user_id: workshop_attendee.id, workshop_id: workshop.id}
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")

@@ -1,7 +1,7 @@
 defmodule ApiWeb.Admin.WorkshopControllerTest do
   use ApiWeb.ConnCase
 
-  alias ApiWeb.{Workshop, WorkshopAttendance}
+  alias Api.{Workshops.Workshop, Workshops.Attendance}
 
   @valid_attrs %{
     slug: "some-content",
@@ -24,7 +24,7 @@ defmodule ApiWeb.Admin.WorkshopControllerTest do
   test "endpoints are availale for admin users", %{conn: conn, jwt: jwt} do
     workshop = create_workshop()
     attendee = create_user()
-    attendance = Repo.insert! %WorkshopAttendance{user_id: attendee.id, workshop_id: workshop.id}
+    attendance = Repo.insert! %Attendance{user_id: attendee.id, workshop_id: workshop.id}
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
@@ -156,7 +156,7 @@ defmodule ApiWeb.Admin.WorkshopControllerTest do
   test "checks in user in workshop", %{conn: conn, jwt: jwt} do
     user = create_user()
     workshop = create_workshop()
-    attendance = Repo.insert! %WorkshopAttendance{user_id: user.id, workshop_id: workshop.id}
+    attendance = Repo.insert! %Attendance{user_id: user.id, workshop_id: workshop.id}
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
@@ -187,14 +187,14 @@ defmodule ApiWeb.Admin.WorkshopControllerTest do
       }]
     }
 
-    attendance = Repo.get_by(WorkshopAttendance, user_id: user.id, workshop_id: workshop.id)
+    attendance = Repo.get_by(Attendance, user_id: user.id, workshop_id: workshop.id)
     assert attendance.checked_in == true
   end
 
   test "removes user checkin in workshop", %{conn: conn, jwt: jwt} do
     user = create_user()
     workshop = create_workshop()
-    attendance = Repo.insert! %WorkshopAttendance{
+    attendance = Repo.insert! %Attendance{
       user_id: user.id,
       workshop_id: workshop.id,
       checked_in: true
@@ -229,7 +229,7 @@ defmodule ApiWeb.Admin.WorkshopControllerTest do
       }]
     }
 
-    attendance = Repo.get_by(WorkshopAttendance, user_id: user.id, workshop_id: workshop.id)
+    attendance = Repo.get_by(Attendance, user_id: user.id, workshop_id: workshop.id)
     assert attendance.checked_in == false
   end
 end

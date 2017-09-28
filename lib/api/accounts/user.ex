@@ -4,7 +4,8 @@ defmodule Api.Accounts.User do
   import Ecto.Query
 
   alias Api.Accounts.User
-  alias ApiWeb.{EctoHelper, Crypto, Invite, TeamMember, Workshop, WorkshopAttendance, Vote}
+  alias Api.{Workshops.Workshop, Workshops.Attendance}
+  alias ApiWeb.{EctoHelper, Crypto, Invite, TeamMember, Vote}
   alias Comeonin.Bcrypt
 
   @valid_attrs ~w(
@@ -69,7 +70,7 @@ defmodule Api.Accounts.User do
     has_many :invitations, Invite, foreign_key: :invitee_id, on_delete: :delete_all
     has_many :teams, TeamMember, foreign_key: :user_id, on_delete: :delete_all
 
-    many_to_many :workshops, Workshop, join_through: WorkshopAttendance, on_delete: :delete_all
+    many_to_many :workshops, Workshop, join_through: Attendance, on_delete: :delete_all
   end
 
   def changeset(struct, params \\ %{}),  do: _cs(struct, params, @valid_attrs)
