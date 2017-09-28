@@ -2,7 +2,8 @@ defmodule ApiWeb.StatsActions do
   use Api.Web, :action
 
   alias Api.Accounts.User
-  alias ApiWeb.{Team, TeamMember, Workshop, WorkshopAttendance}
+  alias Api.{Workshops.Workshop, Workshops.Attendance}
+  alias ApiWeb.{Team, TeamMember}
 
   def stats do
     roles = from(
@@ -37,7 +38,7 @@ defmodule ApiWeb.StatsActions do
     workshops = Repo.all(Workshop)
 
     Enum.map(workshops, fn(workshop) ->
-      query = from w in WorkshopAttendance,
+      query = from w in Attendance,
         where: w.workshop_id == type(^workshop.id, Ecto.UUID)
 
       attendees_count = Repo.aggregate(query, :count, :workshop_id)

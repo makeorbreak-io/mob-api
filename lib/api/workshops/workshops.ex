@@ -1,9 +1,9 @@
-defmodule ApiWeb.WorkshopActions do
-  use Api.Web, :action
+defmodule Api.Workshops do
+  import Ecto.Query, warn: false
 
-  alias Api.{Mailer}
-  alias ApiWeb.{Workshop, WorkshopAttendance, Email}
-  import Ecto.Query
+  alias Api.{Mailer, Repo}
+  alias Api.{Workshops.Workshop, Workshops.Attendance}
+  alias ApiWeb.Email
 
   def all do
     Repo.all(Workshop)
@@ -42,11 +42,11 @@ defmodule ApiWeb.WorkshopActions do
   def join(current_user, id) do
     workshop = Repo.get_by!(Workshop, slug: id)
 
-    query = from w in WorkshopAttendance, where: w.workshop_id == type(^workshop.id, Ecto.UUID)
+    query = from w in Attendance, where: w.workshop_id == type(^workshop.id, Ecto.UUID)
     attendees_count = Repo.aggregate(query, :count, :workshop_id)
 
     if attendees_count < workshop.participant_limit do
-      changeset = WorkshopAttendance.changeset(%WorkshopAttendance{},
+      changeset = Attendance.changeset(%Attendance{},
         %{user_id: current_user.id, workshop_id: workshop.id})
 
       case Repo.insert(changeset) do
@@ -63,7 +63,7 @@ defmodule ApiWeb.WorkshopActions do
   def leave(current_user, id) do
     workshop = Repo.get_by!(Workshop, slug: id)
 
-    query = from(w in WorkshopAttendance,
+    query = from(w in Attendance,
       where: w.workshop_id == type(^workshop.id, Ecto.UUID)
         and w.user_id == type(^current_user.id, Ecto.UUID))
 
@@ -76,7 +76,7 @@ defmodule ApiWeb.WorkshopActions do
   def toggle_checkin(id, user_id, value) do
     workshop = Repo.get_by!(Workshop, slug: id)
 
-    result = from(a in WorkshopAttendance,
+    result = from(a in Attendance,
       where: a.workshop_id == ^workshop.id,
       where: a.user_id == ^user_id,
       update: [set: [checked_in: ^value]])

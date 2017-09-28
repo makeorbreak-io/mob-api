@@ -1,7 +1,8 @@
 defmodule ApiWeb.SessionControllerTest do
   use ApiWeb.ConnCase
 
-  alias ApiWeb.{WorkshopAttendance, CompetitionActions}
+  alias Api.Workshops.Attendance
+  alias ApiWeb.CompetitionActions
 
   @valid_credentials %{
     email: "johndoe@example.com",
@@ -71,7 +72,7 @@ defmodule ApiWeb.SessionControllerTest do
     user = create_user()
     team = create_team(user)
     workshop = create_workshop()
-    Repo.insert! %WorkshopAttendance{user_id: user.id, workshop_id: workshop.id}
+    Repo.insert! %Attendance{user_id: user.id, workshop_id: workshop.id}
 
     {:ok, jwt, _} = Guardian.encode_and_sign(user)
 

@@ -1,10 +1,8 @@
-defmodule ApiWeb.WorkshopAttendance do
-  use Api.Web, :model
-
+defmodule Api.Workshops.Attendance do
+  use Ecto.Schema
+  import Ecto.Changeset
   alias Api.Accounts.User
-  alias ApiWeb.Workshop
-
-  @primary_key false
+  alias Api.Workshops.Workshop
 
   @valid_attrs ~w(
     user_id
@@ -17,6 +15,8 @@ defmodule ApiWeb.WorkshopAttendance do
     workshop_id
   )a
 
+  @primary_key false
+  @foreign_key_type :binary_id
   schema "users_workshops" do
     field :checked_in, :boolean, default: false
 

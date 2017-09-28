@@ -1,7 +1,9 @@
-defmodule ApiWeb.Workshop do
-  use Api.Web, :model
+defmodule Api.Workshops.Workshop do
+  use Ecto.Schema
+  import Ecto.Changeset
+  import Ecto.Query
 
-  alias ApiWeb.{WorkshopAttendance}
+  alias Api.Workshops.Attendance
 
   @valid_attrs ~w(
     name
@@ -23,7 +25,8 @@ defmodule ApiWeb.Workshop do
   )a
 
   @derive {Phoenix.Param, key: :slug}
-
+  @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type :binary_id
   schema "workshops" do
     field :name, :string
     field :slug, :string
@@ -38,7 +41,7 @@ defmodule ApiWeb.Workshop do
     field :short_date, :string
     timestamps()
 
-    has_many :attendances, WorkshopAttendance, foreign_key: :workshop_id, on_delete: :delete_all
+    has_many :attendances, Attendance, foreign_key: :workshop_id, on_delete: :delete_all
   end
 
   @doc """

@@ -3,7 +3,8 @@ defmodule ApiWeb.AdminUserControllerTest do
   use Bamboo.Test, shared: true
 
   alias Api.Accounts.User
-  alias ApiWeb.{WorkshopAttendance, Email}
+  alias Api.Workshops.Attendance
+  alias ApiWeb.Email
 
   @valid_attrs %{
     email: "user@example.com",
@@ -30,7 +31,7 @@ defmodule ApiWeb.AdminUserControllerTest do
   test "endpoints are availale for admin users", %{conn: conn, admin: admin, jwt: jwt} do
     team = create_team(admin)
     workshop = create_workshop()
-    Repo.insert! %WorkshopAttendance{user_id: admin.id, workshop_id: workshop.id}
+    Repo.insert! %Attendance{user_id: admin.id, workshop_id: workshop.id}
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
@@ -87,7 +88,7 @@ defmodule ApiWeb.AdminUserControllerTest do
   test "shows user", %{conn: conn, admin: admin, jwt: jwt} do
     team = create_team(admin)
     workshop = create_workshop()
-    Repo.insert! %WorkshopAttendance{user_id: admin.id, workshop_id: workshop.id}
+    Repo.insert! %Attendance{user_id: admin.id, workshop_id: workshop.id}
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
@@ -154,7 +155,7 @@ defmodule ApiWeb.AdminUserControllerTest do
     user = create_user()
     create_team(user)
     workshop = create_workshop()
-    Repo.insert! %WorkshopAttendance{user_id: user.id, workshop_id: workshop.id}
+    Repo.insert! %Attendance{user_id: user.id, workshop_id: workshop.id}
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")

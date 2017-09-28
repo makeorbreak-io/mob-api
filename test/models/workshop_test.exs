@@ -1,7 +1,7 @@
 defmodule ApiWeb.WorkshopTest do
   use Api.DataCase
 
-  alias ApiWeb.Workshop
+  alias Api.Workshops.Workshop
 
   @valid_attrs %{name: "awesome workshop", slug: "awesome-workshop"}
   @invalid_attrs %{}

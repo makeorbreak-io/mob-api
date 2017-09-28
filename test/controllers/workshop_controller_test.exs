@@ -2,7 +2,8 @@ defmodule ApiWeb.WorkshopControllerTest do
   use ApiWeb.ConnCase
   use Bamboo.Test, shared: true
 
-  alias ApiWeb.{WorkshopAttendance, Email}
+  alias Api.Workshops.Attendance
+  alias ApiWeb.Email
 
   setup %{conn: conn} do
     user = create_user()
@@ -78,7 +79,7 @@ defmodule ApiWeb.WorkshopControllerTest do
       password: "thisisapassword"
     })
 
-    Repo.insert! %WorkshopAttendance{user_id: workshop_attendee.id, workshop_id: workshop.id}
+    Repo.insert! %Attendance{user_id: workshop_attendee.id, workshop_id: workshop.id}
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
@@ -90,7 +91,7 @@ defmodule ApiWeb.WorkshopControllerTest do
   test "user can delete attendance if he's a member", %{conn: conn, user: user, jwt: jwt} do
     workshop = create_workshop()
 
-    Repo.insert! %WorkshopAttendance{user_id: user.id, workshop_id: workshop.id}
+    Repo.insert! %Attendance{user_id: user.id, workshop_id: workshop.id}
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")

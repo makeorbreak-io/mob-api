@@ -1,7 +1,8 @@
 defmodule ApiWeb.Admin.WorkshopController do
   use Api.Web, :controller
 
-  alias ApiWeb.{WorkshopActions, ErrorController}
+  alias Api.Workshops
+  alias ApiWeb.ErrorController
   alias Guardian.Plug.{EnsureAuthenticated, EnsurePermissions}
 
   action_fallback ErrorController
@@ -11,15 +12,15 @@ defmodule ApiWeb.Admin.WorkshopController do
   plug EnsurePermissions, [handler: ErrorController, admin: ~w(full)]
 
   def index(conn, _params) do
-    render(conn, "index.json", workshops: WorkshopActions.all)
+    render(conn, "index.json", workshops: Workshops.all)
   end
 
   def show(conn, %{"id" => id}) do
-    render(conn, "show.json", workshop: WorkshopActions.get(id))
+    render(conn, "show.json", workshop: Workshops.get(id))
   end
 
   def create(conn, %{"workshop" => workshop_params}) do
-    with {:ok, workshop} <- WorkshopActions.create(workshop_params) do
+    with {:ok, workshop} <- Workshops.create(workshop_params) do
       conn
       |> put_status(:created)
       |> put_resp_header("location", workshop_path(conn, :show, workshop))
@@ -28,22 +29,22 @@ defmodule ApiWeb.Admin.WorkshopController do
   end
 
   def update(conn, %{"id" => id, "workshop" => workshop_params}) do
-    with {:ok, workshop} <- WorkshopActions.update(id, workshop_params),
+    with {:ok, workshop} <- Workshops.update(id, workshop_params),
       do: render(conn, "show.json", workshop: workshop)
   end
 
   def delete(conn, %{"id" => id}) do
-    WorkshopActions.delete(id)
+    Workshops.delete(id)
     send_resp(conn, :no_content, "")
   end
 
   def checkin(conn, %{"id" => id, "user_id" => user_id}) do
-    with {:ok, workshop} <- WorkshopActions.toggle_checkin(id, user_id, true),
+    with {:ok, workshop} <- Workshops.toggle_checkin(id, user_id, true),
       do: render(conn, "show.json", workshop: workshop)
   end
 
   def remove_checkin(conn, %{"id" => id, "user_id" => user_id}) do
-    with {:ok, workshop} <- WorkshopActions.toggle_checkin(id, user_id, false),
+    with {:ok, workshop} <- Workshops.toggle_checkin(id, user_id, false),
       do: render(conn, "show.json", workshop: workshop)
   end
 end
