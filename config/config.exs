@@ -20,8 +20,6 @@ config :api,
   github_token: System.get_env("GITHUB_TOKEN"),
   github_org: "makeorbreak-io"
 
-
-
 # Endpoint configuration
 config :api, ApiWeb.Endpoint,
   url: [host: "localhost"],
