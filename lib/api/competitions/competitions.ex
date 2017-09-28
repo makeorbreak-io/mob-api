@@ -11,7 +11,8 @@ defmodule Api.Competitions do
   alias Api.Competitions
   alias Api.{Competitions.Competition, Competitions.Team, Competitions.Membership,
              Competitions.Category, Competitions.Invite}
-  alias ApiWeb.{Vote, PaperVote, Email, GithubActions}
+  alias Api.Integrations.Github
+  alias ApiWeb.{Vote, PaperVote, Email}
   alias Ecto.{Changeset, Multi}
 
   def start_voting do
@@ -486,7 +487,7 @@ defmodule Api.Competitions do
   def create_repo(id) do
     team = Repo.get!(Team, id)
 
-    case GithubActions.create_repo(team) do
+    case Github.create_repo(team) do
       {:ok, repo} ->
         __MODULE__.update_any_team(id, %{repo: repo})
         :ok
@@ -499,7 +500,7 @@ defmodule Api.Competitions do
      |> Repo.preload(members: :user)
 
     Enum.each(team.members, fn(membership) ->
-      GithubActions.add_collaborator(team.repo, membership.user.github_handle)
+      Github.add_collaborator(team.repo, membership.user.github_handle)
     end)
   end
 
