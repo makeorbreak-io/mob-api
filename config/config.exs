@@ -8,28 +8,31 @@ use Mix.Config
 # General application configuration
 config :api,
   ecto_repos: [Api.Repo],
+  generators: [binary_id: true],
   # Use this tutorial to get a Slack token with client privileges
   # https://medium.com/@andrewarrow/how-to-get-slack-api-tokens-with-client-scope-e311856ebe9
   slack_token: System.get_env("SLACK_TOKEN"),
+  # Maximum number of users each team is allowed to have
   team_user_limit: 4,
+  # Library used to make external HTTP requests
   http_lib: HTTPoison,
+  # Github API auth token
   github_token: System.get_env("GITHUB_TOKEN")
 
-# Configures the endpoint
+# Endpoint configuration
 config :api, ApiWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: System.get_env("SECRET_KEY_BASE"),
   render_errors: [view: ApiWeb.ErrorView, accepts: ~w(json)]
 
-# Configures Elixir's Logger
+# Elixir's Logger configuration
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
-# Configure your database
+# Database configuration
 config :api, Api.Repo,
-  adapter: Ecto.Adapters.Postgres,
-  url: System.get_env("DB_URL")
+  adapter: Ecto.Adapters.Postgres
 
 # Guardian configuration
 config :guardian, Guardian,
