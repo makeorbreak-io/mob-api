@@ -3,10 +3,16 @@ defmodule Api.Accounts do
 
   alias Api.{Mailer, Repo}
   alias Api.Accounts.User
-  alias Api.Teams
-  alias Api.Notifications.Emails
+
+  alias Api.{Mailer}
+  alias ApiWeb.{UserHelper, Invite, Email, CompetitionActions}
   alias Comeonin.Bcrypt
-  alias Guardian.Permissions
+  alias Guardian.{Plug, Permissions}
+
+  def current_user(conn) do
+    Plug.current_resource(conn)
+    |> preload_user_data
+  end
 
   def create_session(email, password) do
     Repo.get_by(User, email: email)
@@ -14,16 +20,17 @@ defmodule Api.Accounts do
     |> sign_user
   end
 
-  def delete_session(token) do
-    revoke_claims(token)
+  def delete_session(conn) do
+    revoke_claims(conn)
   end
 
   def list_users do
-    Repo.all(User)
+    Enum.map(Repo.all(User), fn(user) -> preload_user_data(user) end)
   end
 
   def get_user(id) do
-    Repo.get(User, id)
+    Repo.get!(User, id)
+    |> preload_user_data
   end
 
   def create_user(user_params) do
@@ -31,56 +38,82 @@ defmodule Api.Accounts do
 
     case Repo.insert(changeset) do
       {:ok, user} ->
-        Teams.associate_invites_with_user(user.email, user.id)
+        from(i in Invite, where: i.email == ^user.email, update: [
+          set: [invitee_id: ^user.id]
+        ]) |> Repo.update_all([])
 
-        Emails.registration_email(user) |> Mailer.deliver_later
+        Email.registration_email(user) |> Mailer.deliver_later
 
         {:ok, jwt, _claims} = Guardian.encode_and_sign(user, :token)
 
-        {:ok, jwt}
+        {:ok, jwt, preload_user_data(user)}
       {:error, changeset} -> {:error, changeset}
     end
   end
 
-  def update_current_user(current_user, params) do
-    changeset = User.participant_changeset(current_user, params)
-    {:ok, Repo.update(changeset)}
-  end
+  def update_user(current_user, id, user_params) do
+    user = Repo.get!(User, id)
 
-  def update_user(current_user, id, params) do
-    user = get_user(id)
+    changeset = apply(User, String.to_atom("#{current_user.role}_changeset"),
+      [user, user_params])
 
-    if user.id == current_user.id do
-      changeset = User.participant_changeset(user, params)
-      Repo.update(changeset)
-    else
-      {:error, :unauthorized}
+    case Repo.update(changeset) do
+      {:ok, user} -> {:ok, preload_user_data(user)}
+      {:error, changeset} -> {:error, changeset}
     end
-  end
-
-  def update_any_user(id, params) do
-    user = get_user(id)
-
-    changeset = User.admin_changeset(user, params)
-    Repo.update(changeset)
   end
 
   def delete_user(current_user, id) do
     user = Repo.get!(User, id)
 
     if user.id == current_user.id do
-      Repo.delete(user)
+      {Repo.delete(user)}
     else
       {:unauthorized, :unauthorized}
     end
   end
 
   def delete_any_user(id) do
-    user = get_user(id)
-    Repo.delete(user)
+    user = Repo.get!(User, id)
+    Repo.delete!(user)
   end
 
-  def get_pwd_token(email) do
+  def toggle_checkin(id, value) do
+    case CompetitionActions.voting_status do
+      :started -> :already_started
+      _ ->
+        user = Repo.get!(User, id)
+
+        changeset = User.admin_changeset(user, %{checked_in: value})
+
+        case Repo.update(changeset) do
+          {:ok, user} ->
+            value && (Email.checkin_email(user) |> Mailer.deliver_later)
+            {:ok, preload_user_data(user)}
+          {:error, changeset} -> {:error, changeset}
+        end
+    end
+  end
+
+  def preload_user_data(user) do
+    user = user |> Repo.preload([
+      :workshops,
+      invitations: [:host, :team, :invitee],
+      teams: [
+        team: [
+          :invites,
+          members: [:user],
+        ]
+      ],
+    ])
+
+    # Change this condition when years are added to teams
+    membership = List.first(user.teams)
+
+    Map.put(user, :team, membership)
+  end
+
+  def get_auth_token(email) do
     Repo.get_by(User, email: email)
     |> add_pwd_recovery_data()
   end
@@ -95,32 +128,37 @@ defmodule Api.Accounts do
     Bcrypt.checkpw(password, user.password_hash) && {:ok, user} || {:error, :wrong_credentials}
   end
 
-  defp sign_user({:error, error}), do: {:error, error}
+  defp sign_user({:error, error}), do: error
   defp sign_user({:ok, user}) do
     {:ok, jwt, _} = Guardian.encode_and_sign(
       user,
       :token,
       perms: %{"#{user.role}": Permissions.max},
     )
-    {:ok, jwt}
+    {:ok, jwt, preload_user_data(user)}
   end
 
-  defp revoke_claims(token) do
-    Guardian.revoke!(token)
+  defp revoke_claims(conn) do
+    {:ok, claims} = Plug.claims(conn)
+
+    Plug.current_token(conn)
+    |> Guardian.revoke!(claims)
+
+    conn
   end
 
-  defp add_pwd_recovery_data(nil), do: {:ok, nil} # do not leak existent / inexistent emails
+  defp add_pwd_recovery_data(nil), do: :user_not_found
   defp add_pwd_recovery_data(user) do
     changeset = User.changeset(user, %{
-      pwd_recovery_token: User.generate_token(),
-      pwd_recovery_token_expiration: User.calculate_token_expiration()
+      pwd_recovery_token: UserHelper.generate_token(),
+      pwd_recovery_token_expiration: UserHelper.calculate_token_expiration()
     })
 
     case Repo.update(changeset) do
       {:ok, user} ->
-        Emails.recover_password_email(user) |> Mailer.deliver_later
+        Email.recover_password_email(user) |> Mailer.deliver_later
         {:ok, user}
-      {:error, changeset} -> {:ok, nil} # do not leak existent / inexistent emails
+      {:error, changeset} -> {:error, changeset}
     end
   end
 
