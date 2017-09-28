@@ -1,25 +1,27 @@
-defmodule Api.Competitions.Competition do
+defmodule Api.Competitions.Category do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias Api.Suffrages.Suffrage
-
   @valid_attrs ~w(
     name
-    status
+  )a
+
+  @required_attrs ~w(
+    name
   )a
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
-  schema "competitions" do
+  schema "categories" do
     field :name, :string
-    field :status, :string, default: "created"
-
-    has_many :suffrages, Suffrage
+    field :podium, {:array, :binary_id}
+    timestamps()
   end
 
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @valid_attrs)
+    |> validate_required(@required_attrs)
+    |> unique_constraint(:name)
   end
 end
