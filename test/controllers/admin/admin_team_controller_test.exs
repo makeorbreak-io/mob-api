@@ -3,7 +3,7 @@ defmodule ApiWeb.Admin.TeamControllerTest do
 
   alias Api.Competitions
   alias Api.{Competitions.Team, Competitions.Membership}
-  # import Api.StringHelper
+  # import ApiWeb.StringHelper
 
   @valid_attrs %{name: "some content"}
   @invalid_attrs %{name: ""}

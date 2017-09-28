@@ -17,7 +17,8 @@ config :api, Api.Repo,
 
 config :api,
   slack_token: "DUMMY-TOKEN",
-  http_lib: FakeHTTPoison
+  http_lib: FakeHTTPoison,
+  github_token: "DUMMY-TOKEN"
 
 # Bamboo configuration
 config :api, Api.Mailer,

@@ -16,8 +16,11 @@ config :api,
   team_user_limit: 4,
   # Library used to make external HTTP requests
   http_lib: HTTPoison,
-  # Github API auth token
-  github_token: System.get_env("GITHUB_TOKEN")
+  # Github API data
+  github_token: System.get_env("GITHUB_TOKEN"),
+  github_org: "makeorbreak-io"
+
+
 
 # Endpoint configuration
 config :api, ApiWeb.Endpoint,
