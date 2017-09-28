@@ -1,7 +1,8 @@
 defmodule ApiWeb.UserTest do
   use ApiWeb.ModelCase
 
-  alias ApiWeb.{UserActions, TeamActions, User}
+  alias Api.{Accounts, Accounts.User}
+  alias ApiWeb.TeamActions
 
   @valid_attrs %{
     email: "johndoe@example.com",
@@ -63,7 +64,7 @@ defmodule ApiWeb.UserTest do
   test "able_to_vote checked in" do
     u = create_user()
     create_team(u)
-    UserActions.toggle_checkin(u.id, true)
+    Accounts.toggle_checkin(u.id, true)
     u = Repo.get!(User, u.id)
 
     assert User.able_to_vote() |> Repo.all == [u]
@@ -72,7 +73,7 @@ defmodule ApiWeb.UserTest do
   test "able_to_vote disqualified" do
     u = create_user()
     t = create_team(u)
-    UserActions.toggle_checkin(u.id, true)
+    Accounts.toggle_checkin(u.id, true)
 
     TeamActions.disqualify(t.id, create_admin())
 
@@ -82,7 +83,7 @@ defmodule ApiWeb.UserTest do
   test "able_to_vote disqualified later" do
     u = create_user()
     t = create_team(u)
-    UserActions.toggle_checkin(u.id, true)
+    Accounts.toggle_checkin(u.id, true)
 
     TeamActions.disqualify(t.id, create_admin())
 

@@ -1,7 +1,8 @@
 defmodule ApiWeb.Invite do
   use Api.Web, :model
 
-  alias ApiWeb.{User, Team}
+  alias Api.Accounts.User
+  alias ApiWeb.Team
 
   @valid_attrs ~w(
     invitee_id

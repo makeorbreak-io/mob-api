@@ -1,7 +1,8 @@
 defmodule ApiWeb.TeamMember do
   use Api.Web, :model
 
-  alias ApiWeb.{User, Team}
+  alias Api.Accounts.User
+  alias ApiWeb.Team
 
   @primary_key false
 

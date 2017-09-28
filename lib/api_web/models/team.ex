@@ -1,7 +1,8 @@
 defmodule ApiWeb.Team do
   use Api.Web, :model
 
-  alias ApiWeb.{EctoHelper, Crypto, Invite, TeamMember, User, Team}
+  alias Api.Accounts.User
+  alias ApiWeb.{EctoHelper, Crypto, Invite, TeamMember, Team}
 
   @valid_attrs ~w(
     name

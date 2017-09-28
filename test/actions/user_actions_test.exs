@@ -1,7 +1,8 @@
 defmodule ApiWeb.UserActionTest do
   use ApiWeb.ModelCase
 
-  alias ApiWeb.{UserActions, CompetitionActions}
+  alias Api.Accounts
+  alias ApiWeb.CompetitionActions
 
 
   test "able_to_vote checked in" do
@@ -9,6 +10,6 @@ defmodule ApiWeb.UserActionTest do
 
     CompetitionActions.start_voting()
 
-    :already_started = UserActions.toggle_checkin(u.id, true)
+    :already_started = Accounts.toggle_checkin(u.id, true)
   end
 end

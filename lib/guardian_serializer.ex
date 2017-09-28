@@ -4,7 +4,7 @@ defmodule ApiWeb.GuardianSerializer do
   @behaviour Guardian.Serializer
 
   alias Api.Repo
-  alias ApiWeb.User
+  alias Api.Accounts.User
 
   def for_token(%User{} = user), do: {:ok, "User:#{user.id}"}
   def for_token(_), do: {:error, "Unknown resource type"}

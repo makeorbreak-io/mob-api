@@ -1,7 +1,8 @@
 defmodule ApiWeb.CompetitionActions do
   use Api.Web, :action
 
-  alias ApiWeb.{Competition, TeamActions, Vote, PaperVote, Team, Category, User}
+  alias Api.Accounts.User
+  alias ApiWeb.{Competition, TeamActions, Vote, PaperVote, Team, Category}
   alias Ecto.{Changeset}
 
   def start_voting do

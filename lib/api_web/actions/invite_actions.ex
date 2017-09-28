@@ -5,8 +5,8 @@ defmodule ApiWeb.InviteActions do
   @team_user_limit Application.get_env(:api, :team_user_limit)
   @http Application.get_env(:api, :http_lib)
 
-  alias Api.{Mailer}
-  alias ApiWeb.{Email, Invite, TeamMember, User, UserActions, CompetitionActions}
+  alias Api.{Mailer, Accounts, Accounts.User}
+  alias ApiWeb.{Email, Invite, TeamMember, CompetitionActions}
   alias Ecto.Changeset
 
   def for_current_user(current_user) do
@@ -22,7 +22,7 @@ defmodule ApiWeb.InviteActions do
   end
 
   def create(current_user, invite_params) do
-    user = UserActions.preload_user_data(current_user)
+    user = Accounts.preload_user_data(current_user)
 
     if user.team do
       create_if_vacant(user, invite_params)
