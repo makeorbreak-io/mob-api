@@ -1,5 +1,5 @@
 defmodule ApiWeb.UserActionTest do
-  use ApiWeb.ModelCase
+  use Api.DataCase
 
   alias Api.Accounts
   alias ApiWeb.CompetitionActions

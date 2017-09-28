@@ -1,5 +1,5 @@
 defmodule ApiWeb.TeamActionsTest do
-  use ApiWeb.ModelCase
+  use Api.DataCase
 
   alias ApiWeb.{Team, TeamActions}
 

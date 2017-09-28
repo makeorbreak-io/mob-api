@@ -1,5 +1,5 @@
 defmodule ApiWeb.CompetitionActionsTest do
-  use ApiWeb.ModelCase
+  use Api.DataCase
 
   alias ApiWeb.{CompetitionActions}
 
@@ -35,7 +35,7 @@ defmodule ApiWeb.CompetitionActionsTest do
 end
 
 defmodule ApiWeb.CompetitionActionsTest.CalculatePodium do
-  use ApiWeb.ModelCase
+  use Api.DataCase
 
   alias ApiWeb.{CompetitionActions, Category}
   alias Ecto.{Changeset}

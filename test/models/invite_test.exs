@@ -1,5 +1,5 @@
 defmodule ApiWeb.InviteTest do
-  use ApiWeb.ModelCase
+  use Api.DataCase
 
   alias ApiWeb.{Invite}
 

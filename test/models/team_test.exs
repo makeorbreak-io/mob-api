@@ -1,5 +1,5 @@
 defmodule ApiWeb.TeamTest do
-  use ApiWeb.ModelCase
+  use Api.DataCase
 
   alias ApiWeb.Team
   alias Ecto.Changeset

@@ -1,5 +1,5 @@
 defmodule ApiWeb.WorkshopTest do
-  use ApiWeb.ModelCase
+  use Api.DataCase
 
   alias ApiWeb.Workshop
 

@@ -1,5 +1,5 @@
 defmodule ApiWeb.VoteTest do
-  use ApiWeb.ModelCase
+  use Api.DataCase
 
   alias ApiWeb.Vote
 

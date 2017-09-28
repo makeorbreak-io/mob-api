@@ -1,5 +1,5 @@
 defmodule ApiWeb.CompetitionTest do
-  use ApiWeb.ModelCase
+  use Api.DataCase
 
   alias ApiWeb.Competition
 
