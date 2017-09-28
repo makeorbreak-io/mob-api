@@ -2,7 +2,7 @@ defmodule ApiWeb.UserTest do
   use Api.DataCase
 
   alias Api.{Accounts, Accounts.User}
-  alias ApiWeb.TeamActions
+  alias Api.Competitions
 
   @valid_attrs %{
     email: "johndoe@example.com",
@@ -75,7 +75,7 @@ defmodule ApiWeb.UserTest do
     t = create_team(u)
     Accounts.toggle_checkin(u.id, true)
 
-    TeamActions.disqualify(t.id, create_admin())
+    Competitions.disqualify_team(t.id, create_admin())
 
     assert User.able_to_vote() |> Repo.all == []
   end
@@ -85,7 +85,7 @@ defmodule ApiWeb.UserTest do
     t = create_team(u)
     Accounts.toggle_checkin(u.id, true)
 
-    TeamActions.disqualify(t.id, create_admin())
+    Competitions.disqualify_team(t.id, create_admin())
 
     {:ok, past} = DateTime.from_unix(DateTime.to_unix(DateTime.utc_now) - 10)
     assert User.able_to_vote(past) |> Repo.all == [Repo.get!(User, u.id)]

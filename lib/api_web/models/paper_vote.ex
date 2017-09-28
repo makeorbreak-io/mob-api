@@ -2,7 +2,8 @@ defmodule ApiWeb.PaperVote do
   use Api.Web, :model
 
   alias Api.Accounts.User
-  alias ApiWeb.{Team, Category, EctoHelper, PaperVote}
+  alias Api.{Competitions.Team, Competitions.Category}
+  alias ApiWeb.{EctoHelper, PaperVote}
 
   @valid_attrs ~w(
     category_id

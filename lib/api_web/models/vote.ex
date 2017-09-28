@@ -2,7 +2,7 @@ defmodule ApiWeb.Vote do
   use Api.Web, :model
 
   alias Api.Accounts.User
-  alias ApiWeb.Category
+  alias Api.Competitions.Category
 
   @attrs ~w(
     voter_identity

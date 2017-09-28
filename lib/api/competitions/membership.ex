@@ -1,11 +1,12 @@
-defmodule ApiWeb.TeamMember do
-  use Api.Web, :model
+defmodule Api.Competitions.Membership do
+  use Ecto.Schema
+  import Ecto.Changeset
 
   alias Api.Accounts.User
-  alias ApiWeb.Team
+  alias Api.Competitions.Team
 
   @primary_key false
-
+  @foreign_key_type :binary_id
   schema "users_teams" do
     field :role, :string, default: "member"
 

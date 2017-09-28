@@ -4,7 +4,7 @@ defmodule Api.Stats do
   alias Api.Repo
   alias Api.Accounts.User
   alias Api.{Workshops.Workshop, Workshops.Attendance}
-  alias ApiWeb.{Team, TeamMember}
+  alias Api.{Competitions.Team, Competitions.Membership}
 
   def get do
     roles = from(
@@ -14,7 +14,7 @@ defmodule Api.Stats do
       select: %{role: u.role, total: count(u.id)},
     )
     applied_teams = from t in Team, where: t.applied == true
-    applied_users = from u in TeamMember,
+    applied_users = from u in Membership,
       join: t in assoc(u, :team),
       where: t.applied == true,
       preload: [team: t]

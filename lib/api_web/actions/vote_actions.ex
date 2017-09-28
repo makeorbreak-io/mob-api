@@ -2,7 +2,9 @@ defmodule ApiWeb.VoteActions do
   use Api.Web, :action
 
   alias Api.Accounts.User
-  alias ApiWeb.{Vote, Category, Team, CompetitionActions, PaperVote}
+  alias Api.Competitions
+  alias Api.{Competitions.Category, Competitions.Team}
+  alias ApiWeb.{Vote, PaperVote}
   alias Ecto.{Multi}
 
   def upsert_votes(user, votes) do
@@ -18,10 +20,10 @@ defmodule ApiWeb.VoteActions do
       throw {:error, "Invalid vote"}
     end
 
-    if CompetitionActions.voting_status == :not_started do
+    if Competitions.voting_status == :not_started do
       throw {:error, :not_started}
     end
-    if CompetitionActions.voting_status == :ended do
+    if Competitions.voting_status == :ended do
       throw {:error, :already_ended}
     end
 
@@ -55,7 +57,7 @@ defmodule ApiWeb.VoteActions do
   end
 
   def build_info_start do
-    at = CompetitionActions.voting_started_at()
+    at = Competitions.voting_started_at()
 
     %{
       participants: %{
@@ -69,8 +71,8 @@ defmodule ApiWeb.VoteActions do
   end
 
   def build_info_end do
-    begun_at = CompetitionActions.voting_started_at()
-    ended_at = CompetitionActions.voting_ended_at()
+    begun_at = Competitions.voting_started_at()
+    ended_at = Competitions.voting_ended_at()
     categories = Repo.all(Category)
 
     %{
@@ -92,7 +94,7 @@ defmodule ApiWeb.VoteActions do
       categories_to_votes: categories |> Map.new(fn c ->
         {
           c,
-          CompetitionActions.ballots(c, ended_at),
+          Competitions.ballots(c, ended_at),
         }
       end),
     }

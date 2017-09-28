@@ -2,7 +2,7 @@ defmodule ApiWeb.SessionControllerTest do
   use ApiWeb.ConnCase
 
   alias Api.Workshops.Attendance
-  alias ApiWeb.CompetitionActions
+  alias Api.Competitions
 
   @valid_credentials %{
     email: "johndoe@example.com",
@@ -122,8 +122,8 @@ defmodule ApiWeb.SessionControllerTest do
   test "shows voter_identity when the voting has ended", %{conn: conn} do
     user = create_user()
     {:ok, jwt, _} = Guardian.encode_and_sign(user)
-    CompetitionActions.start_voting()
-    CompetitionActions.end_voting()
+    Competitions.start_voting()
+    Competitions.end_voting()
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")

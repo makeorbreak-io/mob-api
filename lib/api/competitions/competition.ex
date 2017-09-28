@@ -1,11 +1,14 @@
-defmodule ApiWeb.Competition do
-  use Api.Web, :model
+defmodule Api.Competitions.Competition do
+  use Ecto.Schema
+  import Ecto.Changeset
 
   @valid_attrs ~w(
     voting_started_at
     voting_ended_at
   )a
 
+  @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type :binary_id
   schema "competition" do
     field :voting_started_at, :utc_datetime
     field :voting_ended_at, :utc_datetime

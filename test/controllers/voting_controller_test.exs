@@ -1,7 +1,9 @@
 defmodule ApiWeb.VotingControllerTest do
   use ApiWeb.ConnCase
 
-  alias ApiWeb.{CompetitionActions, TeamActions, Team, Vote, Category}
+  alias Api.Competitions
+  alias Api.{Competitions.Team, Competitions.Category}
+  alias ApiWeb.Vote
   import ApiWeb.StringHelper, only: [slugify: 1]
 
   setup %{conn: conn} do
@@ -25,7 +27,7 @@ defmodule ApiWeb.VotingControllerTest do
   end
 
   test "started without people", %{conn: conn} do
-    CompetitionActions.start_voting()
+    Competitions.start_voting()
 
     conn = get conn, voting_path(conn, :info_begin)
 
@@ -57,10 +59,10 @@ defmodule ApiWeb.VotingControllerTest do
     check_in_everyone()
     make_teams_eligible([t1, t2])
 
-    TeamActions.disqualify(t1.id, admin)
+    Competitions.disqualify_team(t1.id, admin)
 
     # Remember this shuffles the tie breakers.
-    CompetitionActions.start_voting()
+    Competitions.start_voting()
     t2 = Repo.get!(Team, t2.id)
 
     conn = get conn, voting_path(conn, :info_begin)
@@ -120,10 +122,10 @@ defmodule ApiWeb.VotingControllerTest do
 
     check_in_everyone()
     [t1, t2, t3, t4] = make_teams_eligible([t1, t2, t3, t4])
-    CompetitionActions.start_voting()
+    Competitions.start_voting()
     [t1, t2, t3, t4] = [t1, t2, t3, t4] |> Enum.map(fn t -> Repo.get!(Team, t.id) end)
 
-    TeamActions.disqualify(t4.id, admin)
+    Competitions.disqualify_team(t4.id, admin)
 
     [v1, v2, v3] = voters |> Enum.map(fn uv ->
       create_vote(uv, "useful", [t1.id])
@@ -143,7 +145,7 @@ defmodule ApiWeb.VotingControllerTest do
     pv_b_h1 = redeem_paper_vote(create_paper_vote(hardcore, admin), t1, u1, admin)
     pv_c_h2 = redeem_paper_vote(create_paper_vote(hardcore, admin), t2, u1, admin)
 
-    CompetitionActions.end_voting()
+    Competitions.end_voting()
     conn = get conn, voting_path(conn, :info_end)
     assert json_response(conn, 200) ==  %{
       "paper_votes" => %{"initial_count" => 9, "final_count" => 9},
@@ -225,8 +227,8 @@ defmodule ApiWeb.VotingControllerTest do
     check_in_everyone()
     make_teams_eligible()
 
-    CompetitionActions.start_voting()
-    TeamActions.disqualify(t1.id, create_admin())
+    Competitions.start_voting()
+    Competitions.disqualify_team(t1.id, create_admin())
     t1 = Repo.get!(Team, t1.id)
 
     conn = get conn, voting_path(conn, :info_begin)
@@ -254,7 +256,7 @@ defmodule ApiWeb.VotingControllerTest do
     check_in_everyone()
     make_teams_eligible()
 
-    CompetitionActions.start_voting()
+    Competitions.start_voting()
 
 
     conn = conn
@@ -289,7 +291,7 @@ defmodule ApiWeb.VotingControllerTest do
     check_in_everyone()
     make_teams_eligible()
 
-    CompetitionActions.start_voting()
+    Competitions.start_voting()
 
     create_vote(u1, "useful", [t2.id])
     create_vote(u1, "hardcore", [t3.id])
@@ -347,7 +349,7 @@ defmodule ApiWeb.VotingControllerTest do
     check_in_everyone()
     make_teams_eligible()
 
-    CompetitionActions.start_voting()
+    Competitions.start_voting()
 
     create_vote(u1, "useful", [t2.id])
     create_vote(u1, "hardcore", [t3.id])
@@ -367,7 +369,7 @@ defmodule ApiWeb.VotingControllerTest do
       "funny" => [t3.id, t2.id]
     }
 
-    CompetitionActions.end_voting()
+    Competitions.end_voting()
 
     conn2 = conn0
     |> put_req_header("authorization", "Bearer #{jwt}")
@@ -407,7 +409,7 @@ defmodule ApiWeb.VotingControllerTest do
     check_in_everyone()
     make_teams_eligible()
 
-    CompetitionActions.start_voting()
+    Competitions.start_voting()
 
 
     conn = conn
@@ -430,7 +432,7 @@ defmodule ApiWeb.VotingControllerTest do
     check_in_everyone()
     make_teams_eligible()
 
-    CompetitionActions.start_voting()
+    Competitions.start_voting()
 
     create_vote(u1, "useful", [t2.id, t3.id])
     create_vote(u1, "hardcore", [t3.id])

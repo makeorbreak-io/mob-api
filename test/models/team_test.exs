@@ -1,7 +1,7 @@
 defmodule ApiWeb.TeamTest do
   use Api.DataCase
 
-  alias ApiWeb.Team
+  alias Api.Competitions.Team
   alias Ecto.Changeset
 
   @valid_attrs %{name: "awesome team"}

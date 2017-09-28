@@ -2,7 +2,9 @@ defmodule ApiWeb.InviteControllerTest do
   use ApiWeb.ConnCase
   use Bamboo.Test, shared: true
 
-  alias ApiWeb.{Invite, Email, TeamMember, CompetitionActions}
+  alias Api.Competitions
+  alias Api.{Competitions.Invite, Competitions.Membership}
+  alias ApiWeb.Email
 
   setup %{conn: conn} do
     user = create_user()
@@ -165,8 +167,8 @@ defmodule ApiWeb.InviteControllerTest do
     member1 = create_user(%{email: "user1@example.com", password: "thisisapassword"})
     member2 = create_user(%{email: "user2@example.com", password: "thisisapassword"})
 
-    Repo.insert! %TeamMember{user_id: member1.id, team_id: team.id}
-    Repo.insert! %TeamMember{user_id: member2.id, team_id: team.id}
+    Repo.insert! %Membership{user_id: member1.id, team_id: team.id}
+    Repo.insert! %Membership{user_id: member2.id, team_id: team.id}
     create_invite(%{host_id: user.id, team_id: team.id})
 
     conn = conn
@@ -230,7 +232,7 @@ defmodule ApiWeb.InviteControllerTest do
     team = create_team(host)
     invite = create_invite(%{host_id: host.id, team_id: team.id, invitee_id: user.id})
 
-    CompetitionActions.start_voting()
+    Competitions.start_voting()
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")

@@ -1,8 +1,9 @@
-defmodule ApiWeb.Invite do
-  use Api.Web, :model
+defmodule Api.Competitions.Invite do
+  use Ecto.Schema
+  import Ecto.Changeset
 
   alias Api.Accounts.User
-  alias ApiWeb.Team
+  alias Api.Competitions.Team
 
   @valid_attrs ~w(
     invitee_id
@@ -18,6 +19,8 @@ defmodule ApiWeb.Invite do
     team_id
   )a
 
+  @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type :binary_id
   schema "invites" do
     field :open, :boolean, default: false
     field :description, :string
