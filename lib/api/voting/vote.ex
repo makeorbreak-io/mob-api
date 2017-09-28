@@ -1,5 +1,6 @@
-defmodule ApiWeb.Vote do
-  use Api.Web, :model
+defmodule Api.Voting.Vote do
+  use Ecto.Schema
+  import Ecto.Changeset
 
   alias Api.Accounts.User
   alias Api.Competitions.Category
@@ -10,6 +11,8 @@ defmodule ApiWeb.Vote do
     ballot
   )a
 
+  @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type :binary_id
   schema "votes" do
     belongs_to(
       :voter,

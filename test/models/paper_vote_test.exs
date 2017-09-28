@@ -1,7 +1,7 @@
 defmodule ApiWeb.PaperVoteTest do
   use Api.DataCase
 
-  alias ApiWeb.{PaperVote}
+  alias Api.Voting.PaperVote
 
   setup %{} do
     user = create_user()

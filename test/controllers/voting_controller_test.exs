@@ -3,7 +3,7 @@ defmodule ApiWeb.VotingControllerTest do
 
   alias Api.Competitions
   alias Api.{Competitions.Team, Competitions.Category}
-  alias ApiWeb.Vote
+  alias Api.Voting.Vote
   import ApiWeb.StringHelper, only: [slugify: 1]
 
   setup %{conn: conn} do

@@ -37,6 +37,7 @@ end
 defmodule ApiWeb.CompetitionsTest.CalculatePodium do
   use Api.DataCase
 
+  alias Api.Voting
   alias Api.Competitions
   alias Api.Competitions.Category
   alias Ecto.Changeset
@@ -84,7 +85,7 @@ defmodule ApiWeb.CompetitionsTest.CalculatePodium do
     create_vote(create_user(), cat.name, [t4.id])
 
     check_in_everyone()
-    assert Competitions.calculate_podium(cat) == [
+    assert Voting.calculate_podium(cat) == [
       t1.id,
       t2.id,
       t3.id,
@@ -104,7 +105,7 @@ defmodule ApiWeb.CompetitionsTest.CalculatePodium do
     Changeset.change(t1, tie_breaker: 20) |> Repo.update!
 
     check_in_everyone()
-    assert Competitions.calculate_podium(cat) == [
+    assert Voting.calculate_podium(cat) == [
       t2.id,
       t1.id,
       t3.id,
@@ -134,7 +135,7 @@ defmodule ApiWeb.CompetitionsTest.CalculatePodium do
     create_vote(create_user(), "hardcore", [t3.id])
 
     check_in_everyone()
-    Competitions.resolve_voting!
+    Voting.resolve_voting!
 
     assert Repo.get_by!(Category, name: "useful").podium == [
       t1.id,

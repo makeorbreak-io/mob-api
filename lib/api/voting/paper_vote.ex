@@ -1,9 +1,12 @@
-defmodule ApiWeb.PaperVote do
-  use Api.Web, :model
+defmodule Api.Voting.PaperVote do
+  use Ecto.Schema
+  import Ecto.Changeset
+  import Ecto.Query
 
   alias Api.Accounts.User
   alias Api.{Competitions.Team, Competitions.Category}
-  alias ApiWeb.{EctoHelper, PaperVote}
+  alias Api.Voting.PaperVote
+  alias ApiWeb.EctoHelper
 
   @valid_attrs ~w(
     category_id
@@ -21,6 +24,8 @@ defmodule ApiWeb.PaperVote do
     created_by_id
   )a
 
+  @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type :binary_id
   schema "paper_votes" do
     belongs_to :category, Category
     belongs_to :created_by, User

@@ -8,7 +8,8 @@ defmodule ApiWeb.TestHelper do
   alias Api.Workshops.Workshop
   alias Api.{Competitions.Team, Competitions.Membership, Competitions.Invite,
     Competitions.Category}
-  alias ApiWeb.{StringHelper, Vote, PaperVoteActions, UserHelper}
+  alias Api.{Voting, Voting.Vote}
+  alias ApiWeb.{StringHelper, UserHelper}
 
   @valid_user_attrs %{
     first_name: "john",
@@ -16,13 +17,7 @@ defmodule ApiWeb.TestHelper do
     password: "thisisapassword",
     github_handle: "https://github.com/nunopolonia"
   }
-  # Commenting this instead of deleting because not using this on the create_team
-  # function will break the github integration tests once they are uncommented.
-  # So I'm keeping it for future reference.
-  # @valid_team_attrs %{
-  #   name: "awesome team",
-  #   repo: %{"name" => "awesome-team"}
-  # }
+
   @valid_workshop_attrs %{
     name: "awesome workshop",
     slug: "awesome-workshop",
@@ -132,17 +127,17 @@ defmodule ApiWeb.TestHelper do
   end
 
   def create_paper_vote(category, admin) do
-    {:ok, pv} = PaperVoteActions.create(category, admin)
+    {:ok, pv} = Voting.create_paper_vote(category, admin)
     pv
   end
 
   def annul_paper_vote(paper_vote, admin) do
-    {:ok, pv} = PaperVoteActions.annul(paper_vote, admin)
+    {:ok, pv} = Voting.annul_paper_vote(paper_vote, admin)
     pv
   end
 
   def redeem_paper_vote(paper_vote, team, member, admin) do
-    {:ok, pv} = PaperVoteActions.redeem(paper_vote, team, member, admin)
+    {:ok, pv} = Voting.redeem_paper_vote(paper_vote, team, member, admin)
     pv
   end
 
