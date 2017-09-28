@@ -7,7 +7,7 @@ use Mix.Config
 
 # General application configuration
 config :api,
-  ecto_repos: [ApiWeb.Repo],
+  ecto_repos: [Api.Repo],
   # Use this tutorial to get a Slack token with client privileges
   # https://medium.com/@andrewarrow/how-to-get-slack-api-tokens-with-client-scope-e311856ebe9
   slack_token: System.get_env("SLACK_TOKEN"),
@@ -27,7 +27,7 @@ config :logger, :console,
   metadata: [:request_id]
 
 # Configure your database
-config :api, ApiWeb.Repo,
+config :api, Api.Repo,
   adapter: Ecto.Adapters.Postgres,
   url: System.get_env("DB_URL")
 
@@ -46,7 +46,7 @@ config :guardian, Guardian,
   }
 
 # Bamboo configuration
-config :api, ApiWeb.Mailer,
+config :api, Api.Mailer,
   adapter: Bamboo.LocalAdapter
 
 # Sentry.io configuration

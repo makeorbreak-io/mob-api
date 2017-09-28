@@ -5,7 +5,8 @@ defmodule ApiWeb.InviteActions do
   @team_user_limit Application.get_env(:api, :team_user_limit)
   @http Application.get_env(:api, :http_lib)
 
-  alias ApiWeb.{Email, Invite, Mailer, Repo, TeamMember, User, UserActions, CompetitionActions}
+  alias Api.{Mailer}
+  alias ApiWeb.{Email, Invite, TeamMember, User, UserActions, CompetitionActions}
   alias Ecto.Changeset
 
   def for_current_user(current_user) do

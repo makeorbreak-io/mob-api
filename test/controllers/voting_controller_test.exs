@@ -1,7 +1,7 @@
 defmodule ApiWeb.VotingControllerTest do
   use ApiWeb.ConnCase
 
-  alias ApiWeb.{CompetitionActions, TeamActions, Team, Vote, Category, Repo}
+  alias ApiWeb.{CompetitionActions, TeamActions, Team, Vote, Category}
   import ApiWeb.StringHelper, only: [slugify: 1]
 
   setup %{conn: conn} do

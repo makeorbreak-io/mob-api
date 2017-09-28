@@ -1,7 +1,7 @@
 defmodule ApiWeb.StatsActions do
   use Api.Web, :action
 
-  alias ApiWeb.{Repo, Team, TeamMember, User, Workshop, WorkshopAttendance}
+  alias ApiWeb.{Team, TeamMember, User, Workshop, WorkshopAttendance}
 
   def stats do
     roles = from(

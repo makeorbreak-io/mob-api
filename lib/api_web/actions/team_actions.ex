@@ -1,7 +1,8 @@
 defmodule ApiWeb.TeamActions do
   use Api.Web, :action
 
-  alias ApiWeb.{Team, User, TeamMember, Email, Mailer, GithubActions, CompetitionActions, Category}
+  alias Api.{Mailer}
+  alias ApiWeb.{Team, User, TeamMember, Email, GithubActions, CompetitionActions, Category}
   alias Ecto.{Changeset, Multi}
 
   def all do

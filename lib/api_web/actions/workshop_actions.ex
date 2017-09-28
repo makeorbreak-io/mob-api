@@ -1,7 +1,8 @@
 defmodule ApiWeb.WorkshopActions do
   use Api.Web, :action
 
-  alias ApiWeb.{Workshop, WorkshopAttendance, Repo, Email, Mailer}
+  alias Api.{Mailer}
+  alias ApiWeb.{Workshop, WorkshopAttendance, Email}
   import Ecto.Query
 
   def all do
