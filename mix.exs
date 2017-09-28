@@ -4,8 +4,7 @@ defmodule Api.Mixfile do
   def project do
     [
       app: :api,
-      version: "0.0.#{committed_at()}",
-      elixir: "~> 1.4",  # Remember to change .exenv-version
+      version: "1.0.0",
       elixir: "~> 1.5",  # Remember to change .exenv-version
       elixirc_paths: elixirc_paths(Mix.env),
       compilers: [:phoenix] ++ Mix.compilers,
@@ -32,8 +31,8 @@ defmodule Api.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {Api, []},
-      applications: [
+      mod: {Api.Application, []},
+      extra_applications: [
         :bamboo,
         :comeonin,
         :cowboy,
@@ -44,6 +43,7 @@ defmodule Api.Mixfile do
         :phoenix_ecto,
         :phoenix_html,
         :postgrex,
+        :runtime_tools,
         :sentry,
         :tentacat,
       ]
@@ -63,17 +63,18 @@ defmodule Api.Mixfile do
       {:comeonin, "~> 3.0"},
       {:cors_plug, "~> 1.2"},
       {:cowboy, "~> 1.0"},
-      {:credo, "~> 0.7", only: [:dev, :test]},
+      {:credo, "~> 0.7", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
       {:distillery, "~> 1.4"},
       {:excoveralls, "~> 0.7", only: :test},
       {:guardian, "~> 0.14"},
       {:httpoison, "~> 0.13"},
-      {:phoenix, "~> 1.3.0"},
       {:markus, "~> 0.3.0"},
-      {:phoenix_ecto, "~> 3.0"},
+      {:phoenix, "~> 1.3.0"},
+      {:phoenix_ecto, "~> 3.2"},
       {:phoenix_html, "~> 2.6"},
+      {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:poison, ">= 2.2.0"},
-      {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
       {:postgrex, "~> 0.13.3"},
       {:sentry, "~> 5.0.1"},
       {:tentacat, "~> 0.6.2"},
@@ -110,10 +111,5 @@ defmodule Api.Mixfile do
         "clean", "compile"
       ]
     ]
-  end
-
-  @doc "Unix timestamp of the last commit."
-  def committed_at do
-    System.cmd("git", ~w[log -1 --date=short --pretty=format:%ct]) |> elem(0)
   end
 end

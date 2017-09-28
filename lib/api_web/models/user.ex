@@ -1,5 +1,6 @@
 defmodule ApiWeb.User do
   use Api.Web, :model
+
   alias ApiWeb.{EctoHelper, Crypto, Invite, TeamMember, Workshop, WorkshopAttendance, Vote, User}
   alias Comeonin.Bcrypt
 
