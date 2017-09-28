@@ -1,7 +1,8 @@
-defmodule ApiWeb.TeamActionsTest do
+defmodule Api.Competitions.TeamTest do
   use Api.DataCase
 
-  alias ApiWeb.{Team, TeamActions}
+  alias Api.Competitions
+  alias Api.Competitions.Team
 
   @valid_attrs %{name: "awesome team"}
 
@@ -10,7 +11,7 @@ defmodule ApiWeb.TeamActionsTest do
       for _ <- (1..10),
       do: Repo.insert!(Team.changeset(%Team{}, @valid_attrs, Repo))
 
-    {:ok, _} = TeamActions.shuffle_tie_breakers
+    {:ok, _} = Competitions.shuffle_tie_breakers
 
     tie_breakers = fn
       teams -> Enum.map(teams, &(&1.tie_breaker))
@@ -24,7 +25,7 @@ defmodule ApiWeb.TeamActionsTest do
     t = create_team(create_user())
     admin = create_admin()
 
-    TeamActions.disqualify(t.id, admin)
+    Competitions.disqualify_team(t.id, admin)
 
     t = Repo.get!(Team, t.id)
     assert t.disqualified_at
@@ -36,10 +37,10 @@ defmodule ApiWeb.TeamActionsTest do
     admin = create_admin()
     admin2 = create_admin()
 
-    TeamActions.disqualify(t.id, admin)
+    Competitions.disqualify_team(t.id, admin)
     d1 = Repo.get!(Team, t.id).disqualified_at
 
-    TeamActions.disqualify(t.id, admin2)
+    Competitions.disqualify_team(t.id, admin2)
 
     t = Repo.get!(Team, t.id)
     assert t.disqualified_at == d1
@@ -50,7 +51,7 @@ defmodule ApiWeb.TeamActionsTest do
     t = create_team(create_user())
 
     assert t.prize_preference == nil
-    TeamActions.assign_missing_preferences
+    Competitions.assign_missing_preferences
     assert Repo.get!(Team, t.id).prize_preference |> Enum.sort ==
       ["funny", "hardcore", "useful"] |> Enum.sort
   end

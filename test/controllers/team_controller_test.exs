@@ -2,7 +2,9 @@ defmodule ApiWeb.TeamControllerTest do
   use ApiWeb.ConnCase
   use Bamboo.Test, shared: true
 
-  alias ApiWeb.{Team, TeamMember, Email, CompetitionActions}
+  alias Api.Competitions
+  alias Api.{Competitions.Team, Competitions.Membership}
+  alias ApiWeb.Email
 
   @valid_attrs %{name: "some content"}
   @invalid_attrs %{name: ""}
@@ -103,8 +105,8 @@ defmodule ApiWeb.TeamControllerTest do
     member1 = create_user(%{email: "user1@example.com", password: "thisisapassword"})
     member2 = create_user(%{email: "user2@example.com", password: "thisisapassword"})
     team = create_team(user)
-    Repo.insert! %TeamMember{user_id: member1.id, team_id: team.id}
-    Repo.insert! %TeamMember{user_id: member2.id, team_id: team.id}
+    Repo.insert! %Membership{user_id: member1.id, team_id: team.id}
+    Repo.insert! %Membership{user_id: member2.id, team_id: team.id}
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
@@ -181,7 +183,7 @@ defmodule ApiWeb.TeamControllerTest do
   test "remove membership works if triggered by team owner", %{conn: conn, jwt: jwt, user: user} do
     team_member = create_user(%{email: "user@example.com", password: "thisisapassword"})
     team = create_team(user)
-    Repo.insert! %TeamMember{user_id: team_member.id, team_id: team.id}
+    Repo.insert! %Membership{user_id: team_member.id, team_id: team.id}
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
@@ -193,7 +195,7 @@ defmodule ApiWeb.TeamControllerTest do
   test "remove membership works if triggered by team member", %{conn: conn, jwt: jwt, user: user} do
     owner = create_user(%{email: "user@example.com", password: "thisisapassword"})
     team = create_team(owner)
-    Repo.insert! %TeamMember{user_id: user.id, team_id: team.id}
+    Repo.insert! %Membership{user_id: user.id, team_id: team.id}
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
@@ -206,7 +208,7 @@ defmodule ApiWeb.TeamControllerTest do
     owner = create_user(%{email: "host@example.com", password: "thisisapassword"})
     member = create_user(%{email: "user@example.com", password: "thisisapassword"})
     team = create_team(owner)
-    Repo.insert! %TeamMember{user_id: member.id, team_id: team.id}
+    Repo.insert! %Membership{user_id: member.id, team_id: team.id}
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
@@ -231,7 +233,7 @@ defmodule ApiWeb.TeamControllerTest do
     owner = create_user(%{email: "host@example.com", password: "thisisapassword"})
     member = create_user(%{email: "user@example.com", password: "thisisapassword"})
     team = create_team(owner)
-    Repo.insert! %TeamMember{user_id: member.id, team_id: team.id}
+    Repo.insert! %Membership{user_id: member.id, team_id: team.id}
 
     conn = conn
     |> delete(team_path(conn, :remove, team, member.id))
@@ -256,7 +258,7 @@ defmodule ApiWeb.TeamControllerTest do
   test "remove membership doesn't work if team is applied", %{conn: conn, jwt: jwt, user: user} do
     member = create_user(%{email: "user@example.com", password: "thisisapassword"})
     team = create_team(user, %{name: "awesome team", applied: true})
-    Repo.insert! %TeamMember{user_id: member.id, team_id: team.id}
+    Repo.insert! %Membership{user_id: member.id, team_id: team.id}
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
@@ -269,8 +271,8 @@ defmodule ApiWeb.TeamControllerTest do
   test "remove membership doesn't work if voting has started", %{conn: conn, jwt: jwt, user: user} do
     member = create_user()
     team = create_team(user, %{name: "awesome team", applied: true})
-    Repo.insert! %TeamMember{user_id: member.id, team_id: team.id}
-    CompetitionActions.start_voting()
+    Repo.insert! %Membership{user_id: member.id, team_id: team.id}
+    Competitions.start_voting()
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")

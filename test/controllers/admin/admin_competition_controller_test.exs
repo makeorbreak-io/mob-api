@@ -1,7 +1,8 @@
 defmodule ApiWeb.Admin.CompetitionControllerTest do
   use ApiWeb.ConnCase
 
-  alias ApiWeb.{CompetitionActions, Team}
+  alias Api.Competitions
+  alias Api.Competitions.Team
   alias Guardian.{Permissions}
 
   setup %{conn: conn} do
@@ -25,7 +26,7 @@ defmodule ApiWeb.Admin.CompetitionControllerTest do
   end
 
   test "admin can't start voting period if it's already started", %{conn: conn, jwt: jwt} do
-    CompetitionActions.start_voting()
+    Competitions.start_voting()
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
@@ -35,7 +36,7 @@ defmodule ApiWeb.Admin.CompetitionControllerTest do
   end
 
   test "admin can end voting period", %{conn: conn, jwt: jwt} do
-    CompetitionActions.start_voting()
+    Competitions.start_voting()
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
@@ -45,8 +46,8 @@ defmodule ApiWeb.Admin.CompetitionControllerTest do
   end
 
   test "admin can't end voting period if it's already ended", %{conn: conn, jwt: jwt} do
-    CompetitionActions.start_voting()
-    CompetitionActions.end_voting()
+    Competitions.start_voting()
+    Competitions.end_voting()
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
@@ -85,7 +86,7 @@ defmodule ApiWeb.Admin.CompetitionControllerTest do
     create_vote(u1, "funny", [t2.id, t3.id])
 
     # Remember this shuffles the tie breakers.
-    CompetitionActions.start_voting()
+    Competitions.start_voting()
 
     t2 = Repo.get(Team, t2.id)
     t3 = Repo.get(Team, t3.id)

@@ -1,7 +1,8 @@
 defmodule ApiWeb.EctoHelperTests do
   use ExUnit.Case, async: true
 
-  alias ApiWeb.{Team, EctoHelper}
+  alias Api.Competitions.Team
+  alias ApiWeb.EctoHelper
   alias Ecto.{Changeset}
 
   test "if_missing absent" do

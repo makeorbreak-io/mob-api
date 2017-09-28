@@ -1,7 +1,8 @@
 defmodule ApiWeb.Admin.PaperVoteControllerTest do
   use ApiWeb.ConnCase
 
-  alias ApiWeb.{CompetitionActions, PaperVote}
+  alias Api.Competitions
+  alias ApiWeb.PaperVote
   alias Guardian.{Permissions}
 
   setup %{conn: conn} do
@@ -13,7 +14,7 @@ defmodule ApiWeb.Admin.PaperVoteControllerTest do
     t = create_team(m)
 
     make_teams_eligible()
-    CompetitionActions.start_voting()
+    Competitions.start_voting()
 
     {:ok, jwt, _} =
       Guardian.encode_and_sign(admin, :token, perms: %{admin: Permissions.max})
@@ -96,7 +97,7 @@ defmodule ApiWeb.Admin.PaperVoteControllerTest do
   end
 
   test "redeem error", %{conn: conn, paper_vote: pv, team: t, member: m} do
-    CompetitionActions.end_voting()
+    Competitions.end_voting()
 
     conn = post(conn, admin_paper_vote_path(conn, :redeem, pv.id), %{
       team_id: t.id,

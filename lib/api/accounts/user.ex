@@ -5,7 +5,8 @@ defmodule Api.Accounts.User do
 
   alias Api.Accounts.User
   alias Api.{Workshops.Workshop, Workshops.Attendance}
-  alias ApiWeb.{EctoHelper, Crypto, Invite, TeamMember, Vote}
+  alias Api.{Competitions.Invite, Competitions.Membership}
+  alias ApiWeb.{EctoHelper, Crypto, Vote}
   alias Comeonin.Bcrypt
 
   @valid_attrs ~w(
@@ -68,7 +69,7 @@ defmodule Api.Accounts.User do
     # Associations
     has_many :invites, Invite, foreign_key: :host_id, on_delete: :delete_all
     has_many :invitations, Invite, foreign_key: :invitee_id, on_delete: :delete_all
-    has_many :teams, TeamMember, foreign_key: :user_id, on_delete: :delete_all
+    has_many :teams, Membership, foreign_key: :user_id, on_delete: :delete_all
 
     many_to_many :workshops, Workshop, join_through: Attendance, on_delete: :delete_all
   end

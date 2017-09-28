@@ -1,7 +1,8 @@
 defmodule ApiWeb.Admin.TeamControllerTest do
   use ApiWeb.ConnCase
 
-  alias ApiWeb.{Team, TeamMember, CompetitionActions}
+  alias Api.Competitions
+  alias Api.{Competitions.Team, Competitions.Membership}
   # import Api.StringHelper
 
   @valid_attrs %{name: "some content"}
@@ -68,7 +69,7 @@ defmodule ApiWeb.Admin.TeamControllerTest do
 
   test "doesn't update eligible if voting has started", %{conn: conn, jwt: jwt, admin: admin} do
     team = create_team(admin)
-    CompetitionActions.start_voting()
+    Competitions.start_voting()
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
@@ -112,7 +113,7 @@ defmodule ApiWeb.Admin.TeamControllerTest do
   test "remove membership works", %{conn: conn, jwt: jwt, admin: admin} do
     owner = create_user(%{email: "user@example.com", password: "thisisapassword"})
     team = create_team(owner)
-    Repo.insert! %TeamMember{user_id: admin.id, team_id: team.id}
+    Repo.insert! %Membership{user_id: admin.id, team_id: team.id}
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")
@@ -136,7 +137,7 @@ defmodule ApiWeb.Admin.TeamControllerTest do
     owner = create_user(%{email: "host@example.com", password: "thisisapassword"})
     member = create_user(%{email: "user@example.com", password: "thisisapassword"})
     team = create_team(owner)
-    Repo.insert! %TeamMember{user_id: member.id, team_id: team.id}
+    Repo.insert! %Membership{user_id: member.id, team_id: team.id}
 
     conn = conn
     |> delete(admin_team_path(conn, :remove, team, member.id))
@@ -160,8 +161,8 @@ defmodule ApiWeb.Admin.TeamControllerTest do
   test "can't remove membership if voting has started", %{conn: conn, jwt: jwt, admin: admin} do
     owner = create_user(%{email: "user@example.com", password: "thisisapassword"})
     team = create_team(owner)
-    Repo.insert! %TeamMember{user_id: admin.id, team_id: team.id}
-    CompetitionActions.start_voting()
+    Repo.insert! %Membership{user_id: admin.id, team_id: team.id}
+    Competitions.start_voting()
 
     conn = conn
     |> put_req_header("authorization", "Bearer #{jwt}")

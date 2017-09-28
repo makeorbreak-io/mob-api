@@ -1,8 +1,11 @@
-defmodule ApiWeb.Team do
-  use Api.Web, :model
+defmodule Api.Competitions.Team do
+  use Ecto.Schema
+  import Ecto.Changeset
+  import Ecto.Query
 
   alias Api.Accounts.User
-  alias ApiWeb.{EctoHelper, Crypto, Invite, TeamMember, Team}
+  alias Api.{Competitions.Team, Competitions.Membership, Competitions.Invite}
+  alias ApiWeb.{EctoHelper, Crypto}
 
   @valid_attrs ~w(
     name
@@ -21,6 +24,8 @@ defmodule ApiWeb.Team do
     tie_breaker
   )a
 
+  @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type :binary_id
   schema "teams" do
     field :name, :string
     field :repo, :map
@@ -38,7 +43,7 @@ defmodule ApiWeb.Team do
 
     # Associations
     has_many :invites, Invite, on_delete: :delete_all
-    has_many :members, TeamMember, foreign_key: :team_id, on_delete: :delete_all
+    has_many :members, Membership, foreign_key: :team_id, on_delete: :delete_all
     belongs_to :disqualified_by, User
   end
 

@@ -6,8 +6,9 @@ defmodule ApiWeb.TestHelper do
   alias Api.Repo
   alias Api.Accounts.User
   alias Api.Workshops.Workshop
-  alias ApiWeb.{Team, TeamMember, Invite, Category,
-    StringHelper, Vote, PaperVoteActions, UserHelper}
+  alias Api.{Competitions.Team, Competitions.Membership, Competitions.Invite,
+    Competitions.Category}
+  alias ApiWeb.{StringHelper, Vote, PaperVoteActions, UserHelper}
 
   @valid_user_attrs %{
     first_name: "john",
@@ -61,7 +62,7 @@ defmodule ApiWeb.TestHelper do
     |> Team.changeset(params, Repo)
     |> Repo.insert!
 
-    Repo.insert! %TeamMember{user_id: user.id, team_id: team.id, role: "owner"}
+    Repo.insert! %Membership{user_id: user.id, team_id: team.id, role: "owner"}
 
     team
   end
@@ -79,8 +80,8 @@ defmodule ApiWeb.TestHelper do
   end
 
   def create_membership(team, user) do
-    %TeamMember{}
-    |> TeamMember.changeset(%{
+    %Membership{}
+    |> Membership.changeset(%{
       user_id: user.id,
       team_id: team.id,
     })

@@ -1,7 +1,8 @@
 defmodule ApiWeb.PaperVoteActions do
   use Api.Web, :action
 
-  alias ApiWeb.{CompetitionActions, PaperVote}
+  alias Api.Competitions
+  alias ApiWeb.PaperVote
 
   def get(id) do
     Repo.get!(PaperVote, id)
@@ -9,7 +10,7 @@ defmodule ApiWeb.PaperVoteActions do
   end
 
   def create(category, admin) do
-    case CompetitionActions.voting_status do
+    case Competitions.voting_status do
       :ended -> :already_ended
       _ ->
         {
@@ -33,8 +34,8 @@ defmodule ApiWeb.PaperVoteActions do
       team.disqualified_at -> :team_disqualified
       paper_vote.redeemed_at -> :already_redeemed
       paper_vote.annulled_at -> :annulled
-      CompetitionActions.voting_status == :not_started -> :not_started
-      CompetitionActions.voting_status == :ended -> :already_ended
+      Competitions.voting_status == :not_started -> :not_started
+      Competitions.voting_status == :ended -> :already_ended
       true ->
         {
           :ok,
@@ -54,7 +55,7 @@ defmodule ApiWeb.PaperVoteActions do
   def annul(paper_vote, admin, at \\ nil) do
     at = at || DateTime.utc_now
 
-    case CompetitionActions.voting_status do
+    case Competitions.voting_status do
       :ended -> :already_ended
       _ ->
         {

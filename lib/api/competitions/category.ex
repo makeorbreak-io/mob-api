@@ -1,5 +1,6 @@
-defmodule ApiWeb.Category do
-  use Api.Web, :model
+defmodule Api.Competitions.Category do
+  use Ecto.Schema
+  import Ecto.Changeset
 
   @valid_attrs ~w(
     name
@@ -9,6 +10,8 @@ defmodule ApiWeb.Category do
     name
   )a
 
+  @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type :binary_id
   schema "categories" do
     field :name, :string
     field :podium, {:array, :binary_id}

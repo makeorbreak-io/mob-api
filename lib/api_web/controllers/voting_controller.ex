@@ -2,14 +2,14 @@ defmodule ApiWeb.VotingController do
   use Api.Web, :controller
 
   alias Api.Accounts
-  alias ApiWeb.{ErrorController, CompetitionActions, VotingView,
-    VoteActions}
+  alias Api.Competitions
+  alias ApiWeb.{ErrorController, VotingView, VoteActions}
 
   plug Guardian.Plug.EnsureAuthenticated, [handler: ErrorController]
     when action in [:upsert_votes, :get_votes]
 
   def info_begin(conn, _params) do
-    case CompetitionActions.voting_status do
+    case Competitions.voting_status do
       :not_started ->
         ErrorController.call(conn, {:not_started, :not_found})
       _ ->
@@ -18,7 +18,7 @@ defmodule ApiWeb.VotingController do
   end
 
   def info_end(conn, _params) do
-    case CompetitionActions.voting_status do
+    case Competitions.voting_status do
       :not_started ->
         ErrorController.call(conn, {:not_started, :not_found})
       :started ->

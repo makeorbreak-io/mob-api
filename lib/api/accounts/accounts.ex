@@ -3,9 +3,9 @@ defmodule Api.Accounts do
 
   alias Api.{Mailer, Repo}
   alias Api.Accounts.User
-
-  alias Api.{Mailer}
-  alias ApiWeb.{UserHelper, Invite, Email, CompetitionActions}
+  alias Api.Competitions
+  alias Api.Competitions.Invite
+  alias ApiWeb.{UserHelper, Email}
   alias Comeonin.Bcrypt
   alias Guardian.{Plug, Permissions}
 
@@ -79,7 +79,7 @@ defmodule Api.Accounts do
   end
 
   def toggle_checkin(id, value) do
-    case CompetitionActions.voting_status do
+    case Competitions.voting_status do
       :started -> :already_started
       _ ->
         user = Repo.get!(User, id)

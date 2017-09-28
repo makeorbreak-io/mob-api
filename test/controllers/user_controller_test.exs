@@ -3,7 +3,8 @@ defmodule ApiWeb.UserControllerTest do
   use Bamboo.Test, shared: true
 
   alias Api.Accounts.User
-  alias ApiWeb.{TeamMember, Email}
+  alias Api.Competitions.Membership
+  alias ApiWeb.Email
   alias Comeonin.Bcrypt
 
   @valid_attrs %{
@@ -65,7 +66,7 @@ defmodule ApiWeb.UserControllerTest do
     owner = create_user(%{email: "user@example.com", password: "thisisapassword"})
     team_member = create_user(%{email: "johndoe@example.com", first_name: "john", last_name: "doe", password: "thisisapassword"})
     team = create_team(owner)
-    Repo.insert! %TeamMember{user_id: team_member.id, team_id: team.id}
+    Repo.insert! %Membership{user_id: team_member.id, team_id: team.id}
 
     conn = get conn, user_path(conn, :show, team_member)
 

@@ -1,44 +1,45 @@
-defmodule ApiWeb.CompetitionActionsTest do
+defmodule ApiWeb.CompetitionsTest do
   use Api.DataCase
 
-  alias ApiWeb.{CompetitionActions}
+  alias Api.Competitions
 
   test "before start" do
-    assert CompetitionActions.voting_status == :not_started
+    assert Competitions.voting_status == :not_started
   end
 
   test "start_voting" do
-    {:ok, _} = CompetitionActions.start_voting()
-    assert CompetitionActions.voting_status == :started
+    {:ok, _} = Competitions.start_voting()
+    assert Competitions.voting_status == :started
   end
 
   test "end_voting" do
-    {:ok, _} = CompetitionActions.start_voting()
-    {:ok, _} = CompetitionActions.end_voting()
-    assert CompetitionActions.voting_status == :ended
+    {:ok, _} = Competitions.start_voting()
+    {:ok, _} = Competitions.end_voting()
+    assert Competitions.voting_status == :ended
   end
 
   test "start_voting twice" do
-    {:ok, _} = CompetitionActions.start_voting()
-    :already_started = CompetitionActions.start_voting()
+    {:ok, _} = Competitions.start_voting()
+    :already_started = Competitions.start_voting()
   end
 
   test "end_voting without starting" do
-    :not_started = CompetitionActions.end_voting()
+    :not_started = Competitions.end_voting()
   end
 
   test "end_voting twice" do
-    {:ok, _} = CompetitionActions.start_voting()
-    {:ok, _} = CompetitionActions.end_voting()
-    :already_ended = CompetitionActions.end_voting()
+    {:ok, _} = Competitions.start_voting()
+    {:ok, _} = Competitions.end_voting()
+    :already_ended = Competitions.end_voting()
   end
 end
 
-defmodule ApiWeb.CompetitionActionsTest.CalculatePodium do
+defmodule ApiWeb.CompetitionsTest.CalculatePodium do
   use Api.DataCase
 
-  alias ApiWeb.{CompetitionActions, Category}
-  alias Ecto.{Changeset}
+  alias Api.Competitions
+  alias Api.Competitions.Category
+  alias Ecto.Changeset
 
   setup do
     u1 = create_user()
@@ -55,7 +56,7 @@ defmodule ApiWeb.CompetitionActionsTest.CalculatePodium do
 
     check_in_everyone()
     make_teams_eligible()
-    CompetitionActions.start_voting()
+    Competitions.start_voting()
 
     {
       :ok,
@@ -83,7 +84,7 @@ defmodule ApiWeb.CompetitionActionsTest.CalculatePodium do
     create_vote(create_user(), cat.name, [t4.id])
 
     check_in_everyone()
-    assert CompetitionActions.calculate_podium(cat) == [
+    assert Competitions.calculate_podium(cat) == [
       t1.id,
       t2.id,
       t3.id,
@@ -103,7 +104,7 @@ defmodule ApiWeb.CompetitionActionsTest.CalculatePodium do
     Changeset.change(t1, tie_breaker: 20) |> Repo.update!
 
     check_in_everyone()
-    assert CompetitionActions.calculate_podium(cat) == [
+    assert Competitions.calculate_podium(cat) == [
       t2.id,
       t1.id,
       t3.id,
@@ -133,7 +134,7 @@ defmodule ApiWeb.CompetitionActionsTest.CalculatePodium do
     create_vote(create_user(), "hardcore", [t3.id])
 
     check_in_everyone()
-    CompetitionActions.resolve_voting!
+    Competitions.resolve_voting!
 
     assert Repo.get_by!(Category, name: "useful").podium == [
       t1.id,
