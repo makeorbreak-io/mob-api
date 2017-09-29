@@ -14,9 +14,6 @@ defmodule ApiWeb.Admin.StatsView do
           applied: stats.teams.applied
         },
         workshops: stats.workshops,
-        projects: %{
-          total: stats.projects
-        }
       }
     }
   end

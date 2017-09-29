@@ -156,7 +156,9 @@ defmodule ApiWeb.TestHelper do
       "members" => nil,
       "name" => t.name,
       "prize_preference" => t.prize_preference,
-      "project" => nil
+      "project_name" => t.project_name,
+      "project_desc" => t.project_desc,
+      "technologies" => t.technologies,
     }
   end
 

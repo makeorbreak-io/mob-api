@@ -1,7 +1,7 @@
 defmodule ApiWeb.AdminStatsControllerTest do
   use ApiWeb.ConnCase
 
-  alias ApiWeb.{Project, WorkshopAttendance}
+  alias ApiWeb.{WorkshopAttendance}
   alias Guardian.Permissions
 
   setup %{conn: conn} do
@@ -29,7 +29,6 @@ defmodule ApiWeb.AdminStatsControllerTest do
       last_name: "doe",
       password: "thisisapassword"
     })
-    Repo.insert! %Project{}
 
     Repo.insert! %WorkshopAttendance{user_id: workshop_attendee.id, workshop_id: workshop.id}
 
@@ -58,10 +57,7 @@ defmodule ApiWeb.AdminStatsControllerTest do
           "participants" => 1,
           "participant_limit" => 1
         }
-      ],
-      "projects" => %{
-        "total" => 1
-      }
+      ]
     }
   end
 end

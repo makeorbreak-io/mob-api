@@ -24,18 +24,17 @@ defmodule ApiWeb.TeamControllerTest do
 
     conn = get conn, team_path(conn, :index)
     assert json_response(conn, 200)["data"] == [%{
-      "applied" => team.applied,
       "id" => team.id,
       "name" => team.name,
-      "prize_preference" => team.prize_preference,
+      "applied" => team.applied,
       "eligible" => team.eligible,
-      "project" => nil
+      "prize_preference" => team.prize_preference
     }]
   end
 
   test "shows chosen team", %{conn: conn, user: user} do
     team = create_team(user)
-    |> Repo.preload([:members, :project, :invites])
+    |> Repo.preload([:members, :invites])
 
     conn = get conn, team_path(conn, :show, team)
     assert json_response(conn, 200)["data"] == %{
@@ -51,8 +50,10 @@ defmodule ApiWeb.TeamControllerTest do
         "gravatar_hash" => UserHelper.gravatar_hash(user),
       }],
       "invites" => team.invites,
-      "project" => team.project,
       "disqualified_at" => nil,
+      "project_name" => nil,
+      "project_desc" => nil,
+      "technologies" => nil
     }
   end
 

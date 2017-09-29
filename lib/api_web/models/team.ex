@@ -1,9 +1,9 @@
 defmodule ApiWeb.Team do
   use Api.Web, :model
 
-  alias ApiWeb.{EctoHelper, Crypto, Project, Invite, TeamMember, User, Team}
+  alias ApiWeb.{EctoHelper, Crypto, Invite, TeamMember, User, Team}
 
-  @valid_attrs ~w(name applied prize_preference)
+  @valid_attrs ~w(name applied prize_preference project_name project_desc technologies)
   @admin_attrs @valid_attrs ++ ~w(eligible repo)
   @required_attrs ~w(name prize_preference_hmac_secret tie_breaker)a
 
@@ -16,10 +16,13 @@ defmodule ApiWeb.Team do
     field :prize_preference, {:array, :string}
     field :prize_preference_hmac_secret, :string
     field :tie_breaker, :integer
+    field :project_name, :string
+    field :project_desc, :string
+    field :technologies, {:array, :string}
+
     timestamps()
 
     # Associations
-    has_one :project, Project, on_delete: :delete_all
     has_many :invites, Invite, on_delete: :delete_all
     has_many :members, TeamMember, foreign_key: :team_id, on_delete: :delete_all
     belongs_to :disqualified_by, User

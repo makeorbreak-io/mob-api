@@ -6,12 +6,12 @@ defmodule ApiWeb.TeamActions do
 
   def all do
     Repo.all(Team)
-    |> Repo.preload([:project, members: [:user], invites: [:host, :invitee, :team]])
+    |> Repo.preload([members: [:user], invites: [:host, :invitee, :team]])
   end
 
   def get(id) do
     Repo.get!(Team, id)
-    |> Repo.preload([:project, members: [:user], invites: [:host, :invitee, :team]])
+    |> Repo.preload([members: [:user], invites: [:host, :invitee, :team]])
   end
 
   def create(current_user, team_params) do
@@ -22,7 +22,7 @@ defmodule ApiWeb.TeamActions do
         Repo.insert! %TeamMember{user_id: current_user.id, team_id: team.id, role: "owner"}
 
         team = team
-        |> Repo.preload([:project, :invites, members: [:user]])
+        |> Repo.preload([:invites, members: [:user]])
 
         {:ok, team}
       {:error, changeset} -> {:error, changeset}

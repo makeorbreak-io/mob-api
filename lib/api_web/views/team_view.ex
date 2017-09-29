@@ -1,10 +1,10 @@
 defmodule ApiWeb.TeamView do
   use Api.Web, :view
 
-  alias ApiWeb.{ProjectView, InviteView, TeamMemberView}
+  alias ApiWeb.{InviteView, TeamMemberView}
 
   def render("index.json", %{teams: teams}) do
-    %{data: render_many(teams, __MODULE__, "team_with_project.json")}
+    %{data: render_many(teams, __MODULE__, "team_short.json")}
   end
 
   def render("show.json", %{team: team}) do
@@ -21,33 +21,23 @@ defmodule ApiWeb.TeamView do
       members: if Ecto.assoc_loaded?(team.members) do
         render_many(team.members, TeamMemberView, "member_user.json", as: :membership)
       end,
-      project: if Ecto.assoc_loaded?(team.project) do
-        render_one(team.project, ProjectView, "project.json")
-      end,
       invites: if Ecto.assoc_loaded?(team.invites) do
         render_many(team.invites, InviteView, "invite.json")
       end,
       disqualified_at: team.disqualified_at,
+      project_name: team.project_name,
+      project_desc: team.project_desc,
+      technologies: team.technologies,
     }
   end
 
   def render("team_short.json", %{team: team}) do
     %{
       id: team.id,
-      name: team.name
-    }
-  end
-
-  def render("team_with_project.json", %{team: team}) do
-    %{
-      id: team.id,
       name: team.name,
       applied: team.applied,
-      prize_preference: team.prize_preference,
       eligible: team.eligible,
-      project: if Ecto.assoc_loaded?(team.project) do
-        render_one(team.project, ProjectView, "project.json")
-      end,
+      prize_preference: team.prize_preference
     }
   end
 end
