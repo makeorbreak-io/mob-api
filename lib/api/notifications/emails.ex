@@ -1,4 +1,4 @@
-defmodule ApiWeb.Email do
+defmodule Api.Notifications.Emails do
   use Bamboo.Phoenix, view: ApiWeb.EmailView
 
   alias ApiWeb.LayoutView
