@@ -4,7 +4,7 @@ defmodule ApiWeb.InviteControllerTest do
 
   alias Api.Competitions
   alias Api.{Competitions.Invite, Competitions.Membership}
-  alias ApiWeb.Email
+  alias Api.Notifications.Emails
   import Api.Accounts.User, only: [display_name: 1, gravatar_hash: 1]
 
   setup %{conn: conn} do
@@ -120,7 +120,7 @@ defmodule ApiWeb.InviteControllerTest do
 
     assert json_response(conn, 201)["data"]["id"]
     assert Repo.get(Invite, json_response(conn, 201)["data"]["id"])
-    assert_delivered_email Email.invite_email("user@example.org", user)
+    assert_delivered_email Emails.invite_email("user@example.org", user)
   end
 
   test "associates email invite with already existing account", %{conn: conn, jwt: jwt, user: user} do
@@ -133,7 +133,7 @@ defmodule ApiWeb.InviteControllerTest do
 
     assert json_response(conn, 201)["data"]["id"]
     assert Repo.get(Invite, json_response(conn, 201)["data"]["id"])
-    assert_delivered_email Email.invite_notification_email(invitee, user)
+    assert_delivered_email Emails.invite_notification_email(invitee, user)
   end
 
   test "creates invite and sends email notification", %{conn: conn, jwt: jwt, user: user} do
@@ -151,7 +151,7 @@ defmodule ApiWeb.InviteControllerTest do
 
     assert json_response(conn, 201)["data"]["id"]
     assert Repo.get(Invite, json_response(conn, 201)["data"]["id"])
-    assert_delivered_email Email.invite_notification_email(random_user, user)
+    assert_delivered_email Emails.invite_notification_email(random_user, user)
   end
 
   test "doesn't create invite when data is invalid", %{conn: conn, jwt: jwt} do

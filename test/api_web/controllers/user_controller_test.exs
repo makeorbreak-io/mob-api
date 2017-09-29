@@ -4,7 +4,7 @@ defmodule ApiWeb.UserControllerTest do
 
   alias Api.Accounts.User
   alias Api.Competitions.Membership
-  alias ApiWeb.Email
+  alias Api.Notifications.Emails
   alias Comeonin.Bcrypt
   import Api.Accounts.User, only: [
     display_name: 1,
@@ -112,7 +112,7 @@ defmodule ApiWeb.UserControllerTest do
     user = Repo.get_by(User, email: "johndoe@example.com")
 
     assert user
-    assert_delivered_email Email.registration_email(user)
+    assert_delivered_email Emails.registration_email(user)
   end
 
   test "doesn't create user when data is invalid", %{conn: conn} do
@@ -206,7 +206,7 @@ defmodule ApiWeb.UserControllerTest do
 
     updated_user = Repo.get(User, user.id)
 
-    assert_delivered_email Email.recover_password_email(updated_user)
+    assert_delivered_email Emails.recover_password_email(updated_user)
     assert not is_nil updated_user.pwd_recovery_token
     assert not is_nil updated_user.pwd_recovery_token_expiration
   end

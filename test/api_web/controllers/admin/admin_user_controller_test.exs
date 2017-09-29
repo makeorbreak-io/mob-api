@@ -4,7 +4,7 @@ defmodule ApiWeb.AdminUserControllerTest do
 
   alias Api.Accounts.User
   alias Api.Workshops.Attendance
-  alias ApiWeb.Email
+  alias Api.Notifications.Emails
   import Api.Accounts.User, only: [display_name: 1, gravatar_hash: 1]
 
   @valid_attrs %{
@@ -174,7 +174,7 @@ defmodule ApiWeb.AdminUserControllerTest do
     |> post(admin_user_path(conn, :checkin, user))
 
     assert json_response(conn, 200)["data"]["checked_in"] == true
-    assert_delivered_email Email.checkin_email(user)
+    assert_delivered_email Emails.checkin_email(user)
   end
 
   test "removes user checkin", %{conn: conn, jwt: jwt} do

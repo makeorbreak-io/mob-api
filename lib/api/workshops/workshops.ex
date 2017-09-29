@@ -3,7 +3,7 @@ defmodule Api.Workshops do
 
   alias Api.{Mailer, Repo}
   alias Api.{Workshops.Workshop, Workshops.Attendance}
-  alias ApiWeb.Email
+  alias Api.Notifications.Emails
 
   def all do
     Repo.all(Workshop)
@@ -51,7 +51,7 @@ defmodule Api.Workshops do
 
       case Repo.insert(changeset) do
         {:ok, attendance} ->
-          Email.joined_workshop_email(current_user, workshop) |> Mailer.deliver_later
+          Emails.joined_workshop_email(current_user, workshop) |> Mailer.deliver_later
           {:ok, attendance}
         {:error, _} -> :join_workshop
       end
