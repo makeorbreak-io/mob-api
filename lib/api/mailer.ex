@@ -2,11 +2,11 @@ defmodule Api.Mailer do
   use Bamboo.Mailer, otp_app: :api
 
   alias Api.Accounts.User
-  alias ApiWeb.{UserHelper}
+  import Api.Accounts.User, only: [display_name: 1]
 
   defimpl Bamboo.Formatter, for: User do
     def format_email_address(user, _opts) do
-      {UserHelper.display_name(user), user.email}
+      {display_name(user), user.email}
     end
   end
 end

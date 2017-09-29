@@ -1,4 +1,4 @@
-defmodule ApiWeb.WorkshopAttendanceView do
+defmodule ApiWeb.AttendanceView do
   use Api.Web, :view
 
   alias ApiWeb.{Admin.UserView}

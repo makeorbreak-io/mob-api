@@ -6,6 +6,11 @@ defmodule ApiWeb.UserControllerTest do
   alias Api.Competitions.Membership
   alias ApiWeb.Email
   alias Comeonin.Bcrypt
+  import Api.Accounts.User, only: [
+    display_name: 1,
+    gravatar_hash: 1,
+    generate_token: 0
+  ]
 
   @valid_attrs %{
     email: "johndoe@example.com",
@@ -23,8 +28,8 @@ defmodule ApiWeb.UserControllerTest do
     user = create_user()
     conn = get conn, user_path(conn, :index)
     assert json_response(conn, 200)["data"] == [%{
-      "display_name" => "#{user.first_name} #{user.last_name}",
-      "gravatar_hash" => UserHelper.gravatar_hash(user),
+      "display_name" => display_name(user),
+      "gravatar_hash" => gravatar_hash(user),
       "first_name" => user.first_name,
       "last_name" => user.last_name,
       "id" => user.id,
@@ -42,8 +47,8 @@ defmodule ApiWeb.UserControllerTest do
       "id" => user.id,
       "first_name" => user.first_name,
       "last_name" => user.last_name,
-      "display_name" => "#{user.first_name} #{user.last_name}",
-      "gravatar_hash" => UserHelper.gravatar_hash(user),
+      "display_name" => display_name(user),
+      "gravatar_hash" => gravatar_hash(user),
       "birthday" => user.birthday,
       "employment_status" => user.employment_status,
       "college" => user.college,
@@ -74,8 +79,8 @@ defmodule ApiWeb.UserControllerTest do
       "id" => team_member.id,
       "first_name" => team_member.first_name,
       "last_name" => team_member.last_name,
-      "display_name" => "#{team_member.first_name} #{team_member.last_name}",
-      "gravatar_hash" => UserHelper.gravatar_hash(team_member),
+      "display_name" => display_name(team_member),
+      "gravatar_hash" => gravatar_hash(team_member),
       "birthday" => team_member.birthday,
       "employment_status" => team_member.employment_status,
       "college" => team_member.college,
@@ -92,30 +97,6 @@ defmodule ApiWeb.UserControllerTest do
       },
       "tshirt_size" => nil,
     }
-  end
-
-  test "display name from email if there's no first and last name", %{conn: conn} do
-    user = create_user(%{first_name: nil, last_name: nil, email: "johndoe@example.com", password: "password"})
-
-    conn = get conn, user_path(conn, :show, user)
-
-    assert json_response(conn, 200)["data"]["display_name"] == "johndoe"
-  end
-
-  test "display_name from first name if there's no last name", %{conn: conn} do
-    user = create_user(%{first_name: "john", last_name: nil, email: "johndoe@example.com", password: "password"})
-
-    conn = get conn, user_path(conn, :show, user)
-
-    assert json_response(conn, 200)["data"]["display_name"] == "john"
-  end
-
-  test "display_name from first and last name if they're present", %{conn: conn} do
-    user = create_user(%{first_name: "john", last_name: "doe", email: "johndoe@example.com", password: "password"})
-
-    conn = get conn, user_path(conn, :show, user)
-
-    assert json_response(conn, 200)["data"]["display_name"] == "john doe"
   end
 
   test "renders page not found when id is nonexistent", %{conn: conn} do
@@ -252,7 +233,7 @@ defmodule ApiWeb.UserControllerTest do
 
   test "recover password fails if token doesn't exist", %{conn: conn} do
     conn = post(conn, user_path(conn, :recover_password),
-      token: UserHelper.generate_token(),
+      token: generate_token(),
       password: "thisisanewpassword")
 
     assert json_response(conn, 422)
@@ -261,7 +242,7 @@ defmodule ApiWeb.UserControllerTest do
 
   test "recover password fails if token is expired", %{conn: conn} do
     user = create_user(%{
-      pwd_recovery_token: UserHelper.generate_token(),
+      pwd_recovery_token: generate_token(),
       pwd_recovery_token_expiration: Ecto.DateTime.to_iso8601(%Ecto.DateTime{
         year: 2017,
         month: 5,

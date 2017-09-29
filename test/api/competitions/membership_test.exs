@@ -1,4 +1,4 @@
-defmodule ApiWeb.MembershipTest do
+defmodule Api.MembershipTest do
   use Api.DataCase
 
   alias Api.Competitions.Membership

@@ -9,7 +9,8 @@ defmodule ApiWeb.TestHelper do
   alias Api.{Competitions.Team, Competitions.Membership, Competitions.Invite,
     Competitions.Category}
   alias Api.{Voting, Voting.Vote}
-  alias ApiWeb.{StringHelper, UserHelper}
+  alias ApiWeb.StringHelper
+  import Api.Accounts.User, only: [display_name: 1, gravatar_hash: 1]
 
   @valid_user_attrs %{
     first_name: "john",
@@ -163,10 +164,10 @@ defmodule ApiWeb.TestHelper do
 
   def admin_user_short_view(u) do
     %{
-      "display_name" => UserHelper.display_name(u),
+      "display_name" => display_name(u),
       "first_name" => u.first_name,
       "last_name" => u.last_name,
-      "gravatar_hash" => UserHelper.gravatar_hash(u),
+      "gravatar_hash" => gravatar_hash(u),
       "id" => u.id,
       "tshirt_size" => u.tshirt_size,
       "email" => u.email

@@ -1,4 +1,4 @@
-defmodule ApiWeb.TeamTest do
+defmodule Api.TeamTest do
   use Api.DataCase
 
   alias Api.Competitions.Team

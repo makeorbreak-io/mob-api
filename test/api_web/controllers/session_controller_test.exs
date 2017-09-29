@@ -3,6 +3,7 @@ defmodule ApiWeb.SessionControllerTest do
 
   alias Api.Workshops.Attendance
   alias Api.Competitions
+  import Api.Accounts.User, only: [display_name: 1, gravatar_hash: 1]
 
   @valid_credentials %{
     email: "johndoe@example.com",
@@ -28,12 +29,12 @@ defmodule ApiWeb.SessionControllerTest do
       "birthday" => user.birthday,
       "college" => user.college,
       "company" => user.company,
-      "display_name" => UserHelper.display_name(user),
+      "display_name" => display_name(user),
       "email" => user.email,
       "employment_status" => nil,
       "first_name" => user.first_name,
       "github_handle" => nil,
-      "gravatar_hash" => UserHelper.gravatar_hash(user),
+      "gravatar_hash" => gravatar_hash(user),
       "id" => user.id,
       "invitations" => [],
       "last_name" => user.last_name,
@@ -46,8 +47,8 @@ defmodule ApiWeb.SessionControllerTest do
         "invites" => [],
         "members" => [%{
           "id" => user.id,
-          "display_name" => UserHelper.display_name(user),
-          "gravatar_hash" => UserHelper.gravatar_hash(user),
+          "display_name" => display_name(user),
+          "gravatar_hash" => gravatar_hash(user),
           "role" => "owner"
         }],
         "role" => "owner",
@@ -85,8 +86,8 @@ defmodule ApiWeb.SessionControllerTest do
       "email" => user.email,
       "first_name" => user.first_name,
       "last_name" => user.last_name,
-      "display_name" => "#{user.first_name} #{user.last_name}",
-      "gravatar_hash" => UserHelper.gravatar_hash(user),
+      "display_name" => display_name(user),
+      "gravatar_hash" => gravatar_hash(user),
       "birthday" => user.birthday,
       "employment_status" => user.employment_status,
       "college" => user.college,
@@ -103,8 +104,8 @@ defmodule ApiWeb.SessionControllerTest do
         "invites" => [],
         "members" => [%{
           "id" => user.id,
-          "display_name" => "#{user.first_name} #{user.last_name}",
-          "gravatar_hash" => UserHelper.gravatar_hash(user),
+          "display_name" => display_name(user),
+          "gravatar_hash" => gravatar_hash(user),
           "role" => "owner"
         }]
       },

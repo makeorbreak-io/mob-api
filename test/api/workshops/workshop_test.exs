@@ -1,4 +1,4 @@
-defmodule ApiWeb.WorkshopTest do
+defmodule Api.WorkshopTest do
   use Api.DataCase
 
   alias Api.Workshops.Workshop
