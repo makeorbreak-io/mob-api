@@ -12,7 +12,8 @@ defmodule Api.Competitions do
   alias Api.{Competitions.Competition, Competitions.Team, Competitions.Membership,
              Competitions.Category, Competitions.Invite}
   alias Api.Integrations.Github
-  alias ApiWeb.{Vote, PaperVote, Email}
+  alias Api.Voting
+  alias Api.Notifications.Emails
   alias Ecto.{Changeset, Multi}
 
   def start_voting do
@@ -292,7 +293,7 @@ defmodule Api.Competitions do
 
   defp send_invite_email(changeset, host) do
     Map.get(changeset.changes, :email)
-    |> Email.invite_email(host)
+    |> Emails.invite_email(host)
     |> Mailer.deliver_later
 
     changeset
@@ -300,7 +301,7 @@ defmodule Api.Competitions do
 
   defp send_notification_email(changeset, host) do
     Repo.get(User, Map.get(changeset.changes, :invitee_id))
-    |> Email.invite_notification_email(host)
+    |> Emails.invite_notification_email(host)
     |> Mailer.deliver_later
 
     changeset
@@ -519,7 +520,7 @@ defmodule Api.Competitions do
 
     if applied_change and applied_true do
       Enum.map(team.members, fn(member) ->
-        Email.joined_hackathon_email(member.user, team) |> Mailer.deliver_later
+        Emails.joined_hackathon_email(member.user, team) |> Mailer.deliver_later
       end)
     end
 

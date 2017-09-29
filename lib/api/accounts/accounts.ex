@@ -5,7 +5,7 @@ defmodule Api.Accounts do
   alias Api.Accounts.User
   alias Api.Competitions
   alias Api.Competitions.Invite
-  alias ApiWeb.Email
+  alias Api.Notifications.Emails
   alias Comeonin.Bcrypt
   alias Guardian.{Plug, Permissions}
 
@@ -42,7 +42,7 @@ defmodule Api.Accounts do
           set: [invitee_id: ^user.id]
         ]) |> Repo.update_all([])
 
-        Email.registration_email(user) |> Mailer.deliver_later
+        Emails.registration_email(user) |> Mailer.deliver_later
 
         {:ok, jwt, _claims} = Guardian.encode_and_sign(user, :token)
 
@@ -88,7 +88,7 @@ defmodule Api.Accounts do
 
         case Repo.update(changeset) do
           {:ok, user} ->
-            value && (Email.checkin_email(user) |> Mailer.deliver_later)
+            value && (Emails.checkin_email(user) |> Mailer.deliver_later)
             {:ok, preload_user_data(user)}
           {:error, changeset} -> {:error, changeset}
         end
@@ -156,7 +156,7 @@ defmodule Api.Accounts do
 
     case Repo.update(changeset) do
       {:ok, user} ->
-        Email.recover_password_email(user) |> Mailer.deliver_later
+        Emails.recover_password_email(user) |> Mailer.deliver_later
         {:ok, user}
       {:error, changeset} -> {:error, changeset}
     end

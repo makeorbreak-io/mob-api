@@ -4,7 +4,7 @@ defmodule ApiWeb.TeamControllerTest do
 
   alias Api.Competitions
   alias Api.{Competitions.Team, Competitions.Membership}
-  alias ApiWeb.Email
+  alias Api.Notifications.Emails
   import Api.Accounts.User, only: [display_name: 1, gravatar_hash: 1]
 
   @valid_attrs %{name: "some content"}
@@ -114,9 +114,9 @@ defmodule ApiWeb.TeamControllerTest do
     |> put(team_path(conn, :update, team), team: %{applied: true, name: "team"})
 
     assert json_response(conn, 200)["data"]["id"]
-    assert_delivered_email Email.joined_hackathon_email(user, team)
-    assert_delivered_email Email.joined_hackathon_email(member1, team)
-    assert_delivered_email Email.joined_hackathon_email(member2, team)
+    assert_delivered_email Emails.joined_hackathon_email(user, team)
+    assert_delivered_email Emails.joined_hackathon_email(member1, team)
+    assert_delivered_email Emails.joined_hackathon_email(member2, team)
   end
 
   test "doesn't update team when request is invalid", %{conn: conn, user: user} do
