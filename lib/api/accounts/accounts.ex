@@ -5,7 +5,7 @@ defmodule Api.Accounts do
   alias Api.Accounts.User
   alias Api.Competitions
   alias Api.Competitions.Invite
-  alias ApiWeb.{UserHelper, Email}
+  alias ApiWeb.Email
   alias Comeonin.Bcrypt
   alias Guardian.{Plug, Permissions}
 
@@ -113,7 +113,7 @@ defmodule Api.Accounts do
     Map.put(user, :team, membership)
   end
 
-  def get_auth_token(email) do
+  def get_pwd_token(email) do
     Repo.get_by(User, email: email)
     |> add_pwd_recovery_data()
   end
@@ -150,8 +150,8 @@ defmodule Api.Accounts do
   defp add_pwd_recovery_data(nil), do: {:ok, nil} # do not leak existent / inexistent emails
   defp add_pwd_recovery_data(user) do
     changeset = User.changeset(user, %{
-      pwd_recovery_token: UserHelper.generate_token(),
-      pwd_recovery_token_expiration: UserHelper.calculate_token_expiration()
+      pwd_recovery_token: User.generate_token(),
+      pwd_recovery_token_expiration: User.calculate_token_expiration()
     })
 
     case Repo.update(changeset) do

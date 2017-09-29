@@ -44,7 +44,7 @@ defmodule ApiWeb.UserController do
   end
 
   def get_token(conn, %{"email" => email}) do
-    with {:ok, _} <- Accounts.get_auth_token(email),
+    with {:ok, _} <- Accounts.get_pwd_token(email),
       do: send_resp(conn, :no_content, "")
   end
 

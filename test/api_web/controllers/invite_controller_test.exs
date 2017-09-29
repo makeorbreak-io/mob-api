@@ -5,6 +5,7 @@ defmodule ApiWeb.InviteControllerTest do
   alias Api.Competitions
   alias Api.{Competitions.Invite, Competitions.Membership}
   alias ApiWeb.Email
+  import Api.Accounts.User, only: [display_name: 1, gravatar_hash: 1]
 
   setup %{conn: conn} do
     user = create_user()
@@ -36,18 +37,18 @@ defmodule ApiWeb.InviteControllerTest do
       "description" => invite.description,
       "email" => invite.email,
       "host" => %{
-        "display_name" => "#{host.first_name} #{host.last_name}",
+        "display_name" => display_name(host),
         "first_name" => host.first_name,
-        "gravatar_hash" => UserHelper.gravatar_hash(host),
+        "gravatar_hash" => gravatar_hash(host),
         "id" => host.id,
         "last_name" => host.last_name,
         "tshirt_size" => host.tshirt_size
       },
       "id" => invite.id,
       "invitee" => %{
-        "display_name" => "#{user.first_name} #{user.last_name}",
+        "display_name" => display_name(user),
         "first_name" => user.first_name,
-        "gravatar_hash" => UserHelper.gravatar_hash(user),
+        "gravatar_hash" => gravatar_hash(user),
         "id" => user.id,
         "last_name" => user.last_name,
         "tshirt_size" => user.tshirt_size
@@ -82,8 +83,8 @@ defmodule ApiWeb.InviteControllerTest do
         "id" => user.id,
         "first_name" => user.first_name,
         "last_name" => user.last_name,
-        "display_name" => "#{user.first_name} #{user.last_name}",
-        "gravatar_hash" => UserHelper.gravatar_hash(user),
+        "display_name" => display_name(user),
+        "gravatar_hash" => gravatar_hash(user),
         "tshirt_size" => nil,
       },
       "invitee" => nil,

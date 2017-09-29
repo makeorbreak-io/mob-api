@@ -2,6 +2,7 @@ defmodule ApiWeb.Admin.WorkshopControllerTest do
   use ApiWeb.ConnCase
 
   alias Api.{Workshops.Workshop, Workshops.Attendance}
+  import Api.Accounts.User, only: [display_name: 1, gravatar_hash: 1]
 
   @valid_attrs %{
     slug: "some-content",
@@ -47,8 +48,8 @@ defmodule ApiWeb.Admin.WorkshopControllerTest do
         "attendees" => [%{
           "id" => attendee.id,
           "email" => attendee.email,
-          "display_name" => UserHelper.display_name(attendee),
-          "gravatar_hash" => UserHelper.gravatar_hash(attendee),
+          "display_name" => display_name(attendee),
+          "gravatar_hash" => gravatar_hash(attendee),
           "first_name" => attendee.first_name,
           "last_name" => attendee.last_name,
           "tshirt_size" => attendee.tshirt_size,
@@ -178,8 +179,8 @@ defmodule ApiWeb.Admin.WorkshopControllerTest do
       "attendees" => [%{
         "id" => user.id,
         "email" => user.email,
-        "display_name" => UserHelper.display_name(user),
-        "gravatar_hash" => UserHelper.gravatar_hash(user),
+        "display_name" => display_name(user),
+        "gravatar_hash" => gravatar_hash(user),
         "first_name" => user.first_name,
         "last_name" => user.last_name,
         "tshirt_size" => user.tshirt_size,
@@ -220,8 +221,8 @@ defmodule ApiWeb.Admin.WorkshopControllerTest do
       "attendees" => [%{
         "id" => user.id,
         "email" => user.email,
-        "display_name" => UserHelper.display_name(user),
-        "gravatar_hash" => UserHelper.gravatar_hash(user),
+        "display_name" => display_name(user),
+        "gravatar_hash" => gravatar_hash(user),
         "first_name" => user.first_name,
         "last_name" => user.last_name,
         "tshirt_size" => user.tshirt_size,

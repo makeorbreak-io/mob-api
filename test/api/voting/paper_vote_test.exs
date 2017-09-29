@@ -1,4 +1,4 @@
-defmodule ApiWeb.PaperVoteTest do
+defmodule Api.PaperVoteTest do
   use Api.DataCase
 
   alias Api.Voting.PaperVote

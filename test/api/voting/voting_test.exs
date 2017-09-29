@@ -1,4 +1,4 @@
-defmodule ApiWeb.VotingTest do
+defmodule Api.VotingTest do
   use Api.DataCase
 
   alias Api.Competitions

@@ -5,6 +5,7 @@ defmodule ApiWeb.AdminUserControllerTest do
   alias Api.Accounts.User
   alias Api.Workshops.Attendance
   alias ApiWeb.Email
+  import Api.Accounts.User, only: [display_name: 1, gravatar_hash: 1]
 
   @valid_attrs %{
     email: "user@example.com",
@@ -43,8 +44,8 @@ defmodule ApiWeb.AdminUserControllerTest do
       "last_name" => admin.last_name,
       "email" => admin.email,
       "role" => admin.role,
-      "display_name" => "#{admin.first_name} #{admin.last_name}",
-      "gravatar_hash" => UserHelper.gravatar_hash(admin),
+      "display_name" => display_name(admin),
+      "gravatar_hash" => gravatar_hash(admin),
       "birthday" => admin.birthday,
       "employment_status" => admin.employment_status,
       "college" => admin.college,
@@ -100,8 +101,8 @@ defmodule ApiWeb.AdminUserControllerTest do
       "last_name" => admin.last_name,
       "email" => admin.email,
       "role" => admin.role,
-      "display_name" => "#{admin.first_name} #{admin.last_name}",
-      "gravatar_hash" => UserHelper.gravatar_hash(admin),
+      "display_name" => display_name(admin),
+      "gravatar_hash" => gravatar_hash(admin),
       "birthday" => admin.birthday,
       "employment_status" => admin.employment_status,
       "college" => admin.college,

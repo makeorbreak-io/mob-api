@@ -3,6 +3,7 @@ defmodule ApiWeb.Admin.TeamControllerTest do
 
   alias Api.Competitions
   alias Api.{Competitions.Team, Competitions.Membership}
+  import Api.Accounts.User, only: [display_name: 1, gravatar_hash: 1]
   # import ApiWeb.StringHelper
 
   @valid_attrs %{name: "some content"}
@@ -44,8 +45,8 @@ defmodule ApiWeb.Admin.TeamControllerTest do
       "members" => [%{
         "id" => admin.id,
         "role" => "owner",
-        "display_name" => "#{admin.first_name} #{admin.last_name}",
-        "gravatar_hash" => UserHelper.gravatar_hash(admin)
+        "display_name" => display_name(admin),
+        "gravatar_hash" => gravatar_hash(admin)
       }],
       "invites" => team.invites,
       "disqualified_at" => nil,

@@ -1,8 +1,9 @@
-defmodule ApiWeb.UserTest do
+defmodule Api.UserTest do
   use Api.DataCase
 
   alias Api.{Accounts, Accounts.User}
   alias Api.Competitions
+  import Api.Accounts.User, only: [display_name: 1]
 
   @valid_attrs %{
     email: "johndoe@example.com",
@@ -47,6 +48,39 @@ defmodule ApiWeb.UserTest do
       %User{}, Map.put(@valid_attrs, :password, "12345")
     )
     refute changeset.valid?
+  end
+
+  test "display name from email if there's no first and last name" do
+    user = create_user(%{
+      first_name: nil,
+      last_name: nil,
+      email: "johndoe@example.com",
+      password: "password"
+    })
+
+    assert display_name(user) == "johndoe"
+  end
+
+  test "display_name from first name if there's no last name" do
+    user = create_user(%{
+      first_name: "john",
+      last_name: nil,
+      email: "johndoe@example.com",
+      password: "password"
+    })
+
+    assert display_name(user) == "john"
+  end
+
+  test "display_name from first and last name if they're present" do
+    user = create_user(%{
+      first_name: "john",
+      last_name: "doe",
+      email: "johndoe@example.com",
+      password: "password"
+    })
+
+    assert display_name(user) == "john doe"
   end
 
   test "able_to_vote not in a team" do

@@ -1,4 +1,4 @@
-defmodule ApiWeb.InviteTest do
+defmodule Api.InviteTest do
   use Api.DataCase
 
   alias Api.Competitions.Invite
