@@ -1,10 +1,13 @@
 defmodule ApiWeb.UserController do
   use Api.Web, :controller
 
-  alias ApiWeb.{Controller.Errors, SessionActions, SessionView, UserActions}
+  alias ApiWeb.{ErrorController, SessionActions, SessionView, UserActions}
+
+  action_fallback ErrorController
 
   plug :scrub_params, "user" when action in [:create, :update]
-  plug Guardian.Plug.EnsureAuthenticated, [handler: Errors] when action in [:update, :delete]
+  plug Guardian.Plug.EnsureAuthenticated, [handler: ErrorController]
+    when action in [:update, :delete]
 
   def index(conn, _params) do
     render(conn, "index.json", users: UserActions.all)
@@ -15,43 +18,36 @@ defmodule ApiWeb.UserController do
   end
 
   def create(conn, %{"user" => user_params}) do
-    case UserActions.create(user_params) do
-      {:ok, jwt, user} ->
-        conn
-        |> put_status(:created)
-        |> put_resp_header("location", user_path(conn, :show, user))
-        |> render(SessionView, "show.json", data: %{jwt: jwt, user: user})
-      {:error, changeset} -> Errors.changeset(conn, changeset)
+    with {:ok, jwt, user} <- UserActions.create(user_params) do
+      conn
+      |> put_status(:created)
+      |> put_resp_header("location", user_path(conn, :show, user))
+      |> render(SessionView, "show.json", data: %{jwt: jwt, user: user})
     end
   end
 
   def update(conn, %{"id" => id, "user" => user_params}) do
-    case UserActions.update(SessionActions.current_user(conn), id, user_params) do
-      {:ok, user} -> render(conn, "show.json", user: user)
-      {:error, changeset} -> Errors.changeset(conn, changeset)
+    user = SessionActions.current_user(conn)
+
+    with {:ok, user} <- UserActions.update(user, id, user_params) do
+      render(conn, "show.json", user: user)
     end
   end
 
   def delete(conn, %{"id" => id}) do
-    case UserActions.delete(SessionActions.current_user(conn), id) do
-      :unauthorized -> Errors.unauthorized(conn, nil)
-      _ -> send_resp(conn, :no_content, "")
-    end
+    user = SessionActions.current_user(conn)
+
+    with {_} <- UserActions.delete(user, id),
+      do: send_resp(conn, :no_content, "")
   end
 
   def get_token(conn, %{"email" => email}) do
-    case UserActions.get_token(email) do
-      {:error, changeset} -> Errors.changeset(conn, changeset)
-      {:ok, _} -> send_resp(conn, :no_content, "")
-      code -> Errors.build(conn, :not_found, code)
-    end
+    with {:ok, _} <- UserActions.get_token(email),
+      do: send_resp(conn, :no_content, "")
   end
 
-  def recover_password(conn, %{"token" => token, "password" => password}) do
-    case UserActions.recover_password(token, password) do
-      {:error, changeset} -> Errors.changeset(conn, changeset)
-      {:ok, _} -> send_resp(conn, :no_content, "")
-      code -> Errors.build(conn, :unprocessable_entity, code)
-    end
+  def recover_password(conn, %{"token" => t, "password" => p}) do
+    with {:ok, _} <- UserActions.recover_password(t, p),
+      do: send_resp(conn, :no_content, "")
   end
 end

@@ -37,7 +37,7 @@ defmodule ApiWeb.TeamView do
       name: team.name,
       applied: team.applied,
       eligible: team.eligible,
-      prize_preference: team.prize_preference
+      prize_preference: team.prize_preference,
     }
   end
 end

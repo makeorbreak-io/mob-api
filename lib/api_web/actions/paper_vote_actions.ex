@@ -3,9 +3,14 @@ defmodule ApiWeb.PaperVoteActions do
 
   alias ApiWeb.{CompetitionActions, PaperVote}
 
+  def get(id) do
+    Repo.get!(PaperVote, id)
+    |> Repo.preload(:category)
+  end
+
   def create(category, admin) do
     case CompetitionActions.voting_status do
-      :ended -> {:error, :already_ended}
+      :ended -> :already_ended
       _ ->
         {
           :ok,
@@ -24,12 +29,12 @@ defmodule ApiWeb.PaperVoteActions do
     at = at || DateTime.utc_now
 
     cond do
-      !team.eligible -> {:error, :team_not_eligible}
-      team.disqualified_at -> {:error, :team_disqualified}
-      paper_vote.redeemed_at -> {:error, :already_redeemed}
-      paper_vote.annulled_at -> {:error, :annulled}
-      CompetitionActions.voting_status == :not_started -> {:error, :not_started}
-      CompetitionActions.voting_status == :ended -> {:error, :already_ended}
+      !team.eligible -> :team_not_eligible
+      team.disqualified_at -> :team_disqualified
+      paper_vote.redeemed_at -> :already_redeemed
+      paper_vote.annulled_at -> :annulled
+      CompetitionActions.voting_status == :not_started -> :not_started
+      CompetitionActions.voting_status == :ended -> :already_ended
       true ->
         {
           :ok,
@@ -50,7 +55,7 @@ defmodule ApiWeb.PaperVoteActions do
     at = at || DateTime.utc_now
 
     case CompetitionActions.voting_status do
-      :ended -> {:error, :already_ended}
+      :ended -> :already_ended
       _ ->
         {
           :ok,

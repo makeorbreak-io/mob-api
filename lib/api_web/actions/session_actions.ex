@@ -25,12 +25,12 @@ defmodule ApiWeb.SessionActions do
     Bcrypt.checkpw(password, user.password_hash) && {:ok, user} || {:error, :wrong_credentials}
   end
 
-  defp sign_user({:error, e}), do: e
+  defp sign_user({:error, error}), do: error
   defp sign_user({:ok, user}) do
     {:ok, jwt, _} = Guardian.encode_and_sign(
       user,
       :token,
-      perms: %{"#{user.role}": Permissions.max}
+      perms: %{"#{user.role}": Permissions.max},
     )
     {:ok, jwt, UserActions.preload_user_data(user)}
   end

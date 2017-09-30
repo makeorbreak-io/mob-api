@@ -9,6 +9,6 @@ defmodule ApiWeb.UserActionTest do
 
     CompetitionActions.start_voting()
 
-    {:error, :already_started} = UserActions.toggle_checkin(u.id, true)
+    :already_started = UserActions.toggle_checkin(u.id, true)
   end
 end

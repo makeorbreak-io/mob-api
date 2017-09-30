@@ -1,14 +1,14 @@
 defmodule ApiWeb.TeamMemberView do
   use Api.Web, :view
 
-  alias ApiWeb.{ProjectView, InviteView, UserHelper}
+  alias ApiWeb.{InviteView, UserHelper}
 
   def render("member_user.json", %{membership: membership}) do
     %{
       id: membership.user.id,
       role: membership.role,
       display_name: UserHelper.display_name(membership.user),
-      gravatar_hash: UserHelper.gravatar_hash(membership.user)
+      gravatar_hash: UserHelper.gravatar_hash(membership.user),
     }
   end
 
@@ -17,7 +17,7 @@ defmodule ApiWeb.TeamMemberView do
       id: membership.team.id,
       role: membership.role,
       name: membership.team.name,
-      applied: membership.team.applied
+      applied: membership.team.applied,
     }
   end
 

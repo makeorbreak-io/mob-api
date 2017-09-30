@@ -3,8 +3,7 @@ defmodule ApiWeb.Email do
   alias ApiWeb.{UserHelper, LayoutView}
 
   def invite_email(recipient, host) do
-    base_email()
-    |> to(recipient)
+    base_email(recipient)
     |> subject("Join #{UserHelper.display_name(host)}'s team in this year's Make or Break!")
     |> put_html_layout({LayoutView, "email.html"})
     |> assign(:title, "Join #{UserHelper.display_name(host)}'s team in this year's Make or Break")
@@ -14,8 +13,7 @@ defmodule ApiWeb.Email do
   end
 
   def invite_notification_email(recipient, host) do
-    base_email()
-    |> to(recipient)
+    base_email(recipient)
     |> subject("Join #{UserHelper.display_name(host)}'s team in this year's Make or Break!")
     |> put_html_layout({LayoutView, "email.html"})
     |> assign(:title, "Join #{UserHelper.display_name(host)}'s team in this year's Make or Break")
@@ -26,8 +24,7 @@ defmodule ApiWeb.Email do
   end
 
   def registration_email(recipient) do
-    base_email()
-    |> to(recipient)
+    base_email(recipient)
     |> subject("Make or Break - You are almost there!")
     |> put_html_layout({LayoutView, "email.html"})
     |> assign(:title, "Welcome to Make or Break!")
@@ -36,8 +33,7 @@ defmodule ApiWeb.Email do
   end
 
   def joined_hackathon_email(recipient, team) do
-    base_email()
-    |> to(recipient)
+    base_email(recipient)
     |> subject("Welcome to the Make or Break hackathon!")
     |> put_html_layout({LayoutView, "email.html"})
     |> assign(:title, "Welcome to the Make or Break hackathon!")
@@ -47,8 +43,7 @@ defmodule ApiWeb.Email do
   end
 
   def joined_workshop_email(recipient, workshop) do
-    base_email()
-    |> to(recipient)
+    base_email(recipient)
     |> subject("You have applied to #{workshop.name}")
     |> put_html_layout({LayoutView, "email.html"})
     |> assign(:title, "You have applied to #{workshop.name}")
@@ -58,8 +53,7 @@ defmodule ApiWeb.Email do
   end
 
   def checkin_email(recipient) do
-    base_email()
-    |> to(recipient)
+    base_email(recipient)
     |> subject("Welcome to Make or Break!")
     |> put_html_layout({LayoutView, "email.html"})
     |> assign(:title, "Welcome to Make or Break!")
@@ -68,8 +62,7 @@ defmodule ApiWeb.Email do
   end
 
   def recover_password_email(recipient) do
-    base_email()
-    |> to(recipient)
+    base_email(recipient)
     |> subject("Reset your MoB password.")
     |> put_html_layout({LayoutView, "email.html"})
     |> assign(:title, "Reset your password")
@@ -78,9 +71,10 @@ defmodule ApiWeb.Email do
     |> render("recover_password.html")
   end
 
-  defp base_email do
+  defp base_email(recipient) do
     # Here you can set a default from, default headers, etc.
     new_email()
     |> from({"Porto Summer of Code", "info@portosummerofcode.com"})
+    |> to(recipient)
   end
 end

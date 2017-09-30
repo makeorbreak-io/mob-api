@@ -37,14 +37,16 @@ defmodule ApiWeb.Admin.UserView do
       workshops: if Ecto.assoc_loaded?(user.workshops) do
         render_many(user.workshops, WorkshopView, "workshop_short.json")
       end,
-      checked_in: user.checked_in
+      checked_in: user.checked_in,
     }
   end
 
   def render("user_short.json", %{user: user}) do
     Map.merge(
       render_one(user, UserView, "user_short.json"),
-      %{email: user.email}
+      %{
+        email: user.email,
+      }
     )
   end
 end

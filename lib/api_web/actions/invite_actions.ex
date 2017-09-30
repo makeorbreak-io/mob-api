@@ -32,7 +32,7 @@ defmodule ApiWeb.InviteActions do
 
   def accept(id) do
     case Repo.get(Invite, id) do
-      nil -> {:error, "Invite not found"}
+      nil -> :invite_not_found
       invite -> create_membership(invite)
     end
   end
@@ -49,19 +49,6 @@ defmodule ApiWeb.InviteActions do
     headers = %{"Content-Type" => "application/x-www-form-urlencoded"}
 
     with {:ok, response} <- @http.post(url, "", headers), do: process_slack_invite(response)
-  end
-
-  def sync do
-    invites = Invite
-    |> where([i], not is_nil(i.email))
-    |> Repo.all
-
-    Enum.each(invites, fn(invite) ->
-      case Repo.get_by(User, email: invite.email) do
-        nil -> nil
-        user -> __MODULE__.update(invite, %{invitee_id: user.id})
-      end
-    end)
   end
 
   defp create_if_vacant(user, invite_params) do
@@ -112,8 +99,7 @@ defmodule ApiWeb.InviteActions do
 
   defp create_membership(invite) do
     case CompetitionActions.voting_status do
-      :started ->
-        {:error, :already_started}
+      :started -> :already_started
       _ ->
         changeset = TeamMember.changeset(
           %TeamMember{},
@@ -146,7 +132,12 @@ defmodule ApiWeb.InviteActions do
     case Poison.decode! response.body do
       %{"ok" => true} -> {:ok, true}
       %{"ok" => false, "error" => error} ->
-        {:error, %{email: [message(String.to_atom(error))]}}
+        message = message(String.to_atom(error))
+        {:error, %Ecto.Changeset{
+          valid?: false,
+          types: %{email: :string},
+          errors: [email: {message, []}],
+        }}
     end
   end
 

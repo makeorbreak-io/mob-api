@@ -1,28 +1,30 @@
 defmodule ApiWeb.InviteController do
   use Api.Web, :controller
 
-  alias ApiWeb.{Controller.Errors, InviteActions, SessionActions}
+  alias ApiWeb.{ErrorController, InviteActions, SessionActions}
+
+  action_fallback ErrorController
 
   plug :scrub_params, "invite" when action in [:create]
   plug Guardian.Plug.EnsureAuthenticated,
-    [handler: Errors] when action in [:index, :create, :accept, :delete]
+    [handler: ErrorController] when action in [:index, :create, :accept, :delete]
 
   def index(conn, _params) do
-    render(conn, "index.json",
-      invites: InviteActions.for_current_user(SessionActions.current_user(conn)))
+    user = SessionActions.current_user(conn)
+
+    render(conn, "index.json", invites: InviteActions.for_current_user(user))
   end
 
   def create(conn, %{"invite" => invite_params}) do
-    case InviteActions.create(SessionActions.current_user(conn), invite_params) do
-      {:ok, invite} ->
-        invite = Repo.preload(invite, [:host, :team, :invitee])
+    user = SessionActions.current_user(conn)
 
-        conn
-        |> put_status(:created)
-        |> put_resp_header("location", invite_path(conn, :show, invite))
-        |> render("show.json", invite: invite)
-      {:error, changeset} -> Errors.changeset(conn, changeset)
-      error_code -> Errors.build(conn, :unprocessable_entity, error_code)
+    with {:ok, invite} <- InviteActions.create(user, invite_params) do
+      invite = Repo.preload(invite, [:host, :team, :invitee])
+
+      conn
+      |> put_status(:created)
+      |> put_resp_header("location", invite_path(conn, :show, invite))
+      |> render("show.json", invite: invite)
     end
   end
 
@@ -31,9 +33,8 @@ defmodule ApiWeb.InviteController do
   end
 
   def accept(conn, %{"id" => id}) do
-    case InviteActions.accept(id) do
-      {:ok, _} -> send_resp(conn, :no_content, "")
-      {:error, error} -> Errors.build(conn, :unprocessable_entity, error)
+    with {:ok, _} <- InviteActions.accept(id) do
+      send_resp(conn, :no_content, "")
     end
   end
 
@@ -43,9 +44,8 @@ defmodule ApiWeb.InviteController do
   end
 
   def invite_to_slack(conn, %{"email" => email}) do
-    case InviteActions.invite_to_slack(email) do
-      {:ok, _} -> send_resp(conn, :created, "")
-      {:error, error} -> Errors.build(conn, :unprocessable_entity, error)
+    with {:ok, _} <- InviteActions.invite_to_slack(email) do
+      send_resp(conn, :created, "")
     end
   end
 end

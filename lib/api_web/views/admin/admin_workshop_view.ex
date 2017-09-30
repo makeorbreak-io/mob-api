@@ -27,7 +27,7 @@ defmodule ApiWeb.Admin.WorkshopView do
       short_date: workshop.short_date,
       attendees: if Ecto.assoc_loaded?(workshop.attendances) do
         render_many(workshop.attendances, WorkshopAttendanceView, "attendance_user.json", as: :attendance)
-      end
+      end,
     }
   end
 end

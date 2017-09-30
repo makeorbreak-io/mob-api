@@ -1,24 +1,26 @@
 defmodule ApiWeb.TeamController do
   use Api.Web, :controller
 
-  alias ApiWeb.{Controller.Errors, SessionActions, TeamActions}
+  alias ApiWeb.{SessionActions, TeamActions, ErrorController}
+
+  action_fallback ErrorController
 
   plug :scrub_params, "team" when action in [:create, :update]
   plug Guardian.Plug.EnsureAuthenticated,
-    [handler: Errors] when action in [:create, :update, :delete, :remove]
+    [handler: ErrorController] when action in [:create, :update, :delete, :remove]
 
   def index(conn, _params) do
     render(conn, "index.json", teams: TeamActions.all)
   end
 
   def create(conn, %{"team" => team_params}) do
-    case TeamActions.create(SessionActions.current_user(conn), team_params) do
-      {:ok, team} ->
-        conn
-        |> put_status(:created)
-        |> put_resp_header("location", team_path(conn, :show, team))
-        |> render("show.json", team: team)
-      {:error, changeset} -> Errors.changeset(conn, changeset)
+    user = SessionActions.current_user(conn)
+
+    with {:ok, team} <- TeamActions.create(user, team_params) do
+      conn
+      |> put_status(:created)
+      |> put_resp_header("location", team_path(conn, :show, team))
+      |> render("show.json", team: team)
     end
   end
 
@@ -27,26 +29,26 @@ defmodule ApiWeb.TeamController do
   end
 
   def update(conn, %{"id" => id, "team" => team_params}) do
-    case TeamActions.update(SessionActions.current_user(conn), id, team_params) do
-      {:ok, team} ->
-        render(conn, "show.json", team: team)
-      {:error, changeset} -> Errors.changeset(conn, changeset)
-      {:unauthorized} -> Errors.unauthorized(conn, nil)
+    user = SessionActions.current_user(conn)
+
+    with {:ok, team} <- TeamActions.update(user, id, team_params) do
+      render(conn, "show.json", team: team)
     end
   end
 
   def delete(conn, %{"id" => id}) do
-    case TeamActions.delete(SessionActions.current_user(conn), id) do
-      {:unauthorized} -> Errors.unauthorized(conn, nil)
-      _ -> send_resp(conn, :no_content, "")
+    user = SessionActions.current_user(conn)
+
+    with {_} <- TeamActions.delete(user, id) do
+      send_resp(conn, :no_content, "")
     end
   end
 
   def remove(conn, %{"id" => id, "user_id" => user_id}) do
-    case TeamActions.remove(SessionActions.current_user(conn), id, user_id) do
-      {:ok} -> send_resp(conn, :no_content, "")
-      {:error, error} -> Errors.build(conn, :unprocessable_entity, error)
-      {:unauthorized} -> Errors.unauthorized(conn, nil)
+    user = SessionActions.current_user(conn)
+
+    with :ok <- TeamActions.remove(user, id, user_id) do
+      send_resp(conn, :no_content, "")
     end
   end
 end

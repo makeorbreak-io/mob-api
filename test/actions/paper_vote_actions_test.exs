@@ -28,7 +28,7 @@ defmodule ApiWeb.PaperVoteActionsTest do
     CompetitionActions.start_voting()
     CompetitionActions.end_voting()
 
-    {:error, :already_ended} = PaperVoteActions.create(c, a)
+    :already_ended = PaperVoteActions.create(c, a)
   end
 
   test "redeem", %{category: c, admin: a, member: m, team: t} do
@@ -45,7 +45,7 @@ defmodule ApiWeb.PaperVoteActionsTest do
     CompetitionActions.start_voting()
 
     {:ok, p} = PaperVoteActions.redeem(p, t, m, a)
-    {:error, :already_redeemed} = PaperVoteActions.redeem(p, t, m, a)
+    :already_redeemed = PaperVoteActions.redeem(p, t, m, a)
   end
 
   test "redeem not annulled", %{category: c, admin: a, member: m, team: t} do
@@ -54,7 +54,7 @@ defmodule ApiWeb.PaperVoteActionsTest do
     CompetitionActions.start_voting()
 
     {:ok, p} = PaperVoteActions.annul(p, a)
-    {:error, :annulled} = PaperVoteActions.redeem(p, t, m, a)
+    :annulled = PaperVoteActions.redeem(p, t, m, a)
   end
 
   test "redeem not eligible", %{category: c, admin: a, member: m, team: t} do
@@ -62,7 +62,7 @@ defmodule ApiWeb.PaperVoteActionsTest do
     # Notice I'm not making teams eligible
     CompetitionActions.start_voting()
 
-    {:error, :team_not_eligible} = PaperVoteActions.redeem(p, t, m, a)
+    :team_not_eligible = PaperVoteActions.redeem(p, t, m, a)
   end
 
   test "redeem disqualified", %{category: c, admin: a, member: m, team: t} do
@@ -73,14 +73,14 @@ defmodule ApiWeb.PaperVoteActionsTest do
     TeamActions.disqualify(t.id, a)
     t = Repo.get!(Team, t.id)
 
-    {:error, :team_disqualified} = PaperVoteActions.redeem(p, t, m, a)
+    :team_disqualified = PaperVoteActions.redeem(p, t, m, a)
   end
 
   test "redeem before start", %{category: c, admin: a, member: m, team: t} do
     {:ok, p} = PaperVoteActions.create(c, a)
     [t] = make_teams_eligible([t])
 
-    {:error, :not_started} = PaperVoteActions.redeem(p, t, m, a)
+    :not_started = PaperVoteActions.redeem(p, t, m, a)
   end
 
   test "redeem after end", %{category: c, admin: a, member: m, team: t} do
@@ -89,7 +89,7 @@ defmodule ApiWeb.PaperVoteActionsTest do
     CompetitionActions.start_voting()
     CompetitionActions.end_voting()
 
-    {:error, :already_ended} = PaperVoteActions.redeem(p, t, m, a)
+    :already_ended = PaperVoteActions.redeem(p, t, m, a)
   end
 
   test "annul", %{category: c, admin: a} do
@@ -103,6 +103,6 @@ defmodule ApiWeb.PaperVoteActionsTest do
     CompetitionActions.start_voting()
     CompetitionActions.end_voting()
 
-    {:error, :already_ended} = PaperVoteActions.annul(p, a)
+    :already_ended = PaperVoteActions.annul(p, a)
   end
 end

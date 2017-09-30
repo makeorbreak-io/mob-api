@@ -1,7 +1,7 @@
 defmodule ApiWeb.VoteActions do
   use Api.Web, :action
 
-  alias ApiWeb.{Vote, Category, Team, CompetitionActions}
+  alias ApiWeb.{Repo, Vote, Category, Team, CompetitionActions, User, PaperVote}
   alias Ecto.{Multi}
 
   def upsert_votes(user, votes) do
@@ -34,7 +34,7 @@ defmodule ApiWeb.VoteActions do
           %{
             voter_identity: user.voter_identity,
             category_id: category.id,
-            ballot: ballot
+            ballot: ballot,
           }
         )
       )
@@ -51,6 +51,50 @@ defmodule ApiWeb.VoteActions do
     |> Repo.preload(:category)
 
     {:ok, votes}
+  end
+
+  def build_info_start do
+    at = CompetitionActions.voting_started_at()
+
+    %{
+      participants: %{
+        initial_count: Repo.aggregate(User.able_to_vote(at), :count, :id),
+      },
+      paper_votes: %{
+        initial_count: Repo.aggregate(PaperVote.not_annuled(at), :count, :id),
+      },
+      teams: Team.votable(at) |> Repo.all(),
+    }
+  end
+
+  def build_info_end do
+    begun_at = CompetitionActions.voting_started_at()
+    ended_at = CompetitionActions.voting_ended_at()
+    categories = Repo.all(Category)
+
+    %{
+      participants: %{
+        initial_count:
+          Repo.aggregate(User.able_to_vote(begun_at), :count, :id),
+        final_count:
+          Repo.aggregate(User.able_to_vote(ended_at), :count, :id),
+      },
+      paper_votes: %{
+        initial_count:
+          Repo.aggregate(PaperVote.not_annuled(begun_at), :count, :id),
+        final_count:
+          Repo.aggregate(PaperVote.countable(ended_at), :count, :id),
+      },
+      teams: Team.votable(begun_at) |> Repo.all,
+      categories: categories,
+      all_teams: Repo.all(Team),
+      categories_to_votes: categories |> Map.new(fn c ->
+        {
+          c,
+          CompetitionActions.ballots(c, ended_at),
+        }
+      end),
+    }
   end
 
   defp validate_ballot(votes, user), do: validate_ballot(votes, user, [])

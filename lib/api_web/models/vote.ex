@@ -3,11 +3,11 @@ defmodule ApiWeb.Vote do
 
   alias ApiWeb.{Category, User}
 
-  @attrs [
-    :voter_identity,
-    :category_id,
-    :ballot,
-  ]
+  @attrs ~w(
+    voter_identity
+    category_id
+    ballot
+  )a
 
   schema "votes" do
     belongs_to(
