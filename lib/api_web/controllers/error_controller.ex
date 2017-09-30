@@ -3,7 +3,7 @@ defmodule ApiWeb.ErrorController do
 
   alias ApiWeb.{ChangesetView, ErrorView}
 
-  def call(conn, {:error, changeset}) do
+  def call(conn, {:error, %Ecto.Changeset{} = changeset}) do
     conn
     |> put_status(:unprocessable_entity)
     |> render(ChangesetView, "error.json", changeset: changeset)
