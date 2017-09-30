@@ -1,10 +1,16 @@
 ExUnit.start
 
-Ecto.Adapters.SQL.Sandbox.mode(ApiWeb.Repo, :manual)
+Ecto.Adapters.SQL.Sandbox.mode(Api.Repo, :manual)
 
 defmodule ApiWeb.TestHelper do
-  alias ApiWeb.{User, Team, Repo, TeamMember, Invite, Workshop, Category,
-    StringHelper, Vote, PaperVoteActions, UserHelper}
+  alias Api.Repo
+  alias Api.Accounts.User
+  alias Api.Workshops.Workshop
+  alias Api.{Competitions.Team, Competitions.Membership, Competitions.Invite,
+    Competitions.Category}
+  alias Api.{Voting, Voting.Vote}
+  alias ApiWeb.StringHelper
+  import Api.Accounts.User, only: [display_name: 1, gravatar_hash: 1]
 
   @valid_user_attrs %{
     first_name: "john",
@@ -12,13 +18,7 @@ defmodule ApiWeb.TestHelper do
     password: "thisisapassword",
     github_handle: "https://github.com/nunopolonia"
   }
-  # Commenting this instead of deleting because not using this on the create_team
-  # function will break the github integration tests once they are uncommented.
-  # So I'm keeping it for future reference.
-  # @valid_team_attrs %{
-  #   name: "awesome team",
-  #   repo: %{"name" => "awesome-team"}
-  # }
+
   @valid_workshop_attrs %{
     name: "awesome workshop",
     slug: "awesome-workshop",
@@ -58,7 +58,7 @@ defmodule ApiWeb.TestHelper do
     |> Team.changeset(params, Repo)
     |> Repo.insert!
 
-    Repo.insert! %TeamMember{user_id: user.id, team_id: team.id, role: "owner"}
+    Repo.insert! %Membership{user_id: user.id, team_id: team.id, role: "owner"}
 
     team
   end
@@ -76,8 +76,8 @@ defmodule ApiWeb.TestHelper do
   end
 
   def create_membership(team, user) do
-    %TeamMember{}
-    |> TeamMember.changeset(%{
+    %Membership{}
+    |> Membership.changeset(%{
       user_id: user.id,
       team_id: team.id,
     })
@@ -128,17 +128,17 @@ defmodule ApiWeb.TestHelper do
   end
 
   def create_paper_vote(category, admin) do
-    {:ok, pv} = PaperVoteActions.create(category, admin)
+    {:ok, pv} = Voting.create_paper_vote(category, admin)
     pv
   end
 
   def annul_paper_vote(paper_vote, admin) do
-    {:ok, pv} = PaperVoteActions.annul(paper_vote, admin)
+    {:ok, pv} = Voting.annul_paper_vote(paper_vote, admin)
     pv
   end
 
   def redeem_paper_vote(paper_vote, team, member, admin) do
-    {:ok, pv} = PaperVoteActions.redeem(paper_vote, team, member, admin)
+    {:ok, pv} = Voting.redeem_paper_vote(paper_vote, team, member, admin)
     pv
   end
 
@@ -164,10 +164,10 @@ defmodule ApiWeb.TestHelper do
 
   def admin_user_short_view(u) do
     %{
-      "display_name" => UserHelper.display_name(u),
+      "display_name" => display_name(u),
       "first_name" => u.first_name,
       "last_name" => u.last_name,
-      "gravatar_hash" => UserHelper.gravatar_hash(u),
+      "gravatar_hash" => gravatar_hash(u),
       "id" => u.id,
       "tshirt_size" => u.tshirt_size,
       "email" => u.email

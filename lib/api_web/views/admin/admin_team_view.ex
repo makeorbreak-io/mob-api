@@ -1,7 +1,7 @@
 defmodule ApiWeb.Admin.TeamView do
   use Api.Web, :view
 
-  alias ApiWeb.{TeamView}
+  alias ApiWeb.TeamView
 
   def render("index.json", %{teams: teams}) do
     %{data: render_many(teams, TeamView, "team.json")}

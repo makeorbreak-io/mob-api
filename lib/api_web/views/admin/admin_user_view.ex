@@ -1,7 +1,8 @@
 defmodule ApiWeb.Admin.UserView do
   use Api.Web, :view
 
-  alias ApiWeb.{TeamMemberView, WorkshopView, UserView, UserHelper}
+  alias ApiWeb.{MembershipView, WorkshopView, UserView}
+  import Api.Accounts.User, only: [display_name: 1, gravatar_hash: 1]
 
   def render("index.json", %{users: users}) do
     %{data: render_many(users, __MODULE__, "user.json")}
@@ -18,8 +19,8 @@ defmodule ApiWeb.Admin.UserView do
       role: user.role,
       first_name: user.first_name,
       last_name: user.last_name,
-      gravatar_hash: UserHelper.gravatar_hash(user),
-      display_name: UserHelper.display_name(user),
+      gravatar_hash: gravatar_hash(user),
+      display_name: display_name(user),
       birthday: user.birthday,
       bio: user.bio,
       github_handle: user.github_handle,
@@ -31,7 +32,7 @@ defmodule ApiWeb.Admin.UserView do
       inserted_at: user.inserted_at,
       updated_at: user.updated_at,
       team: if user.team do
-        render_one(user.team, TeamMemberView, "member_team_short.json", as: :membership)
+        render_one(user.team, MembershipView, "member_team_short.json", as: :membership)
       end,
       tshirt_size: user.tshirt_size,
       workshops: if Ecto.assoc_loaded?(user.workshops) do

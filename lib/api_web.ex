@@ -1,21 +1,21 @@
 defmodule Api.Web do
   @moduledoc """
-  A module that keeps using definitions for controllers,
-  views and so on.
+  The entrypoint for defining your web interface, such
+  as controllers, views, channels and so on.
 
   This can be used in your application as:
 
-      use Api.Web, :controller
-      use Api.Web, :view
+      use ApiWeb, :controller
+      use ApiWeb, :view
 
   The definitions below will be executed for every view,
   controller, etc, so keep them short and clean, focused
   on imports, uses and aliases.
 
   Do NOT define functions inside the quoted expressions
-  below.
+  below. Instead, define any helper function in modules
+  and import those modules here.
   """
-
   def model do
     quote do
       use Ecto.Schema
@@ -33,17 +33,16 @@ defmodule Api.Web do
     quote do
       use Phoenix.Controller, namespace: ApiWeb
 
-      alias ApiWeb.Repo
+      alias Api.Repo
 
-      import Ecto
-      import Ecto.Query
+      import Plug.Conn
       import ApiWeb.Router.Helpers
     end
   end
 
   def action do
     quote do
-      alias ApiWeb.Repo
+      alias Api.Repo
 
       import Ecto
       import Ecto.Query
@@ -52,7 +51,8 @@ defmodule Api.Web do
 
   def view do
     quote do
-      use Phoenix.View, root: "lib/api_web/templates", namespace: ApiWeb
+      use Phoenix.View, root: "lib/api_web/templates",
+                        namespace: ApiWeb
 
       use Phoenix.HTML
 
@@ -63,6 +63,8 @@ defmodule Api.Web do
   def router do
     quote do
       use Phoenix.Router
+      import Plug.Conn
+      import Phoenix.Controller
     end
   end
 

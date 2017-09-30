@@ -1,24 +1,27 @@
 defmodule ApiWeb.InviteController do
   use Api.Web, :controller
 
-  alias ApiWeb.{ErrorController, InviteActions, SessionActions}
+  alias Api.Accounts
+  alias Api.Competitions
+  alias ApiWeb.ErrorController
+  alias Guardian.Plug.EnsureAuthenticated
 
   action_fallback ErrorController
 
   plug :scrub_params, "invite" when action in [:create]
-  plug Guardian.Plug.EnsureAuthenticated,
-    [handler: ErrorController] when action in [:index, :create, :accept, :delete]
+  plug EnsureAuthenticated, [handler: ErrorController]
+    when action in [:index, :create, :accept, :delete]
 
   def index(conn, _params) do
-    user = SessionActions.current_user(conn)
+    user = Accounts.current_user(conn)
 
-    render(conn, "index.json", invites: InviteActions.for_current_user(user))
+    render(conn, "index.json", invites: Competitions.current_user_invites(user))
   end
 
   def create(conn, %{"invite" => invite_params}) do
-    user = SessionActions.current_user(conn)
+    user = Accounts.current_user(conn)
 
-    with {:ok, invite} <- InviteActions.create(user, invite_params) do
+    with {:ok, invite} <- Competitions.create_invite(user, invite_params) do
       invite = Repo.preload(invite, [:host, :team, :invitee])
 
       conn
@@ -29,22 +32,22 @@ defmodule ApiWeb.InviteController do
   end
 
   def show(conn, %{"id" => id}) do
-    render(conn, "show.json", invite: InviteActions.get(id))
+    render(conn, "show.json", invite: Competitions.get_invite(id))
   end
 
   def accept(conn, %{"id" => id}) do
-    with {:ok, _} <- InviteActions.accept(id) do
+    with {:ok, _} <- Competitions.accept_invite(id) do
       send_resp(conn, :no_content, "")
     end
   end
 
   def delete(conn, %{"id" => id}) do
-    InviteActions.delete(id)
+    Competitions.delete_invite(id)
     send_resp(conn, :no_content, "")
   end
 
   def invite_to_slack(conn, %{"email" => email}) do
-    with {:ok, _} <- InviteActions.invite_to_slack(email) do
+    with {:ok, _} <- Competitions.invite_to_slack(email) do
       send_resp(conn, :created, "")
     end
   end

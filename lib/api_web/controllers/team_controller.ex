@@ -1,22 +1,25 @@
 defmodule ApiWeb.TeamController do
   use Api.Web, :controller
 
-  alias ApiWeb.{SessionActions, TeamActions, ErrorController}
+  alias Api.Accounts
+  alias Api.Competitions
+  alias ApiWeb.ErrorController
+  alias Guardian.Plug.EnsureAuthenticated
 
   action_fallback ErrorController
 
   plug :scrub_params, "team" when action in [:create, :update]
-  plug Guardian.Plug.EnsureAuthenticated,
-    [handler: ErrorController] when action in [:create, :update, :delete, :remove]
+  plug EnsureAuthenticated, [handler: ErrorController]
+    when action in [:create, :update, :delete, :remove]
 
   def index(conn, _params) do
-    render(conn, "index.json", teams: TeamActions.all)
+    render(conn, "index.json", teams: Competitions.list_teams)
   end
 
   def create(conn, %{"team" => team_params}) do
-    user = SessionActions.current_user(conn)
+    user = Accounts.current_user(conn)
 
-    with {:ok, team} <- TeamActions.create(user, team_params) do
+    with {:ok, team} <- Competitions.create_team(user, team_params) do
       conn
       |> put_status(:created)
       |> put_resp_header("location", team_path(conn, :show, team))
@@ -25,29 +28,29 @@ defmodule ApiWeb.TeamController do
   end
 
   def show(conn, %{"id" => id}) do
-    render(conn, "show.json", team: TeamActions.get(id))
+    render(conn, "show.json", team: Competitions.get_team(id))
   end
 
   def update(conn, %{"id" => id, "team" => team_params}) do
-    user = SessionActions.current_user(conn)
+    user = Accounts.current_user(conn)
 
-    with {:ok, team} <- TeamActions.update(user, id, team_params) do
+    with {:ok, team} <- Competitions.update_team(user, id, team_params) do
       render(conn, "show.json", team: team)
     end
   end
 
   def delete(conn, %{"id" => id}) do
-    user = SessionActions.current_user(conn)
+    user = Accounts.current_user(conn)
 
-    with {_} <- TeamActions.delete(user, id) do
+    with {_} <- Competitions.delete_team(user, id) do
       send_resp(conn, :no_content, "")
     end
   end
 
   def remove(conn, %{"id" => id, "user_id" => user_id}) do
-    user = SessionActions.current_user(conn)
+    user = Accounts.current_user(conn)
 
-    with :ok <- TeamActions.remove(user, id, user_id) do
+    with :ok <- Competitions.remove_membership(user, id, user_id) do
       send_resp(conn, :no_content, "")
     end
   end

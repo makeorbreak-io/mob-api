@@ -1,7 +1,9 @@
 defmodule ApiWeb.SessionView do
   use Api.Web, :view
 
-  alias ApiWeb.{UserHelper, InviteView, TeamMemberView, WorkshopView, CompetitionActions}
+  alias Api.Competitions
+  alias ApiWeb.{InviteView, MembershipView, WorkshopView}
+  import Api.Accounts.User, only: [display_name: 1, gravatar_hash: 1]
 
   def render("show.json", %{data: %{jwt: jwt, user: user}}) do
     %{data: %{
@@ -23,8 +25,8 @@ defmodule ApiWeb.SessionView do
       first_name: user.first_name,
       last_name: user.last_name,
       role: user.role,
-      gravatar_hash: UserHelper.gravatar_hash(user),
-      display_name: UserHelper.display_name(user),
+      gravatar_hash: gravatar_hash(user),
+      display_name: display_name(user),
       birthday: user.birthday,
       bio: user.bio,
       github_handle: user.github_handle,
@@ -34,7 +36,7 @@ defmodule ApiWeb.SessionView do
       college: user.college,
       company: user.company,
       team: if user.team do
-        render_one(user.team, TeamMemberView, "member_team_full.json", as: :membership)
+        render_one(user.team, MembershipView, "member_team_full.json", as: :membership)
       end,
       invitations: if Ecto.assoc_loaded?(user.invitations) do
         render_many(user.invitations, InviteView, "invite.json")
@@ -45,7 +47,7 @@ defmodule ApiWeb.SessionView do
       end,
     }
 
-    result = if CompetitionActions.voting_status == :ended do
+    result = if Competitions.voting_status == :ended do
       result
       |> Map.put(:voter_identity, user.voter_identity)
     else
