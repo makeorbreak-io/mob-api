@@ -102,7 +102,7 @@ defmodule ApiWeb.UserActions do
     |> maybe_update_password(new_password)
   end
 
-  defp add_pwd_recovery_data(nil), do: :user_not_found
+  defp add_pwd_recovery_data(nil), do: {:ok, nil} # do not leak existent / inexistent emails
   defp add_pwd_recovery_data(user) do
     changeset = User.changeset(user, %{
       pwd_recovery_token: UserHelper.generate_token(),
@@ -113,7 +113,7 @@ defmodule ApiWeb.UserActions do
       {:ok, user} ->
         Email.recover_password_email(user) |> Mailer.deliver_later
         {:ok, user}
-      {:error, changeset} -> {:error, changeset}
+      {:error, changeset} -> {:ok, nil} # do not leak existent / inexistent emails
     end
   end
 
