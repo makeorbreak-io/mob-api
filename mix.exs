@@ -35,7 +35,10 @@ defmodule Api.Mixfile do
       applications: [
         :bamboo,
         :comeonin,
+        :cors_plug,
         :cowboy,
+        :elixir_make,
+        :guardian,
         :httpoison,
         :logger,
         :markus,
@@ -45,6 +48,8 @@ defmodule Api.Mixfile do
         :postgrex,
         :sentry,
         :tentacat,
+
+        :edeliver,  # MUST be the last
       ]
     ]
   end
@@ -63,16 +68,17 @@ defmodule Api.Mixfile do
       {:cors_plug, "~> 1.2"},
       {:cowboy, "~> 1.0"},
       {:credo, "~> 0.7", only: [:dev, :test]},
-      {:distillery, "~> 1.4"},
+      {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
+      {:distillery, "~> 1.4", runtime: false},
+      {:edeliver, "~> 1.4.4"},
       {:excoveralls, "~> 0.7", only: :test},
       {:guardian, "~> 0.14"},
       {:httpoison, "~> 0.13"},
-      {:phoenix, "~> 1.3.0"},
       {:markus, "~> 0.3.0"},
+      {:phoenix, "~> 1.3.0"},
       {:phoenix_ecto, "~> 3.0"},
       {:phoenix_html, "~> 2.6"},
       {:poison, ">= 2.2.0"},
-      {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
       {:postgrex, "~> 0.13.3"},
       {:sentry, "~> 5.0.1"},
       {:tentacat, "~> 0.6.2"},

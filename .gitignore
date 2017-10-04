@@ -10,5 +10,5 @@ erl_crash.dump
 node_modules/
 /priv/static/
 /config/prod.secret.exs
-/rel
 .envrc
+.deliver/releases/

@@ -8,6 +8,14 @@ To start your Phoenix app:
   * Create and migrate your database with `mix ecto.create && mix ecto.migrate`
   * Start Phoenix endpoint with `mix server`
 
+## Deploy
+We're using [edeliver](https://github.com/edeliver/edeliver). We're using cold
+deploys, not upgrades.
+
+* mix edeliver build release
+* mix edeliver deploy release production
+* mix edeliver restart
+
 ## Environment Variables
 
 Use your preferred method to add the following variables to your environment.
