@@ -8,12 +8,7 @@ defmodule Api.TeamTest do
   @invalid_attrs %{}
 
   test "changeset with valid attributes" do
-    c = create_competition()
-    changeset = Team.changeset(
-      %Team{},
-      Map.merge(@valid_attrs, %{competition_id: c.id}),
-      Repo
-    )
+    changeset = Team.changeset(%Team{}, @valid_attrs, Repo)
     assert changeset.valid?
   end
 
@@ -28,29 +23,20 @@ defmodule Api.TeamTest do
   end
 
   test "changeset with private attributes" do
-    changeset = Team.changeset(%Team{}, %{"accepted" => true}, Repo)
-    :error = Changeset.fetch_change(changeset, :accepted)
+    changeset = Team.changeset(%Team{}, %{"eligible" => true}, Repo)
+    :error = Changeset.fetch_change(changeset, :eligible)
   end
 
   test "admin_changeset with private attributes" do
-    changeset = Team.admin_changeset(%Team{}, %{"accepted" => true}, Repo)
-    {:ok, _} = Changeset.fetch_change(changeset, :accepted)
+    changeset = Team.admin_changeset(%Team{}, %{"eligible" => true}, Repo)
+    {:ok, _} = Changeset.fetch_change(changeset, :eligible)
   end
 
-  # test "tie_breaker is sequential" do
-  #   c = create_competition()
-  #   first = Repo.insert!(Team.changeset(
-  #     %Team{},
-  #     Map.merge(@valid_attrs, %{competition_id: c.id}),
-  #     Repo)
-  #   )
-  #   assert first.tie_breaker == 1
+  test "tie_breaker is sequential" do
+    first = Repo.insert!(Team.changeset(%Team{}, @valid_attrs, Repo))
+    assert first.tie_breaker == 1
 
-  #   second = Repo.insert!(Team.changeset(
-  #     %Team{},
-  #     Map.merge(@valid_attrs, %{competition_id: c.id}),
-  #     Repo)
-  #   )
-  #   assert second.tie_breaker == 2
-  # end
+    second = Repo.insert!(Team.changeset(%Team{}, @valid_attrs, Repo))
+    assert second.tie_breaker == 2
+  end
 end
