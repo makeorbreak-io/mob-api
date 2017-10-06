@@ -1,7 +1,7 @@
 defmodule ApiWeb.EctoHelperTests do
   use ExUnit.Case, async: true
 
-  alias Api.Competitions.Team
+  alias Api.Teams.Team
   alias ApiWeb.EctoHelper
   alias Ecto.{Changeset}
 

@@ -3,8 +3,8 @@ defmodule Api.Stats do
 
   alias Api.Repo
   alias Api.Accounts.User
-  alias Api.{Workshops.Workshop, Workshops.Attendance}
-  alias Api.{Competitions.Team, Competitions.Membership}
+  alias Api.Workshops.{Workshop, Attendance}
+  alias Api.Teams.{Team, Membership}
 
   def get do
     roles = from(

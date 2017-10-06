@@ -1,7 +1,7 @@
 defmodule ApiWeb.VotingView do
   use Api.Web, :view
 
-  alias Api.Competitions.Team
+  alias Api.Teams.Team
   import ApiWeb.StringHelper, only: [slugify: 1]
 
   def render("info_begin.json", %{

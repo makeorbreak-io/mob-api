@@ -1,7 +1,7 @@
 defmodule Api.InviteTest do
   use Api.DataCase
 
-  alias Api.Competitions.Invite
+  alias Api.Teams.Invite
 
   @valid_attrs %{
     host_id: Ecto.UUID.generate(),

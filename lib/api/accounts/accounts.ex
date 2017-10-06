@@ -4,7 +4,7 @@ defmodule Api.Accounts do
   alias Api.{Mailer, Repo}
   alias Api.Accounts.User
   alias Api.Competitions
-  alias Api.Competitions.Invite
+  alias Api.Teams.Invite
   alias Api.Notifications.Emails
   alias Comeonin.Bcrypt
   alias Guardian.{Plug, Permissions}

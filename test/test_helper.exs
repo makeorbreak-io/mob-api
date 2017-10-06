@@ -6,8 +6,8 @@ defmodule ApiWeb.TestHelper do
   alias Api.Repo
   alias Api.Accounts.User
   alias Api.Workshops.Workshop
-  alias Api.{Competitions.Team, Competitions.Membership, Competitions.Invite,
-    Competitions.Category}
+  alias Api.Teams.{Team, Membership, Invite}
+  alias Api.Competitions.Category
   alias Api.{Voting, Voting.Vote}
   alias ApiWeb.StringHelper
   import Api.Accounts.User, only: [display_name: 1, gravatar_hash: 1]

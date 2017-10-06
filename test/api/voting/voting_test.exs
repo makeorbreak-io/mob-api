@@ -2,7 +2,8 @@ defmodule Api.VotingTest do
   use Api.DataCase
 
   alias Api.Competitions
-  alias Api.Competitions.Team
+  alias Api.Teams
+  alias Api.Teams.Team
   alias Api.Voting
 
   setup do
@@ -72,7 +73,7 @@ defmodule Api.VotingTest do
     [t] = make_teams_eligible([t])
     Competitions.start_voting()
 
-    Competitions.disqualify_team(t.id, a)
+    Teams.disqualify_team(t.id, a)
     t = Repo.get!(Team, t.id)
 
     :team_disqualified = Voting.redeem_paper_vote(p, t, m, a)

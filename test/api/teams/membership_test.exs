@@ -1,7 +1,7 @@
 defmodule Api.MembershipTest do
   use Api.DataCase
 
-  alias Api.Competitions.Membership
+  alias Api.Teams.Membership
 
   @valid_attrs %{user_id: Ecto.UUID.generate(), team_id: Ecto.UUID.generate()}
   @invalid_attrs %{}

@@ -3,7 +3,7 @@ defmodule ApiWeb.TeamControllerTest do
   use Bamboo.Test, shared: true
 
   alias Api.Competitions
-  alias Api.{Competitions.Team, Competitions.Membership}
+  alias Api.Teams.{Team, Membership}
   alias Api.Notifications.Emails
   import Api.Accounts.User, only: [display_name: 1, gravatar_hash: 1]
 

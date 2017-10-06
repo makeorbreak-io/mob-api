@@ -1,9 +1,9 @@
-defmodule Api.Competitions.Membership do
+defmodule Api.Teams.Membership do
   use Ecto.Schema
   import Ecto.Changeset
 
   alias Api.Accounts.User
-  alias Api.Competitions.Team
+  alias Api.Teams.Team
 
   @primary_key false
   @foreign_key_type :binary_id

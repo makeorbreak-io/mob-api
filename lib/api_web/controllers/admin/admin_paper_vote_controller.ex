@@ -2,7 +2,8 @@ defmodule ApiWeb.Admin.PaperVoteController do
   use Api.Web, :controller
 
   alias Api.{Accounts, Accounts.User}
-  alias Api.{Competitions.Category, Competitions.Team}
+  alias Api.Competitions.Category
+  alias Api.Teams.Team
   alias Api.{Voting, Voting.PaperVote}
   alias ApiWeb.ErrorController
   alias Guardian.Plug.{EnsureAuthenticated, EnsurePermissions}

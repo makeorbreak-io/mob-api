@@ -2,7 +2,7 @@ defmodule ApiWeb.Admin.TeamControllerTest do
   use ApiWeb.ConnCase
 
   alias Api.Competitions
-  alias Api.{Competitions.Team, Competitions.Membership}
+  alias Api.Teams.{Team, Membership}
   import Api.Accounts.User, only: [display_name: 1, gravatar_hash: 1]
   # import ApiWeb.StringHelper
 

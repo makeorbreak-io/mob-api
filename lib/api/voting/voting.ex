@@ -3,9 +3,10 @@ defmodule Api.Voting do
 
   alias Api.Accounts.User
   alias Api.Competitions
-  alias Api.{Competitions.Category, Competitions.Team}
+  alias Api.Competitions.Category
+  alias Api.Teams.Team
   alias Api.Voting
-  alias Api.{Voting.Vote, Voting.PaperVote}
+  alias Api.Voting.{Vote, PaperVote}
   alias Ecto.{Multi, Changeset}
 
   def upsert_votes(user, votes) do

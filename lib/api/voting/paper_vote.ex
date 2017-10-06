@@ -4,7 +4,8 @@ defmodule Api.Voting.PaperVote do
   import Ecto.Query
 
   alias Api.Accounts.User
-  alias Api.{Competitions.Team, Competitions.Category}
+  alias Api.Teams.Team
+  alias Api.Competitions.Category
   alias Api.Voting.PaperVote
   alias ApiWeb.EctoHelper
 

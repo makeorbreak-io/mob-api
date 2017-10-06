@@ -1,10 +1,10 @@
-defmodule Api.Competitions.Team do
+defmodule Api.Teams.Team do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
 
   alias Api.Accounts.User
-  alias Api.{Competitions.Team, Competitions.Membership, Competitions.Invite}
+  alias Api.Teams.{Team, Membership, Invite}
   alias ApiWeb.{EctoHelper, Crypto}
 
   @valid_attrs ~w(

@@ -2,7 +2,7 @@ defmodule ApiWeb.TeamController do
   use Api.Web, :controller
 
   alias Api.Accounts
-  alias Api.Competitions
+  alias Api.Teams
   alias ApiWeb.ErrorController
   alias Guardian.Plug.EnsureAuthenticated
 
@@ -13,13 +13,13 @@ defmodule ApiWeb.TeamController do
     when action in [:create, :update, :delete, :remove]
 
   def index(conn, _params) do
-    render(conn, "index.json", teams: Competitions.list_teams)
+    render(conn, "index.json", teams: Teams.list_teams)
   end
 
   def create(conn, %{"team" => team_params}) do
     user = Accounts.current_user(conn)
 
-    with {:ok, team} <- Competitions.create_team(user, team_params) do
+    with {:ok, team} <- Teams.create_team(user, team_params) do
       conn
       |> put_status(:created)
       |> put_resp_header("location", team_path(conn, :show, team))
@@ -28,13 +28,13 @@ defmodule ApiWeb.TeamController do
   end
 
   def show(conn, %{"id" => id}) do
-    render(conn, "show.json", team: Competitions.get_team(id))
+    render(conn, "show.json", team: Teams.get_team(id))
   end
 
   def update(conn, %{"id" => id, "team" => team_params}) do
     user = Accounts.current_user(conn)
 
-    with {:ok, team} <- Competitions.update_team(user, id, team_params) do
+    with {:ok, team} <- Teams.update_team(user, id, team_params) do
       render(conn, "show.json", team: team)
     end
   end
@@ -42,7 +42,7 @@ defmodule ApiWeb.TeamController do
   def delete(conn, %{"id" => id}) do
     user = Accounts.current_user(conn)
 
-    with {_} <- Competitions.delete_team(user, id) do
+    with {_} <- Teams.delete_team(user, id) do
       send_resp(conn, :no_content, "")
     end
   end
@@ -50,7 +50,7 @@ defmodule ApiWeb.TeamController do
   def remove(conn, %{"id" => id, "user_id" => user_id}) do
     user = Accounts.current_user(conn)
 
-    with :ok <- Competitions.remove_membership(user, id, user_id) do
+    with :ok <- Teams.remove_membership(user, id, user_id) do
       send_resp(conn, :no_content, "")
     end
   end

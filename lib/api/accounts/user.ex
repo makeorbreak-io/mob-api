@@ -5,7 +5,7 @@ defmodule Api.Accounts.User do
 
   alias Api.Accounts.User
   alias Api.{Workshops.Workshop, Workshops.Attendance}
-  alias Api.{Competitions.Invite, Competitions.Membership}
+  alias Api.{Teams.Invite, Teams.Membership}
   alias Api.Voting.Vote
   alias ApiWeb.{EctoHelper, Crypto}
   alias Comeonin.Bcrypt

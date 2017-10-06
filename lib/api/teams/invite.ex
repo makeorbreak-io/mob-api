@@ -1,9 +1,9 @@
-defmodule Api.Competitions.Invite do
+defmodule Api.Teams.Invite do
   use Ecto.Schema
   import Ecto.Changeset
 
   alias Api.Accounts.User
-  alias Api.Competitions.Team
+  alias Api.Teams.Team
 
   @valid_attrs ~w(
     invitee_id

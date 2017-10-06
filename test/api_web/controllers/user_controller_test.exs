@@ -3,7 +3,7 @@ defmodule ApiWeb.UserControllerTest do
   use Bamboo.Test, shared: true
 
   alias Api.Accounts.User
-  alias Api.Competitions.Membership
+  alias Api.Teams.Membership
   alias Api.Notifications.Emails
   alias Comeonin.Bcrypt
   import Api.Accounts.User, only: [

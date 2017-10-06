@@ -2,7 +2,9 @@ defmodule ApiWeb.VotingControllerTest do
   use ApiWeb.ConnCase
 
   alias Api.Competitions
-  alias Api.{Competitions.Team, Competitions.Category}
+  alias Api.Competitions.Category
+  alias Api.Teams
+  alias Api.Teams.Team
   alias Api.Voting.Vote
   import ApiWeb.StringHelper, only: [slugify: 1]
 
@@ -59,7 +61,7 @@ defmodule ApiWeb.VotingControllerTest do
     check_in_everyone()
     make_teams_eligible([t1, t2])
 
-    Competitions.disqualify_team(t1.id, admin)
+    Teams.disqualify_team(t1.id, admin)
 
     # Remember this shuffles the tie breakers.
     Competitions.start_voting()
@@ -125,7 +127,7 @@ defmodule ApiWeb.VotingControllerTest do
     Competitions.start_voting()
     [t1, t2, t3, t4] = [t1, t2, t3, t4] |> Enum.map(fn t -> Repo.get!(Team, t.id) end)
 
-    Competitions.disqualify_team(t4.id, admin)
+    Teams.disqualify_team(t4.id, admin)
 
     [v1, v2, v3] = voters |> Enum.map(fn uv ->
       create_vote(uv, "useful", [t1.id])
@@ -228,7 +230,7 @@ defmodule ApiWeb.VotingControllerTest do
     make_teams_eligible()
 
     Competitions.start_voting()
-    Competitions.disqualify_team(t1.id, create_admin())
+    Teams.disqualify_team(t1.id, create_admin())
     t1 = Repo.get!(Team, t1.id)
 
     conn = get conn, voting_path(conn, :info_begin)

@@ -2,7 +2,7 @@ defmodule Api.UserTest do
   use Api.DataCase
 
   alias Api.{Accounts, Accounts.User}
-  alias Api.Competitions
+  alias Api.Teams
   import Api.Accounts.User, only: [display_name: 1]
 
   @valid_attrs %{
@@ -109,7 +109,7 @@ defmodule Api.UserTest do
     t = create_team(u)
     Accounts.toggle_checkin(u.id, true)
 
-    Competitions.disqualify_team(t.id, create_admin())
+    Teams.disqualify_team(t.id, create_admin())
 
     assert User.able_to_vote() |> Repo.all == []
   end
@@ -119,7 +119,7 @@ defmodule Api.UserTest do
     t = create_team(u)
     Accounts.toggle_checkin(u.id, true)
 
-    Competitions.disqualify_team(t.id, create_admin())
+    Teams.disqualify_team(t.id, create_admin())
 
     {:ok, past} = DateTime.from_unix(DateTime.to_unix(DateTime.utc_now) - 10)
     assert User.able_to_vote(past) |> Repo.all == [Repo.get!(User, u.id)]
