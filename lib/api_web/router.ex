@@ -38,6 +38,8 @@ defmodule ApiWeb.Router do
     get "/voting/vote", VotingController, :get_votes
     post "/voting/vote", VotingController, :upsert_votes
 
+    get "/latest_posts", PresentationController, :get_latest_posts
+
     get "/users/password/get_token", UserController, :get_token
     post "/users/password/recover", UserController, :recover_password
 
