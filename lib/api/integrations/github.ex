@@ -2,6 +2,7 @@ defmodule Api.Integrations.Github do
   import Ecto.Query, warn: false
 
   alias Tentacat.{Client, Repositories, Repositories.Collaborators}
+  alias Api.Teams.Team
   import ApiWeb.StringHelper
 
   @github_token Application.get_env(:api, :github_token)
@@ -13,9 +14,31 @@ defmodule Api.Integrations.Github do
     Client.new(%{access_token: @github_token})
   end
 
-  def create_repo(team) do
+  def create_repo(id) do
+    team = Repo.get!(Team, id)
+
+    case create(team) do
+      {:ok, repo} ->
+        Team.update_any_team(id, %{repo: repo})
+        :ok
+      {:error, error} -> error
+    end
+  end
+
+  def add_users_to_repo(id) do
+    team = Repo.get!(Team, id)
+    members = Repo.all Ecto.assoc(team, :members)
+
+    Enum.each(members, fn(member) ->
+      Github.add_collaborator(team.repo, member.github_handle)
+    end)
+  end
+
+  defp create(team) do
     client = init()
 
+    # TODO change from team name from project name and add project
+    # description and technologies
     case Repositories.org_create(@organization, slugify(team.name),
       client, [private: false]) do
         {201, repo} -> {:ok, repo}
@@ -23,8 +46,8 @@ defmodule Api.Integrations.Github do
     end
   end
 
-  def add_collaborator(_, username) when is_nil(username), do: :no_username
-  def add_collaborator(repo, username) do
+  defp add_collaborator(_, username) when is_nil(username), do: :no_username
+  defp add_collaborator(repo, username) do
     client = init()
 
     if is_url?(username) do

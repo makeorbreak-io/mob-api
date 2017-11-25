@@ -45,11 +45,11 @@ defmodule ApiWeb.EctoHelperTests do
     assert changeset(%Team{}).valid?
   end
 
-  test "on_any_present not all" do
-    refute changeset(%Team{}, disqualified_at: 1).valid?
-  end
+  # test "on_any_present not all" do
+  #   refute changeset(%Team{}, disqualified_at: 1).valid?
+  # end
 
-  test "on_any_present all" do
-    assert changeset(%Team{}, disqualified_at: 1, disqualified_by_id: 1).valid?
-  end
+  # test "on_any_present all" do
+  #   assert changeset(%Team{}, disqualified_at: 1, disqualified_by_id: 1).valid?
+  # end
 end

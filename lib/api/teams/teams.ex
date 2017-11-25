@@ -108,38 +108,18 @@ defmodule Api.Teams do
     e -> e
   end
 
-  def disqualify_team(team_id, admin) do
-    from(
-      t in Team,
-      where: t.id == ^team_id,
-      where: is_nil(t.disqualified_at),
-      update: [set: [
-        disqualified_at: ^(DateTime.utc_now),
-        disqualified_by_id: ^(admin.id),
-      ]]
-    )
-    |> Repo.update_all([])
-  end
-
-  def create_repo(id) do
-    team = Repo.get!(Team, id)
-
-    case Github.create_repo(team) do
-      {:ok, repo} ->
-        __MODULE__.update_any_team(id, %{repo: repo})
-        :ok
-      {:error, error} -> error
-    end
-  end
-
-  def add_users_to_repo(id) do
-    team = Repo.get!(Team, id)
-    members = Repo.all Ecto.assoc(team, :members)
-
-    Enum.each(members, fn(member) ->
-      Github.add_collaborator(team.repo, member.github_handle)
-    end)
-  end
+  # def disqualify_team(team_id, admin) do
+  #   from(
+  #     t in Team,
+  #     where: t.id == ^team_id,
+  #     where: is_nil(t.disqualified_at),
+  #     update: [set: [
+  #       disqualified_at: ^(DateTime.utc_now),
+  #       disqualified_by_id: ^(admin.id),
+  #     ]]
+  #   )
+  #   |> Repo.update_all([])
+  # end
 
   # def shuffle_tie_breakers do
   #   teams = Repo.all(from t in Team)
