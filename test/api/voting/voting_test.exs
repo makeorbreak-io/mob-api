@@ -2,9 +2,6 @@ defmodule Api.VotingTest do
   use Api.DataCase
 
   alias Api.Competitions
-  alias Api.Teams
-  alias Api.Teams.Team
-  alias Api.Voting
 
   setup do
     member = create_user()
@@ -113,10 +110,7 @@ end
 defmodule Api.VotingTest.CalculatePodium do
   use Api.DataCase
 
-  alias Api.Voting
   alias Api.Competitions
-  alias Api.Competitions.Category
-  alias Ecto.Changeset
 
   setup do
     c1 = create_competition()

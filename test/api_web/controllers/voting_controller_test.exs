@@ -1,24 +1,24 @@
 defmodule ApiWeb.VotingControllerTest do
   use ApiWeb.ConnCase
 
-  alias Api.Competitions
-  alias Api.Competitions.Category
-  alias Api.Teams
-  alias Api.Teams.Team
-  alias Api.Voting.Vote
-  import ApiWeb.StringHelper, only: [slugify: 1]
+  # alias Api.Competitions
+  # alias Api.Competitions.Category
+  # alias Api.Teams
+  # alias Api.Teams.Team
+  # alias Api.Voting.Vote
+  # import ApiWeb.StringHelper, only: [slugify: 1]
 
-  setup %{conn: conn} do
-    user = create_user()
-    {:ok, jwt, full_claims} = Guardian.encode_and_sign(user)
+  # setup %{conn: conn} do
+  #   user = create_user()
+  #   {:ok, jwt, full_claims} = Guardian.encode_and_sign(user)
 
-    {:ok, %{
-      user: user,
-      jwt: jwt,
-      claims: full_claims,
-      conn: put_req_header(conn, "content-type", "application/json")
-    }}
-  end
+  #   {:ok, %{
+  #     user: user,
+  #     jwt: jwt,
+  #     claims: full_claims,
+  #     conn: put_req_header(conn, "content-type", "application/json")
+  #   }}
+  # end
 
   # test "before start", %{conn: conn} do
   #   conn = get conn, voting_path(conn, :info_begin)

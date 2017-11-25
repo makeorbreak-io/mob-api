@@ -2,7 +2,6 @@ defmodule ApiWeb.Admin.PaperVoteControllerTest do
   use ApiWeb.ConnCase
 
   alias Api.Competitions
-  alias Api.Voting.PaperVote
   alias Guardian.{Permissions}
 
   setup %{conn: conn} do

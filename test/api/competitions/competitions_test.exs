@@ -26,7 +26,7 @@ defmodule Api.CompetitionsTest do
   test "list competitions", %{c1: c1, c2: c2} do
     competitions = Competitions.list_competitions()
 
-    assert competitions = [c1, c2]
+    assert competitions == [c1, c2]
     assert length(competitions) == 2
   end
 

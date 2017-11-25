@@ -17,7 +17,7 @@ defmodule Api.WorkshopsTest do
     w2 = create_workshop()
     workshops = Workshops.all()
 
-    assert workshops = [w1, w2]
+    assert workshops == [w1, w2]
     assert length(workshops) == 2
   end
 
@@ -84,12 +84,12 @@ defmodule Api.WorkshopsTest do
   test "delete workshop", %{w1: w1} do
     {:ok, workshop} = Workshops.delete(w1.slug)
 
-    refute Repo.get(Workshop, w1.id)
+    refute Repo.get(Workshop, workshop.id)
   end
 
   test "toggle checkin", %{w1: w1} do
     u1 = create_user()
-    attendance = create_workshop_attendance(w1, u1)
+    create_workshop_attendance(w1, u1)
 
     {:ok, _} = Workshops.toggle_checkin(w1.slug, u1.id, true)
 

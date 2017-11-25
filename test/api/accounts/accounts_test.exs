@@ -20,10 +20,10 @@ defmodule Api.AccountsTest do
   end
 
   test "list users", %{u1: u1} do
-    u2 = create_user()
+    u2 = create_user() |> Map.replace(:password, nil)
     users = Accounts.list_users()
 
-    assert users = [u1, u2]
+    assert users == [u1, u2]
     assert length(users) == 2
   end
 
@@ -48,7 +48,7 @@ defmodule Api.AccountsTest do
   end
 
   test "update user with valid data", %{u1: u1} do
-    {:ok, user} = Accounts.update_user(u1, u1.id, @valid_attrs)
+    {:ok, _} = Accounts.update_user(u1, u1.id, @valid_attrs)
 
     assert Repo.get_by(User, email: "johndoe@example.com")
   end
@@ -67,7 +67,7 @@ defmodule Api.AccountsTest do
   end
 
   test "update any user with valid data", %{u1: u1} do
-    {:ok, user} = Accounts.update_any_user(u1.id, @valid_attrs)
+    {:ok, _} = Accounts.update_any_user(u1.id, @valid_attrs)
 
     assert Repo.get_by(User, email: "johndoe@example.com")
   end
@@ -104,7 +104,7 @@ defmodule Api.AccountsTest do
     assert user.pwd_recovery_token_expiration != nil
   end
 
-  test "get pwassword token with an invalid email", %{u1: u1} do
+  test "get pwassword token with an invalid email" do
     assert :user_not_found = Accounts.get_pwd_token("invalid@email.com")
   end
 
@@ -144,12 +144,12 @@ defmodule Api.AccountsTest do
     assert u2.email == u1.email
   end
 
-  test "create session with invalid email", %{u1: u1} do
+  test "create session with invalid email" do
     assert :wrong_credentials == Accounts.create_session("invalid@email.com", "newpassword")
   end
 
   test "revoke session", %{u1: u1} do
-    {:ok, jwt, u2} = Accounts.create_session(u1.email, "thisisapassword")
+    {:ok, jwt, _} = Accounts.create_session(u1.email, "thisisapassword")
 
     assert :ok == Accounts.delete_session(jwt)
   end
