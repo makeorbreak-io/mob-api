@@ -5,7 +5,7 @@ defmodule ApiWeb.AdminStatsControllerTest do
   alias Guardian.Permissions
 
   setup %{conn: conn} do
-    admin = create_admin(%{checked_in: true})
+    admin = create_admin()
     {:ok, jwt, _} =
       Guardian.encode_and_sign(admin, :token, perms: %{admin: Permissions.max})
 
@@ -20,13 +20,13 @@ defmodule ApiWeb.AdminStatsControllerTest do
     create_user()
     create_user()
     team_owner = create_user()
-    create_team(admin)
-    create_team(team_owner, %{applied: true, name: "awesome team"})
+    competition = create_competition()
+    create_team(admin, competition)
+    create_team(team_owner, competition, %{applied: true, name: "awesome team"})
     workshop = create_workshop()
     workshop_attendee = create_user(%{
       email: "example@email.com",
-      first_name: "Jane",
-      last_name: "doe",
+      first_name: "Jane doe",
       password: "thisisapassword"
     })
 
@@ -39,7 +39,7 @@ defmodule ApiWeb.AdminStatsControllerTest do
     assert json_response(conn, 200)["data"] == %{
       "users" => %{
         "hackathon" => 1,
-        "checked_in" => 1,
+        "checked_in" => 0,
         "total" => 5
       },
       "roles" => [

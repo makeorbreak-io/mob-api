@@ -47,6 +47,7 @@ defmodule ApiWeb.Router do
       resources "/users", Admin.UserController, except: [:new, :edit, :create]
       resources "/workshops", Admin.WorkshopController, except: [:new, :edit]
       resources "/teams", Admin.TeamController, except: [:new, :edit, :create]
+      resources "/competitions", Admin.CompetitionController
 
       get "/stats", Admin.StatsController, :stats
 
@@ -55,15 +56,15 @@ defmodule ApiWeb.Router do
       post "/teams/:id/repo/add_users", Admin.TeamController, :add_users_to_repo
       delete "/teams/:id/remove/:user_id", Admin.TeamController, :remove
 
-      post "/checkin/:id", Admin.UserController, :checkin
-      delete "/checkin/:id", Admin.UserController, :remove_checkin
+      post "/competitions/:id/checkin/:attendee", Admin.CompetitionController, :checkin
+      delete "/competitions/:id/checkin/:attendee", Admin.CompetitionController, :remove_checkin
 
       post "/workshops/:id/checkin/:user_id", Admin.WorkshopController, :checkin
       delete "/workshops/:id/checkin/:user_id", Admin.WorkshopController, :remove_checkin
 
-      get "/competition/status", Admin.CompetitionController, :status
-      post "/competition/start_voting", Admin.CompetitionController, :start_voting
-      post "/competition/end_voting", Admin.CompetitionController, :end_voting
+      # get "/competitions/:id/status", Admin.CompetitionController, :status
+      # post "/competition/start_voting", Admin.CompetitionController, :start_voting
+      # post "/competition/end_voting", Admin.CompetitionController, :end_voting
 
       get "/paper_vote/:id", Admin.PaperVoteController, :show
       post "/paper_vote", Admin.PaperVoteController, :create

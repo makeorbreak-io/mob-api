@@ -2,25 +2,24 @@ defmodule Api.Notifications.Emails do
   use Bamboo.Phoenix, view: ApiWeb.EmailView
 
   alias ApiWeb.LayoutView
-  import Api.Accounts.User, only: [display_name: 1]
 
   def invite_email(recipient, host) do
     base_email(recipient)
-    |> subject("Join #{display_name(host)}'s team in this year's Make or Break!")
+    |> subject("Join #{host.name}'s team in this year's Make or Break!")
     |> put_html_layout({LayoutView, "email.html"})
-    |> assign(:title, "Join #{display_name(host)}'s team in this year's Make or Break")
-    |> assign(:host_name, display_name(host))
+    |> assign(:title, "Join #{host.name}'s team in this year's Make or Break")
+    |> assign(:host_name, host.name)
     |> assign(:email, recipient)
     |> render("invite.html")
   end
 
   def invite_notification_email(recipient, host) do
     base_email(recipient)
-    |> subject("Join #{display_name(host)}'s team in this year's Make or Break!")
+    |> subject("Join #{host.name}'s team in this year's Make or Break!")
     |> put_html_layout({LayoutView, "email.html"})
-    |> assign(:title, "Join #{display_name(host)}'s team in this year's Make or Break")
-    |> assign(:host_name, display_name(host))
-    |> assign(:name, display_name(recipient))
+    |> assign(:title, "Join #{host.name}'s team in this year's Make or Break")
+    |> assign(:host_name, host.name)
+    |> assign(:name, recipient.name)
     |> assign(:email, recipient.email)
     |> render("invite_notification.html")
   end
@@ -30,7 +29,7 @@ defmodule Api.Notifications.Emails do
     |> subject("Make or Break - You are almost there!")
     |> put_html_layout({LayoutView, "email.html"})
     |> assign(:title, "Welcome to Make or Break!")
-    |> assign(:name, display_name(recipient))
+    |> assign(:name, recipient.name)
     |> render("registration.html")
   end
 
@@ -39,7 +38,7 @@ defmodule Api.Notifications.Emails do
     |> subject("Welcome to the Make or Break hackathon!")
     |> put_html_layout({LayoutView, "email.html"})
     |> assign(:title, "Welcome to the Make or Break hackathon!")
-    |> assign(:name, display_name(recipient))
+    |> assign(:name, recipient.name)
     |> assign(:team_name, team.name)
     |> render("hackathon.html")
   end
@@ -49,7 +48,7 @@ defmodule Api.Notifications.Emails do
     |> subject("You have applied to #{workshop.name}")
     |> put_html_layout({LayoutView, "email.html"})
     |> assign(:title, "You have applied to #{workshop.name}")
-    |> assign(:name, display_name(recipient))
+    |> assign(:name, recipient.name)
     |> assign(:workshop, workshop)
     |> render("workshop.html")
   end
@@ -59,7 +58,7 @@ defmodule Api.Notifications.Emails do
     |> subject("Welcome to Make or Break!")
     |> put_html_layout({LayoutView, "email.html"})
     |> assign(:title, "Welcome to Make or Break!")
-    |> assign(:name, display_name(recipient))
+    |> assign(:name, recipient.name)
     |> render("checkin.html")
   end
 
@@ -68,7 +67,7 @@ defmodule Api.Notifications.Emails do
     |> subject("Reset your MoB password.")
     |> put_html_layout({LayoutView, "email.html"})
     |> assign(:title, "Reset your password")
-    |> assign(:name, display_name(recipient))
+    |> assign(:name, recipient.name)
     |> assign(:token, recipient.pwd_recovery_token)
     |> render("recover_password.html")
   end

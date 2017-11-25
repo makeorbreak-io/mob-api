@@ -5,6 +5,7 @@ defmodule Api.Teams.Team do
 
   alias Api.Accounts.User
   alias Api.Teams.{Team, Membership, Invite}
+  alias Api.Competitions.Competition
   alias ApiWeb.{EctoHelper, Crypto}
 
   @valid_attrs ~w(
@@ -14,6 +15,7 @@ defmodule Api.Teams.Team do
     project_name
     project_desc
     technologies
+    competition_id
   )a
 
   @admin_attrs @valid_attrs ++ ~w(eligible repo)a
@@ -22,6 +24,7 @@ defmodule Api.Teams.Team do
     name
     prize_preference_hmac_secret
     tie_breaker
+    competition_id
   )a
 
   @primary_key {:id, :binary_id, autogenerate: true}
@@ -43,8 +46,10 @@ defmodule Api.Teams.Team do
 
     # Associations
     has_many :invites, Invite, on_delete: :delete_all
-    has_many :members, Membership, foreign_key: :team_id, on_delete: :delete_all
+    has_many :memberships, Membership, foreign_key: :team_id, on_delete: :delete_all
+    has_many :members, through: [:memberships, :user]
     belongs_to :disqualified_by, User
+    belongs_to :competition, Competition
   end
 
   @doc """

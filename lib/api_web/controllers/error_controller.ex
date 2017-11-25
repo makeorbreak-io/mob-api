@@ -39,6 +39,7 @@ defmodule ApiWeb.ErrorController do
   defp message(:membership_not_found), do: "User isn't a member of team"
   defp message(:not_ended), do: "Competition hasn't ended yet"
   defp message(:not_started), do: "Competition hasn't started yet"
+  defp message(:not_workshop_attendee), do: "User isn't an attendee of the workshop"
   defp message(:remove_checkin), do: "Couldn't remove check-in at this time"
   defp message(:team_disqualified), do: "Team has been disqualified"
   defp message(:team_locked), do: "Can't remove users after applying to the event"
@@ -47,7 +48,6 @@ defmodule ApiWeb.ErrorController do
   defp message(:unauthorized), do: "Unauthorized"
   defp message(:user_not_found), do: "User not found"
   defp message(:user_without_team), do: "Couldn't make changes to your team"
-  defp message(:workshop_attendee), do: "User isn't an attendee of the workshop"
   defp message(:workshop_full), do: "Workshop is already full"
   defp message(:wrong_credentials), do: "Wrong email or password"
 end

@@ -2,7 +2,7 @@ defmodule ApiWeb.Admin.UserView do
   use Api.Web, :view
 
   alias ApiWeb.{MembershipView, WorkshopView, UserView}
-  import Api.Accounts.User, only: [display_name: 1, gravatar_hash: 1]
+  import Api.Accounts.User, only: [gravatar_hash: 1]
 
   def render("index.json", %{users: users}) do
     %{data: render_many(users, __MODULE__, "user.json")}
@@ -17,10 +17,8 @@ defmodule ApiWeb.Admin.UserView do
       id: user.id,
       email: user.email,
       role: user.role,
-      first_name: user.first_name,
-      last_name: user.last_name,
+      first_name: user.name,
       gravatar_hash: gravatar_hash(user),
-      display_name: display_name(user),
       birthday: user.birthday,
       bio: user.bio,
       github_handle: user.github_handle,

@@ -5,25 +5,28 @@ Ecto.Adapters.SQL.Sandbox.mode(Api.Repo, :manual)
 defmodule ApiWeb.TestHelper do
   alias Api.Repo
   alias Api.Accounts.User
-  alias Api.Workshops.Workshop
+  alias Api.Workshops.{Workshop, Attendance}
   alias Api.Teams.{Team, Membership, Invite}
-  alias Api.Competitions.Category
+  alias Api.Competitions.{Category, Competition}
+  alias Api.Competitions.Attendance, as: CompAttendance
   alias Api.{Voting, Voting.Vote}
   alias ApiWeb.StringHelper
-  import Api.Accounts.User, only: [display_name: 1, gravatar_hash: 1]
+  import Api.Accounts.User, only: [gravatar_hash: 1]
 
   @valid_user_attrs %{
-    first_name: "john",
-    last_name: "doe",
+    name: "john doe",
     password: "thisisapassword",
     github_handle: "https://github.com/nunopolonia"
   }
 
   @valid_workshop_attrs %{
     name: "awesome workshop",
-    slug: "awesome-workshop",
     participant_limit: 1,
     short_date: "SUNDAY 10TH — 10:30"
+  }
+
+  @valid_competition_attrs %{
+    name: "awesome competition"
   }
 
   defp add_email(params) do
@@ -31,6 +34,10 @@ defmodule ApiWeb.TestHelper do
       %{email: "#{to_string(:rand.uniform())}@email.com"},
       params
     )
+  end
+
+  defp add_slug(params) do
+    Map.merge(%{slug: "workshop-#{to_string(:rand.uniform())}"}, params)
   end
 
   def create_user(params \\ @valid_user_attrs) do
@@ -52,9 +59,9 @@ defmodule ApiWeb.TestHelper do
     |> Repo.insert!
   end
 
-  def create_team(user, params \\ nil) do
+  def create_team(user, competition, params \\ nil) do
     params = params || %{name: "awesome team #{to_string(:rand.uniform())}"}
-    team = %Team{}
+    team = %Team{competition_id: competition.id}
     |> Team.changeset(params, Repo)
     |> Repo.insert!
 
@@ -63,15 +70,43 @@ defmodule ApiWeb.TestHelper do
     team
   end
 
-  def create_workshop(params \\ @valid_workshop_attrs) do
-    %Workshop{}
-    |> Workshop.changeset(params)
+  def create_competition(params \\ @valid_competition_attrs) do
+    %Competition{}
+    |> Competition.changeset(params)
     |> Repo.insert!
   end
 
-  def create_invite(params) do
+  def create_competition_attendance(competition, user) do
+    Repo.insert! %CompAttendance{competition_id: competition.id, attendee: user.id}
+  end
+
+  def create_workshop(params \\ @valid_workshop_attrs) do
+    %Workshop{}
+    |> Workshop.changeset(params |> add_slug)
+    |> Repo.insert!
+  end
+
+  def create_workshop_attendance(workshop, user) do
+    Repo.insert! %Attendance{workshop_id: workshop.id, user_id: user.id}
+  end
+
+  def create_id_invite(team, host, user) do
     %Invite{}
-    |> Invite.changeset(params)
+    |> Invite.changeset(%{
+      invitee_id: user.id,
+      team_id: team.id,
+      host_id: host.id
+    })
+    |> Repo.insert!
+  end
+
+  def create_email_invite(team, host, email) do
+    %Invite{}
+    |> Invite.changeset(%{
+      email: email,
+      team_id: team.id,
+      host_id: host.id
+    })
     |> Repo.insert!
   end
 
@@ -101,7 +136,7 @@ defmodule ApiWeb.TestHelper do
     people
     |> Enum.map(fn user ->
       user
-      |> User.admin_changeset(%{checked_in: true})
+      |> User.admin_changeset()
       |> Repo.update!
     end)
   end
@@ -164,9 +199,7 @@ defmodule ApiWeb.TestHelper do
 
   def admin_user_short_view(u) do
     %{
-      "display_name" => display_name(u),
-      "first_name" => u.first_name,
-      "last_name" => u.last_name,
+      "name" => u.name,
       "gravatar_hash" => gravatar_hash(u),
       "id" => u.id,
       "tshirt_size" => u.tshirt_size,

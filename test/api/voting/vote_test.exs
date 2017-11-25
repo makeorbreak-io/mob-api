@@ -6,7 +6,7 @@ defmodule Api.VoteTest do
   setup %{} do
     {:ok, %{
       category: create_category(),
-      team: create_team(create_user()),
+      team: create_team(create_user(), create_competition()),
     }}
   end
 

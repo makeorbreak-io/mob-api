@@ -30,14 +30,14 @@ defmodule ApiWeb.VotingController do
   end
 
   def upsert_votes(conn, %{"votes" => votes}) do
-    case Voting.upsert_votes(Accounts.current_user(conn), votes) do
+    case Voting.upsert_votes(Plug.current_resource(conn), votes) do
       {:ok, votes} -> render(conn, "upsert.json", votes: votes)
       {:error, error} -> ErrorController.call(conn, error)
     end
   end
 
   def get_votes(conn, _) do
-    case Voting.get_votes(Accounts.current_user(conn)) do
+    case Voting.get_votes(Plug.current_resource(conn)) do
       {:ok, votes} -> render(conn, "index.json", votes: votes)
       {:error, error} -> ErrorController.call(conn, error)
     end

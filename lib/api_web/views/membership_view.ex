@@ -2,13 +2,12 @@ defmodule ApiWeb.MembershipView do
   use Api.Web, :view
 
   alias ApiWeb.InviteView
-  import Api.Accounts.User, only: [display_name: 1, gravatar_hash: 1]
+  import Api.Accounts.User, only: [gravatar_hash: 1]
 
   def render("member_user.json", %{membership: membership}) do
     %{
       id: membership.user.id,
       role: membership.role,
-      display_name: display_name(membership.user),
       gravatar_hash: gravatar_hash(membership.user),
     }
   end

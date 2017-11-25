@@ -50,5 +50,6 @@ defmodule Api.Workshops.Workshop do
     struct
     |> cast(params, @valid_attrs)
     |> validate_required(@required_attrs)
+    |> unique_constraint(:slug)
   end
 end

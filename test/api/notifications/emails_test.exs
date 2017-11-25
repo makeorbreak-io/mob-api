@@ -3,7 +3,6 @@ defmodule Api.EmailsTest do
   use Bamboo.Test
 
   alias Api.Notifications.Emails
-  import Api.Accounts.User, only: [display_name: 1]
 
   test "invite email" do
     host = create_user(%{email: "host@example.com", password: "thisisapassword"})
@@ -11,16 +10,15 @@ defmodule Api.EmailsTest do
     email = Emails.invite_email("email@example.com", host)
 
     assert email.to == "email@example.com"
-    assert email.subject == "Join #{display_name(host)}'s team in this year's Make or Break!"
+    assert email.subject == "Join #{host.name}'s team in this year's Make or Break!"
   end
 
   test "registration email" do
     user = create_user(%{
       email: "user@example.com",
       password: "thisisapassword",
-      first_name: "Random",
-      last_name: "User"
-      })
+      name: "Random User",
+    })
 
     email = Emails.registration_email(user)
 
