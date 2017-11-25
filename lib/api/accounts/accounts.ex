@@ -37,9 +37,14 @@ defmodule Api.Accounts do
 
         {:ok, jwt, _claims} = Guardian.encode_and_sign(user, :token)
 
-        {:ok, jwt, user}
+        {:ok, jwt}
       {:error, changeset} -> {:error, changeset}
     end
+  end
+
+  def update_current_user(current_user, params) do
+    changeset = User.participant_changeset(current_user, params)
+    {:ok, Repo.update(changeset)}
   end
 
   def update_user(current_user, id, params) do
@@ -49,7 +54,7 @@ defmodule Api.Accounts do
       changeset = User.participant_changeset(user, params)
       Repo.update(changeset)
     else
-      {:unauthorized, :unauthorized}
+      {:error, :unauthorized}
     end
   end
 
@@ -90,14 +95,14 @@ defmodule Api.Accounts do
     Bcrypt.checkpw(password, user.password_hash) && {:ok, user} || {:error, :wrong_credentials}
   end
 
-  defp sign_user({:error, error}), do: error
+  defp sign_user({:error, error}), do: {:error, error}
   defp sign_user({:ok, user}) do
     {:ok, jwt, _} = Guardian.encode_and_sign(
       user,
       :token,
       perms: %{"#{user.role}": Permissions.max},
     )
-    {:ok, jwt, user}
+    {:ok, jwt}
   end
 
   defp revoke_claims(token) do

@@ -14,6 +14,12 @@ defmodule Api.Competitions do
     Repo.get(Competition, id)
   end
 
+  def default_competition do
+    q = from c in Competition,
+        where: c.name == "default"
+    Repo.one(q) || Repo.insert!(%Competition{name: "default"})
+  end
+
   def create_competition(competition_params) do
     changeset = Competition.changeset(%Competition{}, competition_params)
     Repo.insert(changeset)

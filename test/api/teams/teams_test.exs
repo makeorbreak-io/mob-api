@@ -33,13 +33,13 @@ defmodule Api.TeamsTest do
 
   test "create valid team", %{u1: u1, c1: c1} do
     params = Map.merge(@valid_attrs, %{competition_id: c1.id})
-    {:ok, team} = Teams.create_team(u1.id, params)
+    {:ok, team} = Teams.create_team(u1, params)
 
     assert Repo.get(Team, team.id)
   end
 
   test "create invalid team", %{u1: u1} do
-    {:error, changeset} = Teams.create_team(u1.id, @invalid_attrs)
+    {:error, changeset} = Teams.create_team(u1, @invalid_attrs)
 
     assert changeset.valid? == false
   end
@@ -294,25 +294,25 @@ defmodule Api.TeamsTest do
     u2 = create_user()
     i1 = create_id_invite(t1, u1, u2)
 
-    {:ok, membership} = Teams.accept_invite(i1.id)
+    {:ok, user} = Teams.accept_invite(u2, i1.id)
 
-    assert membership.user_id == u2.id
+    assert user.id == u2.id
 
-    team = Repo.get(Team, membership.team_id)
+    team = Repo.get(Team, t1.id)
     members = Repo.all Ecto.assoc(team, :members)
 
     assert Enum.count(members) == 2
   end
 
-  test "accept nonexistent invite" do
-    assert Teams.accept_invite(Ecto.UUID.generate()) == :invite_not_found
+  test "accept nonexistent invite", %{u1: u1} do
+    assert Teams.accept_invite(u1, Ecto.UUID.generate()) == :invite_not_found
   end
 
   test "delete invite", %{u1: u1, t1: t1} do
     u2 = create_user()
     i1 = create_id_invite(t1, u1, u2)
 
-    {:ok, invite} = Teams.delete_invite(i1.id)
+    {:ok, invite} = Teams.delete_invite(u1, i1.id)
 
     refute Repo.get(Invite, invite.id)
   end

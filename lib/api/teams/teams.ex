@@ -21,13 +21,13 @@ defmodule Api.Teams do
     Repo.get!(Team, id)
   end
 
-  def create_team(current_user_id, team_params) do
+  def create_team(current_user, team_params) do
     changeset = Team.changeset(%Team{}, team_params, Repo)
 
     case Repo.insert(changeset) do
       {:ok, team} ->
         Repo.insert! %Membership{
-          user_id: current_user_id,
+          user_id: current_user.id,
           team_id: team.id,
           role: "owner"
         }
@@ -147,16 +147,46 @@ defmodule Api.Teams do
     end
   end
 
-  def accept_invite(id) do
-    case Repo.get(Invite, id) do
+  def accept_invite(current_user, id) do
+    invite = Repo.get(Invite, id)
+
+    case invite do
       nil -> :invite_not_found
-      invite -> create_membership(invite)
+      invite ->
+        if current_user.id == invite.invitee_id do
+          create_membership(invite)
+          {:ok, Repo.get(User, current_user.id)}
+        else
+          {:error, :unauthorized}
+        end
     end
   end
 
-  def delete_invite(id) do
+  def reject_invite(current_user, id) do
+    invite = Repo.get(Invite, id)
+
+    case invite do
+      nil -> :invite_not_found
+      invite ->
+        if current_user.id == invite.invitee_id do
+          Repo.delete(invite)
+          {:ok, Repo.get(User, current_user.id)}
+        else
+          {:error, :unauthorized}
+        end
+    end
+  end
+
+  def delete_invite(current_user, id) do
     invite = Repo.get!(Invite, id)
-    Repo.delete(invite)
+    team = (invite |> Repo.preload(:team)).team
+
+    if is_team_member?(team, current_user) do
+      Repo.delete(invite)
+      {:ok, team}
+    else
+      {:error, :unauthorized}
+    end
   end
 
   def associate_invites_with_user(email, id) do
@@ -166,7 +196,7 @@ defmodule Api.Teams do
   end
 
   def invite_to_slack(email) do
-    base_url = "https://portosummerofcode.slack.com/api/users.admin.invite"
+    base_url = "https://makeorbreak-io.slack.com/api/users.admin.invite"
     params = URI.encode_query(%{token: @slack_token, email: email})
     url = base_url <> "?" <> params
     headers = %{"Content-Type" => "application/x-www-form-urlencoded"}

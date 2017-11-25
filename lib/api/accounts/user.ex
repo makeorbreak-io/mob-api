@@ -96,9 +96,13 @@ defmodule Api.Accounts.User do
     |> put_change(:password_hash, hashed_password)
   end
 
-  # gravatar hash
-  def gravatar_hash(%{email: email}),
-    do: :crypto.hash(:md5, String.trim(email)) |> Base.encode16(case: :lower)
+  def gravatar_hash(%{email: email}) do
+    :crypto.hash(:md5, String.trim(email)) |> Base.encode16(case: :lower)
+  end
+
+  def display_name(%{name: name, email: email}) do
+    name || email |> String.split("@") |> Enum.at(0)
+  end
 
   # generate password recovery token
   def generate_token(length \\ 32) do

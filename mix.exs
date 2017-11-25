@@ -64,6 +64,10 @@ defmodule Api.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:absinthe, "~> 1.4.2"},
+      {:absinthe_ecto, "~> 0.1.2"},
+      {:absinthe_plug, "~> 1.4.0"},
+      {:absinthe_relay, "~> 1.4.1"},
       {:bamboo, "~> 0.8"},
       {:comeonin, "~> 3.0"},
       {:cors_plug, "~> 1.2"},

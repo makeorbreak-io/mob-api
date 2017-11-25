@@ -3,14 +3,33 @@ defmodule ApiWeb.Router do
   use Plug.ErrorHandler
   use Sentry.Plug
 
+  if Mix.env == :dev do
+    forward "/sent_emails", Bamboo.EmailPreviewPlug
+  end
+
+  pipeline :graphql do
+    plug :accepts, ["json", "graphql"]
+    plug Guardian.Plug.VerifyHeader, realm: "Bearer"
+    plug Guardian.Plug.LoadResource
+    plug Api.GraphQL.Plug.AbsintheContext
+  end
+
+  scope "/graphql" do
+    pipe_through :graphql
+
+    if Mix.env == :dev do
+      forward "/i", Absinthe.Plug.GraphiQL, schema: Api.GraphQL.Schema
+    end
+
+    forward "/", Absinthe.Plug, schema: Api.GraphQL.Schema
+  end
+
+  #
+  # Remove
   pipeline :api do
     plug :accepts, ["json"]
     plug Guardian.Plug.VerifyHeader, realm: "Bearer"
     plug Guardian.Plug.LoadResource
-  end
-
-  if Mix.env == :dev do
-    forward "/sent_emails", Bamboo.EmailPreviewPlug
   end
 
   scope "/api", ApiWeb do
