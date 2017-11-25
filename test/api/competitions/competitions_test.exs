@@ -1,156 +1,129 @@
 defmodule Api.CompetitionsTest do
   use Api.DataCase
+  use Bamboo.Test, shared: true
 
   alias Api.Competitions
-
-  test "before start" do
-    assert Competitions.voting_status == :not_started
-  end
-
-  test "start_voting" do
-    {:ok, _} = Competitions.start_voting()
-    assert Competitions.voting_status == :started
-  end
-
-  test "end_voting" do
-    {:ok, _} = Competitions.start_voting()
-    {:ok, _} = Competitions.end_voting()
-    assert Competitions.voting_status == :ended
-  end
-
-  test "start_voting twice" do
-    {:ok, _} = Competitions.start_voting()
-    :already_started = Competitions.start_voting()
-  end
-
-  test "end_voting without starting" do
-    :not_started = Competitions.end_voting()
-  end
-
-  test "end_voting twice" do
-    {:ok, _} = Competitions.start_voting()
-    {:ok, _} = Competitions.end_voting()
-    :already_ended = Competitions.end_voting()
-  end
-end
-
-defmodule Api.CompetitionsTest.CalculatePodium do
-  use Api.DataCase
-
-  alias Api.Voting
-  alias Api.Competitions
-  alias Api.Competitions.Category
-  alias Ecto.Changeset
+  alias Api.Competitions.{Competition, Attendance}
+  alias Api.Notifications.Emails
 
   setup do
-    u1 = create_user()
-    t1 = create_team(u1)
-
-    u2 = create_user()
-    t2 = create_team(u2)
-
-    u3 = create_user()
-    t3 = create_team(u3)
-
-    u4 = create_user()
-    t4 = create_team(u4)
-
-    check_in_everyone()
-    make_teams_eligible()
-    Competitions.start_voting()
+    c1 = create_competition()
+    c2 = create_competition()
+    user = create_user()
+    attendance = create_competition_attendance(c1, user)
 
     {
       :ok,
       %{
-        u1: u1,
-        u2: u2,
-        u3: u3,
-        t1: t1,
-        t2: t2,
-        t3: t3,
-        t4: t4,
+        c1: c1,
+        c2: c2,
+        user: user,
+        attendance: attendance,
       },
     }
   end
 
-  test "calculate_podium", %{t1: t1, t2: t2, t3: t3, t4: t4} do
-    cat = create_category()
-    create_vote(create_user(), cat.name, [t1.id, t2.id])
-    create_vote(create_user(), cat.name, [t1.id])
-    create_vote(create_user(), cat.name, [t1.id])
-    create_vote(create_user(), cat.name, [t2.id])
-    create_vote(create_user(), cat.name, [t2.id])
-    create_vote(create_user(), cat.name, [t3.id])
-    create_vote(create_user(), cat.name, [t3.id])
-    create_vote(create_user(), cat.name, [t4.id])
+  test "list competitions", %{c1: c1, c2: c2} do
+    competitions = Competitions.list_competitions()
 
-    check_in_everyone()
-    assert Voting.calculate_podium(cat) == [
-      t1.id,
-      t2.id,
-      t3.id,
-    ]
+    assert competitions = [c1, c2]
+    assert length(competitions) == 2
   end
 
-  test "calculate_podium tie", %{t1: t1, t2: t2, t3: t3} do
-    cat = create_category()
-    create_vote(create_user(), cat.name, [t1.id])
-    create_vote(create_user(), cat.name, [t1.id])
-    create_vote(create_user(), cat.name, [t2.id])
-    create_vote(create_user(), cat.name, [t2.id])
-    create_vote(create_user(), cat.name, [t3.id])
-
-    Changeset.change(t3, tie_breaker: 0) |> Repo.update!
-    Changeset.change(t2, tie_breaker: 10) |> Repo.update!
-    Changeset.change(t1, tie_breaker: 20) |> Repo.update!
-
-    check_in_everyone()
-    assert Voting.calculate_podium(cat) == [
-      t2.id,
-      t1.id,
-      t3.id,
-    ]
+  test "get competition", %{c1: c1} do
+    assert Competitions.get_competition(c1.id) == c1
   end
 
-  test "resolve_voting", %{t1: t1, t2: t2, t3: t3} do
-    create_vote(create_user(), "useful", [t1.id])
-    create_vote(create_user(), "useful", [t1.id])
-    create_vote(create_user(), "useful", [t1.id])
-    create_vote(create_user(), "useful", [t2.id])
-    create_vote(create_user(), "useful", [t2.id])
-    create_vote(create_user(), "useful", [t3.id])
+  test "create competition" do
+    {:ok, competition} = Competitions.create_competition(%{name: "new competition"})
 
-    create_vote(create_user(), "funny", [t1.id])
-    create_vote(create_user(), "funny", [t2.id])
-    create_vote(create_user(), "funny", [t2.id])
-    create_vote(create_user(), "funny", [t2.id])
-    create_vote(create_user(), "funny", [t3.id])
-    create_vote(create_user(), "funny", [t3.id])
-
-    create_vote(create_user(), "hardcore", [t1.id])
-    create_vote(create_user(), "hardcore", [t1.id])
-    create_vote(create_user(), "hardcore", [t2.id])
-    create_vote(create_user(), "hardcore", [t3.id])
-    create_vote(create_user(), "hardcore", [t3.id])
-    create_vote(create_user(), "hardcore", [t3.id])
-
-    check_in_everyone()
-    Voting.resolve_voting!
-
-    assert Repo.get_by!(Category, name: "useful").podium == [
-      t1.id,
-      t2.id,
-      t3.id,
-    ]
-    assert Repo.get_by!(Category, name: "funny").podium == [
-      t2.id,
-      t3.id,
-      t1.id,
-    ]
-    assert Repo.get_by!(Category, name: "hardcore").podium == [
-      t3.id,
-      t1.id,
-      t2.id,
-    ]
+    assert Repo.get(Competition, competition.id)
   end
+
+  test "update competition", %{c1: c1} do
+    Competitions.update_competition(c1.id, %{name: "updated competition"})
+    competition = Repo.get(Competition, c1.id)
+
+    assert competition.name == "updated competition"
+  end
+
+  test "delete competition" do
+    competition = create_competition()
+    Competitions.delete_competition(competition.id)
+
+    refute Repo.get(Competition, competition.id)
+  end
+
+  test "get attendance by id", %{attendance: attendance} do
+    assert Competitions.get_attendance(attendance.id)
+  end
+
+  test "get attendance by competition id and attendee", %{c1: c1, user: u1} do
+    assert Competitions.get_attendance(c1.id, u1.id)
+  end
+
+  test "create attendance", %{c2: c2, user: u1} do
+    {:ok, attendance} = Competitions.create_attendance(c2.id, u1.id)
+
+    assert Repo.get(Attendance, attendance.id)
+  end
+
+  test "can't create duplicate attendance", %{c1: c1, user: u1} do
+    {:error, changeset} = Competitions.create_attendance(c1.id, u1.id)
+
+    assert changeset.errors != nil
+  end
+
+  test "delete attendance by id", %{attendance: attendance} do
+    Competitions.delete_attendance(attendance.id)
+
+    refute Repo.get(Attendance, attendance.id)
+  end
+
+  test "delete attendance by competition id and attendee", %{c1: c1, user: u1} do
+    {:ok, attendance} = Competitions.delete_attendance(c1.id, u1.id)
+
+    refute Repo.get(Attendance, attendance.id)
+  end
+
+  test "toggle checkin works", %{c1: c1, user: user} do
+    {:ok, a1} = Competitions.toggle_checkin(c1.id, user.id, true)
+
+    assert a1.checked_in == true
+    assert_delivered_email Emails.checkin_email(user)
+
+    {:ok, a2} = Competitions.toggle_checkin(c1.id, user.id, false)
+
+    assert a2.checked_in == false
+  end
+
+  # test "before start" do
+  #   assert Competitions.voting_status == :not_started
+  # end
+
+  # test "start_voting" do
+  #   {:ok, _} = Competitions.start_voting()
+  #   assert Competitions.voting_status == :started
+  # end
+
+  # test "end_voting" do
+  #   {:ok, _} = Competitions.start_voting()
+  #   {:ok, _} = Competitions.end_voting()
+  #   assert Competitions.voting_status == :ended
+  # end
+
+  # test "start_voting twice" do
+  #   {:ok, _} = Competitions.start_voting()
+  #   :already_started = Competitions.start_voting()
+  # end
+
+  # test "end_voting without starting" do
+  #   :not_started = Competitions.end_voting()
+  # end
+
+  # test "end_voting twice" do
+  #   {:ok, _} = Competitions.start_voting()
+  #   {:ok, _} = Competitions.end_voting()
+  #   :already_ended = Competitions.end_voting()
+  # end
 end

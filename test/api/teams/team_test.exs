@@ -8,7 +8,12 @@ defmodule Api.TeamTest do
   @invalid_attrs %{}
 
   test "changeset with valid attributes" do
-    changeset = Team.changeset(%Team{}, @valid_attrs, Repo)
+    c = create_competition()
+    changeset = Team.changeset(
+      %Team{},
+      Map.merge(@valid_attrs, %{competition_id: c.id}),
+      Repo
+    )
     assert changeset.valid?
   end
 
@@ -33,10 +38,19 @@ defmodule Api.TeamTest do
   end
 
   test "tie_breaker is sequential" do
-    first = Repo.insert!(Team.changeset(%Team{}, @valid_attrs, Repo))
+    c = create_competition()
+    first = Repo.insert!(Team.changeset(
+      %Team{},
+      Map.merge(@valid_attrs, %{competition_id: c.id}),
+      Repo)
+    )
     assert first.tie_breaker == 1
 
-    second = Repo.insert!(Team.changeset(%Team{}, @valid_attrs, Repo))
+    second = Repo.insert!(Team.changeset(
+      %Team{},
+      Map.merge(@valid_attrs, %{competition_id: c.id}),
+      Repo)
+    )
     assert second.tie_breaker == 2
   end
 end

@@ -3,12 +3,10 @@ defmodule Api.UserTest do
 
   alias Api.{Accounts, Accounts.User}
   alias Api.Teams
-  import Api.Accounts.User, only: [display_name: 1]
 
   @valid_attrs %{
     email: "johndoe@example.com",
-    first_name: "john",
-    last_name: "doe",
+    name: "john doe",
     password: "thisisapassword"
   }
   @invalid_attrs %{}
@@ -50,78 +48,51 @@ defmodule Api.UserTest do
     refute changeset.valid?
   end
 
-  test "display name from email if there's no first and last name" do
-    user = create_user(%{
-      first_name: nil,
-      last_name: nil,
-      email: "johndoe@example.com",
-      password: "password"
-    })
+  test "gravatar hash" do
+    user = create_user(@valid_attrs)
 
-    assert display_name(user) == "johndoe"
+    assert User.gravatar_hash(user) == "fd876f8cd6a58277fc664d47ea10ad19"
   end
 
-  test "display_name from first name if there's no last name" do
-    user = create_user(%{
-      first_name: "john",
-      last_name: nil,
-      email: "johndoe@example.com",
-      password: "password"
-    })
+  # test "able_to_vote not in a team" do
+  #   create_user()
 
-    assert display_name(user) == "john"
-  end
+  #   assert User.able_to_vote() |> Repo.all == []
+  # end
 
-  test "display_name from first and last name if they're present" do
-    user = create_user(%{
-      first_name: "john",
-      last_name: "doe",
-      email: "johndoe@example.com",
-      password: "password"
-    })
+  # test "able_to_vote not checked in" do
+  #   create_team(create_user())
 
-    assert display_name(user) == "john doe"
-  end
+  #   assert User.able_to_vote() |> Repo.all == []
+  # end
 
-  test "able_to_vote not in a team" do
-    create_user()
+  # test "able_to_vote checked in" do
+  #   u = create_user()
+  #   create_team(u)
+  #   Accounts.toggle_checkin(u.id, true)
+  #   u = Repo.get!(User, u.id)
 
-    assert User.able_to_vote() |> Repo.all == []
-  end
+  #   assert User.able_to_vote() |> Repo.all == [u]
+  # end
 
-  test "able_to_vote not checked in" do
-    create_team(create_user())
+  # test "able_to_vote disqualified" do
+  #   u = create_user()
+  #   t = create_team(u)
+  #   Accounts.toggle_checkin(u.id, true)
 
-    assert User.able_to_vote() |> Repo.all == []
-  end
+  #   Teams.disqualify_team(t.id, create_admin())
 
-  test "able_to_vote checked in" do
-    u = create_user()
-    create_team(u)
-    Accounts.toggle_checkin(u.id, true)
-    u = Repo.get!(User, u.id)
+  #   assert User.able_to_vote() |> Repo.all == []
+  # end
 
-    assert User.able_to_vote() |> Repo.all == [u]
-  end
+  # test "able_to_vote disqualified later" do
+  #   u = create_user()
+  #   t = create_team(u)
+  #   Accounts.toggle_checkin(u.id, true)
 
-  test "able_to_vote disqualified" do
-    u = create_user()
-    t = create_team(u)
-    Accounts.toggle_checkin(u.id, true)
+  #   Teams.disqualify_team(t.id, create_admin())
 
-    Teams.disqualify_team(t.id, create_admin())
-
-    assert User.able_to_vote() |> Repo.all == []
-  end
-
-  test "able_to_vote disqualified later" do
-    u = create_user()
-    t = create_team(u)
-    Accounts.toggle_checkin(u.id, true)
-
-    Teams.disqualify_team(t.id, create_admin())
-
-    {:ok, past} = DateTime.from_unix(DateTime.to_unix(DateTime.utc_now) - 10)
-    assert User.able_to_vote(past) |> Repo.all == [Repo.get!(User, u.id)]
-  end
+  #   {:ok, past} = DateTime.from_unix(DateTime.to_unix(DateTime.utc_now) - 10)
+  #   assert User.able_to_vote(past) |> Repo.all == [Repo.get!(User, u.id)]
+  # end
 end

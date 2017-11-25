@@ -6,6 +6,8 @@ defmodule Api.Suffrages.Suffrage do
   alias Api.Competitions.Competition
 
   @valid_attrs ~w(
+    name
+    status
     voting_started_at
     voting_ended_at
     category_id
@@ -40,6 +42,13 @@ defmodule Api.Suffrages.Suffrage do
     |> _cant_change(:voting_started_at)
     |> _cant_change(:voting_ended_at)
     |> assoc_constraint(:competition)
+  end
+
+  def changeset(struct, params \\ %{}) do
+    struct
+    |> cast(params, @valid_attrs)
+    |> _cant_change(:voting_started_at)
+    |> _cant_change(:voting_ended_at)
   end
 
   defp _cant_change(%Ecto.Changeset{changes: changes, data: data} = changeset, field) do

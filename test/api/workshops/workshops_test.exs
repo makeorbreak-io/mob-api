@@ -17,7 +17,11 @@ defmodule Api.WorkshopsTest do
     w2 = create_workshop()
     workshops = Workshops.all()
 
+<<<<<<< HEAD
     assert workshops == [w1, w2]
+=======
+    assert workshops = [w1, w2]
+>>>>>>> Big changes
     assert length(workshops) == 2
   end
 
@@ -31,15 +35,21 @@ defmodule Api.WorkshopsTest do
 
   test "join workshop if there are vacancies", %{w1: w1} do
     u1 = create_user()
+<<<<<<< HEAD
     assert w1.participants_counter == 0
 
+=======
+>>>>>>> Big changes
     {:ok, attendance} = Workshops.join(u1, w1.slug)
 
     assert attendance.workshop_id == w1.id
     assert attendance.user_id == u1.id
+<<<<<<< HEAD
 
     w2 = Workshops.get(w1.slug)
     assert w2.participants_counter == 1
+=======
+>>>>>>> Big changes
   end
 
   test "join workshop if there are no vacancies", %{w1: w1} do
@@ -53,6 +63,7 @@ defmodule Api.WorkshopsTest do
     u1 = create_user()
     create_workshop_attendance(w1, u1)
 
+<<<<<<< HEAD
     w2 = Workshops.get(w1.slug)
 
     assert w2.participants_counter == 1
@@ -60,6 +71,9 @@ defmodule Api.WorkshopsTest do
 
     w3 = Workshops.get(w1.slug)
     assert w3.participants_counter == 0
+=======
+    assert Workshops.leave(u1, w1.slug) == :ok
+>>>>>>> Big changes
   end
 
   test "leave workshop if not attending", %{w1: w1} do
@@ -95,12 +109,20 @@ defmodule Api.WorkshopsTest do
   test "delete workshop", %{w1: w1} do
     {:ok, workshop} = Workshops.delete(w1.slug)
 
+<<<<<<< HEAD
     refute Repo.get(Workshop, workshop.id)
+=======
+    refute Repo.get(Workshop, w1.id)
+>>>>>>> Big changes
   end
 
   test "toggle checkin", %{w1: w1} do
     u1 = create_user()
+<<<<<<< HEAD
     create_workshop_attendance(w1, u1)
+=======
+    attendance = create_workshop_attendance(w1, u1)
+>>>>>>> Big changes
 
     {:ok, _} = Workshops.toggle_checkin(w1.slug, u1.id, true)
 
