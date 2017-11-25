@@ -40,7 +40,6 @@ defmodule Api.TeamsTest do
 
   test "create invalid team", %{u1: u1} do
     {:error, changeset} = Teams.create_team(u1, @invalid_attrs)
-
     assert changeset.valid? == false
   end
 
