@@ -77,7 +77,9 @@ defmodule ApiWeb.TestHelper do
   end
 
   def create_competition_attendance(competition, user) do
-    Repo.insert! %CompAttendance{competition_id: competition.id, attendee: user.id}
+    %CompAttendance{}
+    |> CompAttendance.changeset(%{competition_id: competition.id, attendee: user.id})
+    |> Repo.insert!
   end
 
   def create_workshop(params \\ @valid_workshop_attrs) do

@@ -3,7 +3,7 @@ defmodule Api.Competitions.Attendance do
   import Ecto.Changeset
 
   alias Api.Competitions.Competition
-  alias ApiWeb.Crypto
+  alias ApiWeb.{EctoHelper, Crypto}
 
   @valid_attrs ~w(
     attendee
@@ -13,6 +13,7 @@ defmodule Api.Competitions.Attendance do
 
   @required_attrs ~w(
     attendee
+    voter_identity
     competition_id
   )a
 
@@ -21,6 +22,7 @@ defmodule Api.Competitions.Attendance do
   schema "competition_attendance" do
     field :attendee, :binary_id
     field :checked_in, :boolean, default: false
+    field :voter_identity, :string
 
     belongs_to :competition, Competition
 
@@ -30,7 +32,9 @@ defmodule Api.Competitions.Attendance do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @valid_attrs)
+    |> EctoHelper.if_missing(:voter_identity, Crypto.random_hmac())
     |> validate_required(@required_attrs)
+    |> unique_constraint(:voter_identity)
     |> unique_constraint(:attendee_competition_id)
   end
 end
