@@ -11,27 +11,20 @@
 
     <%= render @view_module, @view_template, assigns %>
 
-    <tr class="sponsors" style="box-sizing:border-box;" >
-      <td style="box-sizing:border-box;font-style:normal;font-variant:normal;font-weight:normal;font-size:16px;font-family:Helvetica,Arial,sans-serif;line-height:normal;padding-top:40px;padding-bottom:40px;padding-right:0;padding-left:0;text-align:center;" >
-        <h2 style="box-sizing:border-box;color:#808080;" >Our amazing partners and sponsors</h2>
-        <img alt="sponsors" src="https://s3.eu-central-1.amazonaws.com/make-or-break-static-assets/email-sponsors.png" style="box-sizing:border-box;" >
-      </td>
-    </tr>
-
     <tr style="box-sizing:border-box;" >
       <td class="footer" style="box-sizing:border-box;font-style:normal;font-variant:normal;font-weight:normal;font-family:Helvetica,Arial,sans-serif;line-height:normal;height:50px;background-color:#5d00f3;background-image:none;background-repeat:repeat;background-position:top left;background-attachment:scroll;text-align:center;vertical-align:center;color:white;font-size:12px;" >
         <a target="_blank" rel="noopener noreferrer" href="https://www.facebook.com/portosummerofcode/" style="box-sizing:border-box;color:#5d00f3;text-decoration:underline;display:inline-block;margin-top:0;margin-bottom:0;margin-right:15px;margin-left:15px;padding-top:20px;" >
-          <img height="20" src="https://s3.eu-central-1.amazonaws.com/make-or-break-static-assets/email-fb.png" alt="Porto Summer of Code Faceook page" style="box-sizing:border-box;" />
+          <img height="20" src="https://s3.eu-central-1.amazonaws.com/make-or-break-static-assets/email-fb.png" alt="Make or Break Faceook page" style="box-sizing:border-box;" />
         </a>
         <a target="_blank" rel="noopener noreferrer" href="https://twitter.com/portosummercode/" style="box-sizing:border-box;color:#5d00f3;text-decoration:underline;display:inline-block;margin-top:0;margin-bottom:0;margin-right:15px;margin-left:15px;padding-top:20px;" >
-          <img height="20" src="https://s3.eu-central-1.amazonaws.com/make-or-break-static-assets/email-twitter.png" alt="Porto Summer of Code Twitter account" style="box-sizing:border-box;" />
+          <img height="20" src="https://s3.eu-central-1.amazonaws.com/make-or-break-static-assets/email-twitter.png" alt="Make or Break Twitter account" style="box-sizing:border-box;" />
         </a>
       </td>
     </tr>
 
     <tr style="box-sizing:border-box;" >
       <td class="footer" style="box-sizing:border-box;font-style:normal;font-variant:normal;font-weight:normal;font-family:Helvetica,Arial,sans-serif;line-height:normal;height:50px;background-color:#5d00f3;background-image:none;background-repeat:repeat;background-position:top left;background-attachment:scroll;text-align:center;vertical-align:center;color:white;font-size:12px;" >
-        © Porto Summer of Code 2017
+        © Make or Break 2017
       </td>
     </tr>
 
