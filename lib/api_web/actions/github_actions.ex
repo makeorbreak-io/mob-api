@@ -5,7 +5,7 @@ defmodule ApiWeb.GithubActions do
   import ApiWeb.StringHelper
 
   @github_token Application.get_env(:api, :github_token)
-  @organization "portosummerofcode"
+  @organization "makeorbreak-io"
   @github_regex ~r/^(?:https?:\/\/)?(?:www\.)?github\.com\/([^\-][a-z0-9\-]*)(?:\/\w*)?$/i
   @permissions %{permissions: "push"}
 
