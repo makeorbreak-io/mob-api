@@ -1,10 +1,10 @@
 APP="api"
 
-BUILD_HOST="api.portosummerofcode.com"
+BUILD_HOST="api.makeorbreak.io"
 BUILD_USER="deploy"
 BUILD_AT="edeliver/build"
 
-PRODUCTION_HOSTS="api.portosummerofcode.com"
+PRODUCTION_HOSTS="api.makeorbreak.io"
 PRODUCTION_USER="deploy"
 
 DELIVER_TO="edeliver"
