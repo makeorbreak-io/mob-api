@@ -74,7 +74,7 @@ defmodule ApiWeb.Email do
   defp base_email(recipient) do
     # Here you can set a default from, default headers, etc.
     new_email()
-    |> from({"Porto Summer of Code", "info@makeorbreak.io"})
+    |> from({"Make or Break", "info@makeorbreak.io"})
     |> to(recipient)
   end
 end
