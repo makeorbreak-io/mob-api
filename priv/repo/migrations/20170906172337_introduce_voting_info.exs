@@ -1,7 +1,7 @@
 defmodule Api.Repo.Migrations.IntroduceVotingInfo do
   use Ecto.Migration
 
-  alias Api.Competitions.Category
+  #alias Api.Competitions.Category
   alias Api.Repo
 
   defp fk(table, on_delete \\ :nilify_all, type \\ :uuid) do
@@ -43,10 +43,10 @@ defmodule Api.Repo.Migrations.IntroduceVotingInfo do
     end
     create unique_index(:categories, [:name])
     flush()
-    Enum.map(
-      ~w(useful funny hardcore),
-      &Repo.insert!(%Category{name: &1})
-    )
+    # Enum.map(
+    #   ~w(useful funny hardcore),
+    #   &Repo.insert!(%Category{name: &1})
+    # )
 
     create table(:competition, primary_key: false) do
       add :id, :uuid, primary_key: true

@@ -1,7 +1,7 @@
-defmodule Api.VotingTest do
+defmodule Api.SuffragesTest do
   use Api.DataCase
 
-  alias Api.Competitions
+  alias Api.Suffrages
 
   setup do
     member = create_user()

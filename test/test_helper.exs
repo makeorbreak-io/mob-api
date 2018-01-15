@@ -7,11 +7,10 @@ defmodule ApiWeb.TestHelper do
   alias Api.Accounts.User
   alias Api.Workshops.{Workshop, Attendance}
   alias Api.Teams.{Team, Membership, Invite}
-  alias Api.Competitions.{Category, Competition}
+  alias Api.Competitions.Competition
+  alias Api.Suffrages.{Category, Suffrage, Vote, PaperVote}
   alias Api.Competitions.Attendance, as: CompAttendance
-  alias Api.{Voting, Voting.Vote}
   alias ApiWeb.StringHelper
-  import Api.Accounts.User, only: [gravatar_hash: 1]
 
   @valid_user_attrs %{
     name: "john doe",
@@ -132,6 +131,16 @@ defmodule ApiWeb.TestHelper do
     |> Repo.insert!
   end
 
+  def create_suffrage(competition) do
+    %Suffrage{}
+    |> Suffrage.changeset(
+      %{
+        competition_id: competition.id
+      }
+    )
+    |> Repo.insert!
+  end
+
   def check_in_everyone(people \\ nil) do
     people = people || Repo.all(User)
 
@@ -154,58 +163,53 @@ defmodule ApiWeb.TestHelper do
     end)
   end
 
-  def create_vote(user, category_name, ballot) do
-    category = Repo.get_by(Category, name: category_name)
-
-    Repo.insert! %Vote{
-      voter_identity: user.voter_identity,
-      category_id: category.id,
-      ballot: ballot
-    }
+  def create_vote(user, suffrage, ballot) do
+    %Vote{}
+    |> Vote.changeset(
+      %{
+        voter_identity: user.voter_identity,
+        suffrage_id: suffrage.id,
+        ballot: ballot
+      }
+    )
+    |> Repo.insert!
   end
 
-  def create_paper_vote(category, admin) do
-    {:ok, pv} = Voting.create_paper_vote(category, admin)
-    pv
+  def create_paper_vote(suffrage, admin) do
+    %PaperVote{}
+    |> PaperVote.changeset(
+      %{
+        created_by_id: admin.id,
+        suffrage_id: suffrage.id
+      }
+    )
+    |> Repo.insert!
   end
 
   def annul_paper_vote(paper_vote, admin) do
-    {:ok, pv} = Voting.annul_paper_vote(paper_vote, admin)
-    pv
+    pv = Repo.get!(PaperVote, paper_vote.id)
+
+    PaperVote.changeset(pv,
+      %{
+        annulled_by_id: admin.id,
+        annulled_at: DateTime.utc_now,
+      }
+    )
+    |> Repo.update!
   end
 
   def redeem_paper_vote(paper_vote, team, member, admin) do
-    {:ok, pv} = Voting.redeem_paper_vote(paper_vote, team, member, admin)
+    pv = Repo.get!(PaperVote, paper_vote.id)
+
+    PaperVote.changeset(pv,
+      %{
+        redeemed_admin_id: admin.id,
+        redeemed_at: DateTime.utc_now,
+        redeeming_member_id: member.id,
+        team_id: team.id
+      }
+    )
+    |> Repo.update!
     pv
-  end
-
-  def team_short_view(t) do
-    %{"id" => t.id, "name" => t.name}
-  end
-
-  def team_view(t) do
-    %{
-      "applied" => t.applied,
-      "disqualified_at" => t.disqualified_at,
-      "eligible" => t.eligible,
-      "id" => t.id,
-      "invites" => nil,
-      "members" => nil,
-      "name" => t.name,
-      "prize_preference" => t.prize_preference,
-      "project_name" => t.project_name,
-      "project_desc" => t.project_desc,
-      "technologies" => t.technologies,
-    }
-  end
-
-  def admin_user_short_view(u) do
-    %{
-      "name" => u.name,
-      "gravatar_hash" => gravatar_hash(u),
-      "id" => u.id,
-      "tshirt_size" => u.tshirt_size,
-      "email" => u.email
-    }
   end
 end

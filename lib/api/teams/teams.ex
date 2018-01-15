@@ -8,7 +8,6 @@ defmodule Api.Teams do
   alias Api.{Mailer, Repo}
   alias Api.Accounts.User
   alias Api.Teams.{Invite, Membership, Team}
-  alias Api.Integrations.Github
   alias Api.Notifications.Emails
   alias Ecto.{Changeset}
 
@@ -107,76 +106,6 @@ defmodule Api.Teams do
   catch
     e -> e
   end
-
-  # def disqualify_team(team_id, admin) do
-  #   from(
-  #     t in Team,
-  #     where: t.id == ^team_id,
-  #     where: is_nil(t.disqualified_at),
-  #     update: [set: [
-  #       disqualified_at: ^(DateTime.utc_now),
-  #       disqualified_by_id: ^(admin.id),
-  #     ]]
-  #   )
-  #   |> Repo.update_all([])
-  # end
-
-  # def shuffle_tie_breakers do
-  #   teams = Repo.all(from t in Team)
-
-  #   multi = Multi.new
-
-  #   # I can't update the tie breakers to their intended value on just one pass.
-  #   # Consider the case where you have two teams, A and B, with tie breakers 1
-  #   # and 2, respectively. If we decide that team A gets the tie breaker 2,
-  #   # on the fisrt update, the BD will complain that both A and B have the tie
-  #   # breaker 1. In order to get around that, we make them all negative first,
-  #   # and only assign the new tie breakers after that. Since we know the new
-  #   # tie breakers won't ever be negative, this gets rid of all conflicts.
-  #   multi =
-  #     Enum.reduce(
-  #       teams,
-  #       multi,
-  #       fn team, multi ->
-  #         Multi.update(
-  #           multi,
-  #           "#{team.id} to negative",
-  #           Changeset.change(team, tie_breaker: -1 * team.tie_breaker)
-  #         )
-  #       end
-  #     )
-
-  #   multi =
-  #     Enum.reduce(
-  #       Enum.zip([
-  #         teams,
-  #         (1..Enum.count(teams)) |> Enum.shuffle
-  #       ]),
-  #       multi,
-  #       fn {team, new_tb}, multi ->
-  #         Multi.update(
-  #           multi,
-  #           "#{team.id} to shuffled",
-  #           team
-  #           |> Changeset.change()
-  #           |> Changeset.force_change(:tie_breaker, new_tb)
-  #         )
-  #       end
-  #     )
-
-  #   Repo.transaction(multi)
-  # end
-
-  # def assign_missing_preferences do
-  #   cats = Repo.all(Category) |> Enum.map(&(&1.name))
-
-  #   Repo.all(from(t in Team, where: is_nil(t.prize_preference)))
-  #   |> Enum.map(fn t ->
-  #     t
-  #     |> Changeset.change(prize_preference: cats |> Enum.shuffle)
-  #     |> Repo.update!
-  #   end)
-  # end
 
   def list_user_invites(user) do
     Invite

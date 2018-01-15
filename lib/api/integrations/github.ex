@@ -1,8 +1,9 @@
 defmodule Api.Integrations.Github do
   import Ecto.Query, warn: false
 
+  alias Api.Repo
   alias Tentacat.{Client, Repositories, Repositories.Collaborators}
-  alias Api.Teams.Team
+  alias Api.{Teams, Teams.Team}
   import ApiWeb.StringHelper
 
   @github_token Application.get_env(:api, :github_token)
@@ -19,7 +20,7 @@ defmodule Api.Integrations.Github do
 
     case create(team) do
       {:ok, repo} ->
-        Team.update_any_team(id, %{repo: repo})
+        Teams.update_any_team(id, %{repo: repo})
         :ok
       {:error, error} -> error
     end
@@ -30,17 +31,15 @@ defmodule Api.Integrations.Github do
     members = Repo.all Ecto.assoc(team, :members)
 
     Enum.each(members, fn(member) ->
-      Github.add_collaborator(team.repo, member.github_handle)
+      add_collaborator(team.repo, member.github_handle)
     end)
   end
 
   defp create(team) do
     client = init()
 
-    # TODO change from team name from project name and add project
-    # description and technologies
-    case Repositories.org_create(@organization, slugify(team.name),
-      client, [private: false]) do
+    case Repositories.org_create(@organization, slugify(team.project_name),
+      client, [description: team.project_desc, private: false]) do
         {201, repo} -> {:ok, repo}
         {_, error} -> {:error, error["message"]}
     end

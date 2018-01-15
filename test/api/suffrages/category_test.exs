@@ -1,7 +1,7 @@
 defmodule Api.CategoryTest do
   use Api.DataCase
 
-  alias Api.Competitions.Category
+  alias Api.Suffrages.Category
 
   @valid_attrs %{
     name: "some name"

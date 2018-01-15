@@ -7,7 +7,7 @@ defmodule Mix.Tasks.Api.ValidateInfoEnd do
       You can get an info_end.json on your User Dashboard after the voting ends.
     """
 
-  alias Api.Voting
+  alias Api.Suffrages
 
   def run(file_path) do
     file = if file_path == "-", do: :stdio, else: File.open!(file_path)
@@ -49,8 +49,8 @@ defmodule Mix.Tasks.Api.ValidateInfoEnd do
       Enum.map(votes_in_categories, fn {category, votes} ->
         expected_podium = expected_podiums[category]
 
-        calculated_podium = Voting.calculate_podium(
-          Voting.clean_votes_into_ballots(votes, valid_team_ids),
+        calculated_podium = Suffrages.calculate_podium(
+          Suffrages.clean_votes_into_ballots(votes, valid_team_ids),
           valid_team_ids,
           tie_breakers
         )
@@ -76,7 +76,7 @@ defmodule Mix.Tasks.Api.ValidateInfoEnd do
         Mix.shell.info separator
 
         preferences =
-          Voting.clean_votes_into_ballots(votes, valid_team_ids)
+          Suffrages.clean_votes_into_ballots(votes, valid_team_ids)
           |> Enum.flat_map(&Markus.ballot_to_pairs(&1, valid_team_ids))
           |> Markus.pairs_to_preferences(valid_team_ids)
 

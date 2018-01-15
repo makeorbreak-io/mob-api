@@ -1,16 +1,15 @@
-defmodule Api.Voting.PaperVote do
+defmodule Api.Suffrages.PaperVote do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
 
   alias Api.Accounts.User
   alias Api.Teams.Team
-  alias Api.Competitions.Category
-  alias Api.Voting.PaperVote
+  alias Api.Suffrages.Suffrage
   alias ApiWeb.EctoHelper
 
   @valid_attrs ~w(
-    category_id
+    suffrage_id
     created_by_id
     redeemed_at
     redeeming_admin_id
@@ -21,14 +20,14 @@ defmodule Api.Voting.PaperVote do
   )a
 
   @required_attrs ~w(
-    category_id
+    suffrage_id
     created_by_id
   )a
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "paper_votes" do
-    belongs_to :category, Category
+    belongs_to :suffrage, Suffrage
     belongs_to :created_by, User
 
     field :redeemed_at, :utc_datetime
@@ -46,7 +45,7 @@ defmodule Api.Voting.PaperVote do
     struct
     |> cast(params, @valid_attrs)
     |> validate_required(@required_attrs)
-    |> assoc_constraint(:category)
+    |> assoc_constraint(:suffrage)
     |> assoc_constraint(:created_by)
     |> EctoHelper.on_any_present(
       [
@@ -71,24 +70,6 @@ defmodule Api.Voting.PaperVote do
         &validate_required/2,
         &assoc_constraint(&1, :annulled_by)
       ]
-    )
-  end
-
-  def not_annuled(at \\ nil) do
-    at = at || DateTime.utc_now
-
-    from(
-      p in PaperVote,
-      where: is_nil(p.annulled_at) or p.annulled_at > ^at,
-    )
-  end
-
-  def countable(at \\ nil) do
-    at = at || DateTime.utc_now
-
-    from(
-      pv in not_annuled(at),
-      where: not is_nil(pv.team_id),
     )
   end
 end

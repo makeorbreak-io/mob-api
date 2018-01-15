@@ -1,21 +1,22 @@
 defmodule Api.PaperVoteTest do
   use Api.DataCase
 
-  alias Api.Voting.PaperVote
+  alias Api.Suffrages.PaperVote
 
   setup %{} do
     user = create_user()
     admin = create_admin()
-    category = create_category()
-    team = create_team(user, create_competition())
+    competition = create_competition()
+    suffrage = create_suffrage(competition)
+    team = create_team(user, competition)
     {:ok, %{
       user: user,
       admin: admin,
-      category: category,
+      suffrage: suffrage,
       team: team,
       base_attrs: %{
         hmac_secret: "you'll never guess me",
-        category_id: category.id,
+        suffrage_id: suffrage.id,
         created_by_id: admin.id,
       }
     }}

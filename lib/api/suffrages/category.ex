@@ -1,4 +1,4 @@
-defmodule Api.Competitions.Category do
+defmodule Api.Suffrages.Category do
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -14,7 +14,7 @@ defmodule Api.Competitions.Category do
   @foreign_key_type :binary_id
   schema "categories" do
     field :name, :string
-    field :podium, {:array, :binary_id}
+
     timestamps()
   end
 

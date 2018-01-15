@@ -113,16 +113,4 @@ defmodule Api.Accounts.User do
     |> Kernel.+(30 * 60)
     |> DateTime.from_unix!
   end
-
-  # def able_to_vote(at \\ nil) do
-  #   at = at || DateTime.utc_now
-
-  #   from(
-  #     u in User,
-  #     left_join: tm in assoc(u, :teams),
-  #     left_join: t in assoc(tm, :team),
-  #     where: u.role == "participant",
-  #     where: is_nil(t.disqualified_at) or t.disqualified_at > ^at,
-  #   )
-  # end
 end

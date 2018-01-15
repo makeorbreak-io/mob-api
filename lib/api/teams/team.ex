@@ -5,6 +5,7 @@ defmodule Api.Teams.Team do
 
   alias Api.Teams.{Team, Membership, Invite}
   alias Api.Competitions.Competition
+  alias Api.Suffrage.Candidate
 
   @valid_attrs ~w(
     name
@@ -39,6 +40,7 @@ defmodule Api.Teams.Team do
     has_many :invites, Invite, on_delete: :delete_all
     has_many :memberships, Membership, foreign_key: :team_id, on_delete: :delete_all
     has_many :members, through: [:memberships, :user]
+
     belongs_to :competition, Competition
   end
 
