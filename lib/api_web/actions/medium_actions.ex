@@ -4,7 +4,7 @@ defmodule ApiWeb.MediumActions do
   @http Application.get_env(:api, :http_lib)
 
   def get_latest_posts(count) do
-    url = "https://medium.com/@portosummercode/latest?count=#{count}&format=json"
+    url = "https://medium.com/@makeorbreak.io/latest?count=#{count}&format=json"
 
     with {:ok, response} <- @http.get(url), do: remove_prefix(response)
   end
