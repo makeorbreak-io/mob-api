@@ -20,10 +20,10 @@
       <tr style="box-sizing:border-box;" >
         <td class="footer" style="box-sizing:border-box;font-style:normal;font-variant:normal;font-weight:normal;font-family:Helvetica,Arial,sans-serif;line-height:normal;height:50px;background-color:#5d00f3;background-image:none;background-repeat:repeat;background-position:top left;background-attachment:scroll;text-align:center;vertical-align:center;color:white;font-size:12px;" >
           <a target="_blank" rel="noopener noreferrer" href="https://www.facebook.com/makeorbreak.io/" style="box-sizing:border-box;color:#5d00f3;text-decoration:underline;display:inline-block;margin-top:0;margin-bottom:0;margin-right:15px;margin-left:15px;padding-top:20px;" >
-            <img height="20" src="https://s3.eu-central-1.amazonaws.com/make-or-break-static-assets/email-fb.svg" alt="Make or Break Facebook page" style="box-sizing:border-box;" />
+            <img height="20" src="https://s3.eu-central-1.amazonaws.com/make-or-break-static-assets/email-fb.png" alt="Make or Break Facebook page" style="box-sizing:border-box;" />
           </a>
           <a target="_blank" rel="noopener noreferrer" href="https://twitter.com/makeorbreakio/" style="box-sizing:border-box;color:#5d00f3;text-decoration:underline;display:inline-block;margin-top:0;margin-bottom:0;margin-right:15px;margin-left:15px;padding-top:20px;" >
-            <img height="20" src="https://s3.eu-central-1.amazonaws.com/make-or-break-static-assets/email-twitter.svg" alt="Make or Break Twitter account" style="box-sizing:border-box;" />
+            <img height="20" src="https://s3.eu-central-1.amazonaws.com/make-or-break-static-assets/email-twitter.png" alt="Make or Break Twitter account" style="box-sizing:border-box;" />
           </a>
         </td>
       </tr>
