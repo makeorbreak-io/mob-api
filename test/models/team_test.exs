@@ -39,4 +39,15 @@ defmodule ApiWeb.TeamTest do
     second = Repo.insert!(Team.changeset(%Team{}, @valid_attrs, Repo))
     assert second.tie_breaker == 2
   end
+
+  test "tie_breaker doesn't break if team is deleted" do
+    first = Repo.insert!(Team.changeset(%Team{}, @valid_attrs, Repo))
+    Repo.insert!(Team.changeset(%Team{}, @valid_attrs, Repo))
+
+    Repo.delete(first)
+
+    third = Repo.insert!(Team.changeset(%Team{}, @valid_attrs, Repo))
+
+    assert third.tie_breaker == 3
+  end
 end
