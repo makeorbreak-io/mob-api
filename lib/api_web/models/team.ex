@@ -67,7 +67,12 @@ defmodule ApiWeb.Team do
   end
 
   defp generate_tie_breaker(repo) do
-    repo.aggregate(Team, :count, :id) + 1
+    max_tie_breaker = from(t in __MODULE__, select: max(t.tie_breaker)) |> repo.one()
+
+    case  max_tie_breaker do
+      nil -> 1
+      _ ->  max_tie_breaker + 1
+    end
   end
 
   def preference_hmac(team) do
