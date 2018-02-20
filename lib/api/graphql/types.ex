@@ -5,10 +5,56 @@ defmodule Api.GraphQL.Types do
 
   alias Api.Repo
   alias Api.Accounts.User
+  alias Api.AICompetition.Bots
 
   import_types Absinthe.Type.Custom
   import_types Api.GraphQL.Scalars
   import_types Api.GraphQL.InputTypes
+
+  connection node_type: :ai_competition_game
+  object :ai_competition_game do
+    field :id, :string
+    field :initial_state, :json
+    field :final_state, :json
+    field :status, :string
+    field :updated_at, :naive_datetime
+
+    # field :game_bots, :ai_competition_game_bot, resolve: assoc(:game_bots)
+    field :bots, list_of(:ai_competition_bot), resolve: assoc(:bots)
+    # field :users, :user, resolve: assoc(:users)
+  end
+
+  # connection node_type: :ai_competition_game_bot
+  # object :ai_competition_game_bot do
+  #   field :id, :string
+  #   field :score, :integer
+
+  #   field :bot, :ai_competition_bot, resolve: assoc(:bot)
+  # end
+
+  connection node_type: :ai_competition_bot
+  object :ai_competition_bot do
+    field :id, :string
+    field :sdk, :string
+    field :source_code, :string
+    field :status, :string
+    field :title, :string
+    field :compilation_output, :string
+    field :revision, :integer
+    field :inserted_at, :naive_datetime
+
+    field :author, :json do
+      resolve fn _args, %{source: source} ->
+        user = Repo.preload(source, :user).user
+        {:ok, %{
+          name: User.display_name(user),
+          id: user.id,
+        }}
+      end
+    end
+    field :user, :user, resolve: assoc(:user)
+    # field :game_bots, :ai_competition_game_bot, resolve: assoc(:game_bots)
+  end
 
   connection node_type: :competition
   object :competition do
@@ -17,6 +63,10 @@ defmodule Api.GraphQL.Types do
     field :status, :string
 
     field :teams, list_of(:team)
+  end
+
+  object :medium do
+    field :posts, :json
   end
 
   object :membership do
@@ -72,9 +122,24 @@ defmodule Api.GraphQL.Types do
       end
     end
 
+    field :ai_competition_bot, :ai_competition_bot do
+      arg :id, :string
+
+      resolve fn %{id: id}, %{source: source} ->
+        {:ok, Bots.user_bot(id, source)}
+      end
+    end
+
+    field :current_ai_competition_bot, :ai_competition_bot do
+      resolve fn _args, %{source: source} ->
+        {:ok, Bots.current_bot(source)}
+      end
+    end
+
     field :teams, list_of(:team), resolve: assoc(:teams)
     field :invites, list_of(:invite), resolve: assoc(:invites)
     field :invitations, list_of(:invite), resolve: assoc(:invitations)
+    field :ai_competition_bots, list_of(:ai_competition_bot), resolve: assoc(:ai_competition_bots)
   end
 
   connection node_type: :invite

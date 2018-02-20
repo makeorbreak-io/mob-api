@@ -62,6 +62,9 @@ defmodule ApiWeb.Router do
     get "/users/password/get_token", UserController, :get_token
     post "/users/password/recover", UserController, :recover_password
 
+    post "/bots/:id", BotsController, :callback
+    post "/games/:id", GamesController, :callback
+
     scope "/admin", as: :admin do
       resources "/users", Admin.UserController, except: [:new, :edit, :create]
       resources "/workshops", Admin.WorkshopController, except: [:new, :edit]

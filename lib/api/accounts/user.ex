@@ -4,6 +4,7 @@ defmodule Api.Accounts.User do
 
   alias Api.{Workshops.Workshop, Workshops.Attendance}
   alias Api.{Teams.Invite, Teams.Membership}
+  alias Api.AICompetition.Bot
   alias Comeonin.Bcrypt
 
   @valid_attrs ~w(
@@ -60,6 +61,7 @@ defmodule Api.Accounts.User do
     has_many :invitations, Invite, foreign_key: :invitee_id, on_delete: :delete_all
     has_many :memberships, Membership, foreign_key: :user_id, on_delete: :delete_all
     has_many :teams, through: [:memberships, :team]
+    has_many :ai_competition_bots, Bot
 
     many_to_many :workshops, Workshop, join_through: Attendance, on_delete: :delete_all
   end

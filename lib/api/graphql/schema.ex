@@ -11,6 +11,7 @@ defmodule Api.GraphQL.Schema do
   alias Api.Competitions.Competition
   alias Api.Teams
   alias Api.Teams.{Team, Invite}
+  alias Api.AICompetition.{Game, Bots, Bot}
   alias Api.Workshops.Workshop
 
   import_types Api.GraphQL.Types
@@ -47,6 +48,22 @@ defmodule Api.GraphQL.Schema do
     end
 
     #
+    # non-paginated collections
+    field :medium, :medium do
+      resolve fn _args, _info ->
+        json = Api.Integrations.Medium.get_latest_posts(2)
+        {:ok, %{posts:
+          json
+          |> Map.get("payload")
+          |> Map.get("references")
+          |> Map.get("Post")
+          |> Map.values
+        }}
+      end
+    end
+
+
+    #
     # paginated resource collections
     connection field :teams, node_type: :team do
       arg :order_by, :string
@@ -68,6 +85,12 @@ defmodule Api.GraphQL.Schema do
       arg :order_by, :string
 
       resolve Resolvers.all(Workshop)
+    end
+
+    connection field :ai_games, node_type: :ai_competition_game do
+      arg :order_by, :string
+
+      resolve Resolvers.all(Game)
     end
   end
 
@@ -200,6 +223,19 @@ defmodule Api.GraphQL.Schema do
         Teams.remove_membership(current_user, id, user_id)
 
         {:ok, Teams.get_team(id)}
+      end
+    end
+
+    @desc "Creates an AI competition bot"
+    field :create_ai_competition_bot, :user do
+      arg :bot, non_null(:ai_competition_bot_input)
+
+      middleware RequireAuthn
+
+      resolve fn %{bot: bot}, %{context: %{current_user: current_user}} ->
+        Bots.create_bot(current_user, bot)
+
+        {:ok, current_user}
       end
     end
   end

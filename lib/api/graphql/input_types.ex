@@ -1,6 +1,12 @@
 defmodule Api.GraphQL.InputTypes do
   use Absinthe.Schema.Notation
 
+  input_object :ai_competition_bot_input do
+    field :title, non_null(:string)
+    field :sdk, non_null(:string)
+    field :source_code, non_null(:string)
+  end
+
   input_object :team_input do
     field :name, non_null(:string)
     field :project_name, :string
