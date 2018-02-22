@@ -73,6 +73,7 @@ defmodule Api.Mixfile do
       {:distillery, "~> 1.4"},
       {:edeliver, "~> 1.4.4"},
       {:excoveralls, "~> 0.7", only: :test},
+      {:ex_doc, "~> 0.16", only: :dev, runtime: false},
       {:guardian, "~> 0.14"},
       {:httpoison, "~> 0.13"},
       {:markus, "~> 0.3.0"},

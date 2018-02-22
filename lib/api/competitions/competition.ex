@@ -2,6 +2,8 @@ defmodule Api.Competitions.Competition do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Api.Suffrages.Suffrage
+
   @valid_attrs ~w(
     name
     status
@@ -12,6 +14,8 @@ defmodule Api.Competitions.Competition do
   schema "competitions" do
     field :name, :string
     field :status, :string, default: "created"
+
+    has_many :suffrages, Suffrage
   end
 
   def changeset(struct, params \\ %{}) do

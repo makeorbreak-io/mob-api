@@ -1,7 +1,7 @@
 defmodule Api.SuffragesTest do
   use Api.DataCase
 
-  alias Api.Suffrages
+  # alias Api.Suffrages
 
   setup do
     member = create_user()

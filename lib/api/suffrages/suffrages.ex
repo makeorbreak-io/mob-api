@@ -20,7 +20,7 @@ defmodule Api.Suffrages do
       throw {:error, "Invalid vote"}
     end
 
-   case suffrage_voting_status(suffrage_id) do
+    case suffrage_voting_status(suffrage_id) do
       :not_started -> throw {:error, :not_started}
       :ended -> throw {:error, :already_ended}
     end
