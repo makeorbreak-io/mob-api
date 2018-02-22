@@ -2,6 +2,8 @@ defmodule Api.Suffrages.Category do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Api.Suffrages.Suffrage
+
   @valid_attrs ~w(
     name
   )a
