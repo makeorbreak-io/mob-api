@@ -89,6 +89,8 @@ defmodule ApiWeb.TestHelper do
 
   def create_workshop_attendance(workshop, user) do
     Repo.insert! %Attendance{workshop_id: workshop.id, user_id: user.id}
+    Workshop.changeset(workshop, %{participants_counter: workshop.participants_counter + 1})
+    |> Repo.update()
   end
 
   def create_id_invite(team, host, user) do

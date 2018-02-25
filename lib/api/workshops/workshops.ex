@@ -34,15 +34,13 @@ defmodule Api.Workshops do
   def join(user, slug) do
     workshop = get(slug)
 
-    query = from w in Attendance, where: w.workshop_id == type(^workshop.id, Ecto.UUID)
-    attendees_count = Repo.aggregate(query, :count, :workshop_id)
-
-    if attendees_count < workshop.participant_limit do
+    if workshop.participants_counter < workshop.participant_limit do
       changeset = Attendance.changeset(%Attendance{},
         %{user_id: user.id, workshop_id: workshop.id})
 
       case Repo.insert(changeset) do
         {:ok, attendance} ->
+          increase_participants_counter(workshop)
           Emails.joined_workshop_email(user, workshop) |> Mailer.deliver_later
           {:ok, attendance}
         {:error, _} -> :join_workshop
@@ -60,7 +58,9 @@ defmodule Api.Workshops do
         and w.user_id == type(^user.id, Ecto.UUID))
 
     case Repo.delete_all(query) do
-      {1, nil} -> :ok
+      {1, nil} ->
+        decrease_participants_counter(workshop)
+        :ok
       {0, nil} -> :not_workshop_attendee
     end
   end
@@ -80,17 +80,15 @@ defmodule Api.Workshops do
     end
   end
 
-  # TODO: Change this to a DB field
-  # defp add_participant_count(workshops) when is_list(workshops) do
-  #   Enum.map(workshops, &add_participant_count/1)
-  # end
+  defp increase_participants_counter(workshop) do
+    Workshop.changeset(workshop, %{
+      participants_counter: workshop.participants_counter + 1
+    }) |> Repo.update()
+  end
 
-  # defp add_participant_count(workshop) do
-  #   workshop =
-  #     unless Ecto.assoc_loaded?(workshop.attendances) do
-  #       Repo.preload(workshop, attendances: [:user])
-  #     end
-
-  #   Map.put(workshop, :participants, Enum.count(workshop.attendances))
-  # end
+  defp decrease_participants_counter(workshop) do
+    Workshop.changeset(workshop, %{
+      participants_counter: workshop.participants_counter - 1
+    }) |> Repo.update()
+  end
 end

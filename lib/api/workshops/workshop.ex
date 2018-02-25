@@ -11,6 +11,7 @@ defmodule Api.Workshops.Workshop do
     description
     speaker
     participant_limit
+    participants_counter
     year
     speaker_image
     banner_image
@@ -33,6 +34,7 @@ defmodule Api.Workshops.Workshop do
     field :description, :string
     field :speaker, :string
     field :participant_limit, :integer
+    field :participants_counter, :integer, default: 0
     field :year, :integer
     field :speaker_image, :string
     field :banner_image, :string

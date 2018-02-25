@@ -34,11 +34,6 @@ defmodule Api.Competitions do
     Repo.get_by(Attendance, competition_id: competition_id, attendee: attendee)
   end
 
-  def delete_attendance(id), do: Repo.get(Attendance, id) |> Repo.delete
-  def delete_attendance(id, attendee) do
-    get_attendance(id, attendee) |> Repo.delete
-  end
-
   def create_attendance(competition_id, attendee_id) do
     %Attendance{}
     |> Attendance.changeset(%{
@@ -59,5 +54,10 @@ defmodule Api.Competitions do
         {:ok, attendance}
       {:error, changeset} -> {:error, changeset}
     end
+  end
+
+  def delete_attendance(id), do: Repo.get(Attendance, id) |> Repo.delete
+  def delete_attendance(id, attendee) do
+    get_attendance(id, attendee) |> Repo.delete
   end
 end
