@@ -7,6 +7,8 @@ defmodule Api.Teams do
 
   alias Api.{Mailer, Repo}
   alias Api.Accounts.User
+  alias Api.Competitions
+  alias Api.Competitions.Attendance
   alias Api.Teams.{Invite, Membership, Team}
   alias Api.Notifications.Emails
   alias Ecto.{Changeset}
@@ -56,6 +58,23 @@ defmodule Api.Teams do
     Team.admin_changeset(team, team_params, Repo)
     |> email_if_applying(team)
     |> Repo.update
+  end
+
+  def accept_team(id) do
+    team = get_team(id)
+
+    changeset = Team.admin_changeset(team, %{accepted: true}, Repo)
+
+    case Repo.update(changeset) do
+      {:ok, team} ->
+        members = Repo.all Ecto.assoc(team, :members)
+        Enum.map(members, fn(member) ->
+          Competitions.create_attendance(team.competition_id, member.id)
+        end)
+
+        {:ok, team}
+      {:error, changeset} -> {:error, changeset}
+    end
   end
 
   def delete_team(current_user, id) do

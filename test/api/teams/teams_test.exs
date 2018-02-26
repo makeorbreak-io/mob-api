@@ -4,6 +4,7 @@ defmodule Api.TeamsTest do
 
   alias Api.Teams
   alias Api.Teams.{Team, Invite, Membership}
+  alias Api.Competitions
   alias Api.Notifications.Emails
 
   @valid_attrs %{name: "awesome team"}
@@ -82,6 +83,14 @@ defmodule Api.TeamsTest do
     {:error, changeset} = Teams.update_any_team(t1.id, @invalid_attrs)
 
     assert changeset.valid? == false
+  end
+
+  test "accept team into competition", %{t1: t1, u1: u1} do
+    {:ok, t2} = Teams.accept_team(t1.id)
+
+    assert t2.accepted == true
+    assert Competitions.get_attendance(t2.competition_id, u1.id)
+
   end
 
   test "delete team", %{u1: u1, t1: t1} do
