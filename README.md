@@ -27,14 +27,16 @@ Alternatively, there's a mix task that joins these commands into one:
 Use your preferred method to add the following variables to your environment.
 You can find an example env file you can source in `share/env/env`
 
-| Variable           | Description             | Environments
-| ------------------ | ----------------------- | ------------
-| DB_URL             | Postgresql database url | All
-| SECRET_KEY_BASE    | Secret key base         | All
-| MAILGUN_API_KEY    | Mailgun API credentials | Prod
-| MAILGUN_API_DOMAIN | Mailgun API credentials | Prod
-| HOST               | Server url              | Prod
-| PORT               | Port configuration      | Prod
-| SENTRY_DSN         | Sentry.io project url   | Prod
-| SLACK_TOKEN        | Slack API access token  | Prod
-| GITHUB_TOKEN       | Github API access token | All
+| Variable             | Description                 | Environments
+| -------------------- | --------------------------- | ------------
+| `DB_URL`             | Postgresql database url     | All
+| `SECRET_KEY_BASE`    | Secret key base             | All
+| `MAILGUN_API_KEY`    | Mailgun API credentials     | Prod
+| `MAILGUN_API_DOMAIN` | Mailgun API credentials     | Prod
+| `HOST`               | Server url                  | All
+| `PORT`               | Port configuration          | Prod
+| `SENTRY_DSN`         | Sentry.io project url       | Prod
+| `SLACK_TOKEN`        | Slack API access token      | Prod
+| `GITHUB_TOKEN`       | Github API access token     | All
+| `AI_SERVER_HOST`     | AI Competition server host  | All
+| `AI_SERVER_TOKEN`    | AI Competition access token | All

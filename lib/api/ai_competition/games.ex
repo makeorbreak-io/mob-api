@@ -83,16 +83,16 @@ defmodule Api.AICompetition.Games do
       payload: %{
         game_state: game.initial_state,
       },
-      callback_url: "http://localhost:4000/api/games/" <> game.id,
+      callback_url: System.get_env("HOST") <> "/api/games/" <> game.id,
       auth_token: game.id,
     }
 
     headers = [
       {"Content-Type", "application/json"},
-      {"Authorization", "Bearer derkaderka"},
+      {"Authorization", "Bearer " <> System.get_env("AI_SERVER_TOKEN")},
     ]
 
-    url = "http://localhost:4567/jobs"
+    url = System.get_env("AI_SERVER_HOST") <> "/jobs"
 
     HTTPoison.post(url, Poison.encode!(body), headers)
   end

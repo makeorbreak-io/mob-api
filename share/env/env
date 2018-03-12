@@ -1,2 +1,5 @@
 export DB_URL=postgresql://user:password@localhost/psc
 export SECRET_KEY_BASE=herpy
+export HOST=http://localhost:4000
+export AI_SERVER_HOST=http://localhost:4567
+export AI_SERVER_TOKEN=derpy
