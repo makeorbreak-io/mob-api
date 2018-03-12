@@ -36,7 +36,6 @@ defmodule Api.GraphQL.Types do
   object :ai_competition_bot do
     field :id, :string
     field :sdk, :string
-    field :source_code, :string
     field :status, :string
     field :title, :string
     field :compilation_output, :string
@@ -52,7 +51,19 @@ defmodule Api.GraphQL.Types do
         }}
       end
     end
-    field :user, :user, resolve: assoc(:user)
+
+    # source code can only be shown to their respective authors
+    field :source_code, :string do
+      resolve fn _args, %{source: source, context: %{current_user: current_user}} ->
+        if source.user_id == current_user.id do
+          {:ok, source.source_code}
+        else
+          {:ok, nil}
+        end
+      end
+    end
+
+    # field :user, :user, resolve: assoc(:user)
     # field :game_bots, :ai_competition_game_bot, resolve: assoc(:game_bots)
   end
 
@@ -111,6 +122,7 @@ defmodule Api.GraphQL.Types do
     field :bio, :string
     field :role, :string
     field :tshirt_size, :string
+
     field :gravatar_hash, :string do
       resolve fn _args, %{source: source} ->
         {:ok, User.gravatar_hash(source)}

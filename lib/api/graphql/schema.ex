@@ -11,7 +11,7 @@ defmodule Api.GraphQL.Schema do
   alias Api.Competitions.Competition
   alias Api.Teams
   alias Api.Teams.{Team, Invite}
-  alias Api.AICompetition.{Game, Bots, Bot}
+  alias Api.AICompetition.{Game, Games, Bots, Bot}
   alias Api.Workshops.Workshop
 
   import_types Api.GraphQL.Types
@@ -23,29 +23,31 @@ defmodule Api.GraphQL.Schema do
       resolve &Resolvers.me/2
     end
 
-    field :competition, :competition do
-      arg :id, non_null(:string)
+    # field :competition, :competition do
+    #   arg :id, non_null(:string)
 
-      resolve Resolvers.by_id(Competition)
-    end
+    #   resolve Resolvers.by_id(Competition)
+    # end
 
     field :team, :team do
       arg :id, non_null(:string)
 
+      middleware RequireAuthn
+
       resolve Resolvers.by_id(Team)
     end
 
-    field :user, :user do
-      arg :id, non_null(:string)
+    # field :user, :user do
+    #   arg :id, non_null(:string)
 
-      resolve Resolvers.by_id(User)
-    end
+    #   resolve Resolvers.by_id(User)
+    # end
 
-    field :workshop, :workshop do
-      arg :slug, non_null(:string)
+    # field :workshop, :workshop do
+    #   arg :slug, non_null(:string)
 
-      resolve Resolvers.by_attr(Workshop, :slug)
-    end
+    #   resolve Resolvers.by_attr(Workshop, :slug)
+    # end
 
     #
     # non-paginated collections
@@ -62,35 +64,38 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-
     #
     # paginated resource collections
-    connection field :teams, node_type: :team do
-      arg :order_by, :string
+    # connection field :teams, node_type: :team do
+    #   arg :order_by, :string
 
+    #   middleware RequireAuthn
+
+    #   resolve Resolvers.all(Team)
+    # end
+
+    # connection field :users, node_type: :user do
+    #   arg :order_by, :string
+
+    #   middleware RequireAuthn
+
+    #   resolve Resolvers.all(User)
+    # end
+
+    # connection field :workshops, node_type: :workshop do
+    #   arg :order_by, :string
+
+    #   resolve Resolvers.all(Workshop)
+    # end
+
+    field :ai_games, list_of(:ai_competition_game) do
       middleware RequireAuthn
 
-      resolve Resolvers.all(Team)
-    end
+      resolve fn _args, %{context: %{current_user: current_user}} ->
+        {:ok, Games.user_games(current_user)}
+      end
 
-    connection field :users, node_type: :user do
-      arg :order_by, :string
-
-      middleware RequireAuthn
-
-      resolve Resolvers.all(User)
-    end
-
-    connection field :workshops, node_type: :workshop do
-      arg :order_by, :string
-
-      resolve Resolvers.all(Workshop)
-    end
-
-    connection field :ai_games, node_type: :ai_competition_game do
-      arg :order_by, :string
-
-      resolve Resolvers.all(Game)
+      # resolve Resolvers.all(Game)
     end
   end
 

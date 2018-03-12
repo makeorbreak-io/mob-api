@@ -6,25 +6,32 @@ defmodule Api.AICompetition.Games do
   alias Api.AICompetition.{Game, GameTemplates, GameBot, Bot, Bots}
 
   def get_game(id) do
-    # q = from g in Game,
-    #   preload: [:game_bots, :game_template]
-
     Repo.get!(Game, id)
     |> Repo.preload(:game_bots)
     |> Repo.preload(:game_template)
-    # Repo.get!(Game, id)
-    # |> Repo.preload(:ai_competition_game_bots)
+  end
+
+  def user_games(user) do
+    games = from(
+      g in Game,
+      join: gb in GameBot, where: gb.ai_competition_game_id == g.id,
+      join: b in Bot, where: b.id == gb.ai_competition_bot_id and b.user_id == ^user.id,
+      where: g.status == "processed",
+      order_by: [desc: g.updated_at]
+    )
+
+    Repo.all(games)
   end
 
   def perform_matches do
     # users with valid code bots
     users = from(
       u in User,
-      join: s in Bot,
+      join: b in Bot,
       where:
-        s.user_id == u.id and
-        not is_nil(s.id) and
-        s.status == "processed",
+        b.user_id == u.id and
+        not is_nil(b.id) and
+        b.status == "processed",
       order_by: u.id,
       distinct: u.id
     )
