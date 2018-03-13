@@ -97,7 +97,7 @@ defmodule Api.GraphQL.Types do
     field :tie_breaker, :integer
     field :project_name, :string
     field :project_desc, :string
-    field :technologies, :array
+    # field :technologies, :array
     field :applied, :boolean
 
     field :competition, :competition, resolve: assoc(:competition)

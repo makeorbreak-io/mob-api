@@ -129,8 +129,9 @@ defmodule Api.GraphQL.Schema do
       middleware RequireAuthn
 
       resolve fn %{user: params}, %{context: %{current_user: current_user}} ->
-        {:ok, user} = Accounts.update_current_user(current_user, params)
-        user
+        # {:ok, user} = Accounts.update_user(current_user, current_user.id, params)
+        # user
+        Accounts.update_user(current_user, current_user.id, params)
       end
     end
 

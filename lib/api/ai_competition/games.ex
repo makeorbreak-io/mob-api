@@ -37,8 +37,6 @@ defmodule Api.AICompetition.Games do
     )
     |> Repo.all
 
-    users |> Enum.count |> IO.inspect
-
     # make pairs of users with valid bots face off against each other
     user_pairs = users
     |> Enum.map(fn u1 ->

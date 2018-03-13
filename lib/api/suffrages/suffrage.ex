@@ -44,12 +44,12 @@ defmodule Api.Suffrages.Suffrage do
     |> assoc_constraint(:competition)
   end
 
-  def changeset(struct, params \\ %{}) do
-    struct
-    |> cast(params, @valid_attrs)
-    |> _cant_change(:voting_started_at)
-    |> _cant_change(:voting_ended_at)
-  end
+  # def changeset(struct, params \\ %{}) do
+  #   struct
+  #   |> cast(params, @valid_attrs)
+  #   |> _cant_change(:voting_started_at)
+  #   |> _cant_change(:voting_ended_at)
+  # end
 
   defp _cant_change(%Ecto.Changeset{changes: changes, data: data} = changeset, field) do
     with {:ok, old} <- Map.fetch(data, field),
