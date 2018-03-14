@@ -57,17 +57,16 @@ defmodule Api.AICompetition.Bots do
         sdk: bot.sdk,
         source_code: bot.source_code,
       },
-      callback_url: "http://localhost:4000/api/bots/" <> bot.id,
+      callback_url: System.get_env("AI_CALLBACK_URL") <> "/api/bots/" <> bot.id,
       auth_token: bot.id,
     }
 
     headers = [
       {"Content-Type", "application/json"},
-      {"Authorization", "Bearer derkaderka"},
+      {"Authorization", "Bearer " <> System.get_env("AI_SERVER_TOKEN")},
     ]
 
-    # url = @ai_competition_host <> "/jobs"
-    url = "http://localhost:4567/jobs"
+    url = System.get_env("AI_SERVER_HOST") <> "/jobs"
 
     HTTPoison.post(url, Poison.encode!(body), headers)
   end
