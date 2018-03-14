@@ -25,4 +25,3 @@ defmodule ApiWeb.GamesController do
   end
 
 end
-

@@ -14,7 +14,7 @@ defmodule ApiWeb.BotsController do
 
     Repo.update(changeset)
 
-    if (status == "processed") do
+    if status == "processed" do
       Games.perform_matches
     end
 
