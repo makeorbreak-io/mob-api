@@ -1,10 +1,8 @@
 defmodule Api.Repo.Migrations.IntroduceVotingInfo do
   use Ecto.Migration
 
-  import Ecto.Query
-
-  alias ApiWeb.{Crypto, Repo, User, Team, Category}
-  alias Ecto.{Changeset}
+  #alias Api.Competitions.Category
+  alias Api.Repo
 
   defp fk(table, on_delete \\ :nilify_all, type \\ :uuid) do
     references(table, on_delete: on_delete, type: type)
@@ -15,15 +13,6 @@ defmodule Api.Repo.Migrations.IntroduceVotingInfo do
       add :voter_identity, :string
     end
     flush()
-
-    # Repo.all(from u in User)
-    # |> Enum.map(fn
-    #   user ->
-    #     user
-    #     |> Changeset.change(voter_identity: Crypto.random_hmac())
-    #     |> Repo.update!
-    # end)
-    # flush()
 
     create unique_index(:users, [:voter_identity])
     alter table(:users) do
@@ -38,22 +27,6 @@ defmodule Api.Repo.Migrations.IntroduceVotingInfo do
       add :prize_preference_hmac_secret, :string
       add :tie_breaker, :integer
     end
-
-    #flush()
-    # teams = Repo.all(from t in Team, order_by: :inserted_at)
-    # Enum.zip([
-    #   teams,
-    #   (1..Enum.count(teams))
-    # ])
-    # |> Enum.map(fn
-    #   {team, tie_breaker} ->
-    #     team
-    #     |> Changeset.change(
-    #       prize_preference_hmac_secret: Crypto.random_hmac(),
-    #       tie_breaker: tie_breaker
-    #     )
-    #     |> Repo.update!
-    # end)
 
     create unique_index(:teams, [:prize_preference_hmac_secret])
     create unique_index(:teams, [:tie_breaker])
@@ -70,10 +43,10 @@ defmodule Api.Repo.Migrations.IntroduceVotingInfo do
     end
     create unique_index(:categories, [:name])
     flush()
-    Enum.map(
-      ~w(useful funny hardcore),
-      &Repo.insert!(%Category{name: &1})
-    )
+    # Enum.map(
+    #   ~w(useful funny hardcore),
+    #   &Repo.insert!(%Category{name: &1})
+    # )
 
     create table(:competition, primary_key: false) do
       add :id, :uuid, primary_key: true

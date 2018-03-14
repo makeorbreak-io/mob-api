@@ -1,9 +1,13 @@
 {
   "skip_files": [
     "lib/api.ex",
+    "lib/api/application.ex",
     "lib/api/mailer.ex",
     "lib/api/repo.ex",
-    "lib/api_web.ex"
+    "lib/api_web.ex",
+    "lib/api_web/endpoint.ex",
+    "test/support/conn_case.ex",
+    "test/support/data_case.ex",
   ],
 
   "default_stop_words": [
@@ -14,7 +18,7 @@
     "defprotocol",
     "defstruct",
     "def.+(.+\\\\.+).+do",
-    "^\\s+use\\s+"
+    "^\\s+use\\s+",
   ],
 
   "custom_stop_words": [
@@ -23,10 +27,10 @@
   "coverage_options": {
     "treat_no_relevant_lines_as_covered": true,
     "output_dir": "cover/",
-    "minimum_coverage": 0
+    "minimum_coverage": 0,
   },
 
   "terminal_options": {
-    "file_column_width": 40
+    "file_column_width": 40,
   }
 }

@@ -1,29 +1,31 @@
 ExUnit.start
 
-Ecto.Adapters.SQL.Sandbox.mode(ApiWeb.Repo, :manual)
+Ecto.Adapters.SQL.Sandbox.mode(Api.Repo, :manual)
 
 defmodule ApiWeb.TestHelper do
-  alias ApiWeb.{User, Team, Repo, TeamMember, Invite, Workshop, Category,
-    StringHelper, Vote, PaperVoteActions, UserHelper}
+  alias Api.Repo
+  alias Api.Accounts.User
+  alias Api.Workshops.{Workshop, Attendance}
+  alias Api.Teams.{Team, Membership, Invite}
+  alias Api.Competitions.Competition
+  alias Api.Suffrages.{Category, Suffrage, Vote, PaperVote}
+  alias Api.Competitions.Attendance, as: CompAttendance
+  alias ApiWeb.StringHelper
 
   @valid_user_attrs %{
-    first_name: "john",
-    last_name: "doe",
+    name: "john doe",
     password: "thisisapassword",
     github_handle: "https://github.com/nunopolonia"
   }
-  # Commenting this instead of deleting because not using this on the create_team
-  # function will break the github integration tests once they are uncommented.
-  # So I'm keeping it for future reference.
-  # @valid_team_attrs %{
-  #   name: "awesome team",
-  #   repo: %{"name" => "awesome-team"}
-  # }
+
   @valid_workshop_attrs %{
     name: "awesome workshop",
-    slug: "awesome-workshop",
     participant_limit: 1,
     short_date: "SUNDAY 10TH — 10:30"
+  }
+
+  @valid_competition_attrs %{
+    name: "awesome competition"
   }
 
   defp add_email(params) do
@@ -31,6 +33,10 @@ defmodule ApiWeb.TestHelper do
       %{email: "#{to_string(:rand.uniform())}@email.com"},
       params
     )
+  end
+
+  defp add_slug(params) do
+    Map.merge(%{slug: "workshop-#{to_string(:rand.uniform())}"}, params)
   end
 
   def create_user(params \\ @valid_user_attrs) do
@@ -52,32 +58,64 @@ defmodule ApiWeb.TestHelper do
     |> Repo.insert!
   end
 
-  def create_team(user, params \\ nil) do
+  def create_team(user, competition, params \\ nil) do
     params = params || %{name: "awesome team #{to_string(:rand.uniform())}"}
-    team = %Team{}
+    team = %Team{competition_id: competition.id}
     |> Team.changeset(params, Repo)
     |> Repo.insert!
 
-    Repo.insert! %TeamMember{user_id: user.id, team_id: team.id, role: "owner"}
+    Repo.insert! %Membership{user_id: user.id, team_id: team.id, role: "owner"}
 
     team
   end
 
-  def create_workshop(params \\ @valid_workshop_attrs) do
-    %Workshop{}
-    |> Workshop.changeset(params)
+  def create_competition(params \\ @valid_competition_attrs) do
+    %Competition{}
+    |> Competition.changeset(params)
     |> Repo.insert!
   end
 
-  def create_invite(params) do
+  def create_competition_attendance(competition, user) do
+    %CompAttendance{}
+    |> CompAttendance.changeset(%{competition_id: competition.id, attendee: user.id})
+    |> Repo.insert!
+  end
+
+  def create_workshop(params \\ @valid_workshop_attrs) do
+    %Workshop{}
+    |> Workshop.changeset(params |> add_slug)
+    |> Repo.insert!
+  end
+
+  def create_workshop_attendance(workshop, user) do
+    Repo.insert! %Attendance{workshop_id: workshop.id, user_id: user.id}
+    Workshop.changeset(workshop, %{participants_counter: workshop.participants_counter + 1})
+    |> Repo.update()
+  end
+
+  def create_id_invite(team, host, user) do
     %Invite{}
-    |> Invite.changeset(params)
+    |> Invite.changeset(%{
+      invitee_id: user.id,
+      team_id: team.id,
+      host_id: host.id
+    })
+    |> Repo.insert!
+  end
+
+  def create_email_invite(team, host, email) do
+    %Invite{}
+    |> Invite.changeset(%{
+      email: email,
+      team_id: team.id,
+      host_id: host.id
+    })
     |> Repo.insert!
   end
 
   def create_membership(team, user) do
-    %TeamMember{}
-    |> TeamMember.changeset(%{
+    %Membership{}
+    |> Membership.changeset(%{
       user_id: user.id,
       team_id: team.id,
     })
@@ -95,13 +133,23 @@ defmodule ApiWeb.TestHelper do
     |> Repo.insert!
   end
 
+  def create_suffrage(competition) do
+    %Suffrage{}
+    |> Suffrage.changeset(
+      %{
+        competition_id: competition.id
+      }
+    )
+    |> Repo.insert!
+  end
+
   def check_in_everyone(people \\ nil) do
     people = people || Repo.all(User)
 
     people
     |> Enum.map(fn user ->
       user
-      |> User.admin_changeset(%{checked_in: true})
+      |> User.admin_changeset()
       |> Repo.update!
     end)
   end
@@ -117,60 +165,53 @@ defmodule ApiWeb.TestHelper do
     end)
   end
 
-  def create_vote(user, category_name, ballot) do
-    category = Repo.get_by(Category, name: category_name)
-
-    Repo.insert! %Vote{
-      voter_identity: user.voter_identity,
-      category_id: category.id,
-      ballot: ballot
-    }
+  def create_vote(user, suffrage, ballot) do
+    %Vote{}
+    |> Vote.changeset(
+      %{
+        voter_identity: user.voter_identity,
+        suffrage_id: suffrage.id,
+        ballot: ballot
+      }
+    )
+    |> Repo.insert!
   end
 
-  def create_paper_vote(category, admin) do
-    {:ok, pv} = PaperVoteActions.create(category, admin)
-    pv
+  def create_paper_vote(suffrage, admin) do
+    %PaperVote{}
+    |> PaperVote.changeset(
+      %{
+        created_by_id: admin.id,
+        suffrage_id: suffrage.id
+      }
+    )
+    |> Repo.insert!
   end
 
   def annul_paper_vote(paper_vote, admin) do
-    {:ok, pv} = PaperVoteActions.annul(paper_vote, admin)
-    pv
+    pv = Repo.get!(PaperVote, paper_vote.id)
+
+    PaperVote.changeset(pv,
+      %{
+        annulled_by_id: admin.id,
+        annulled_at: DateTime.utc_now,
+      }
+    )
+    |> Repo.update!
   end
 
   def redeem_paper_vote(paper_vote, team, member, admin) do
-    {:ok, pv} = PaperVoteActions.redeem(paper_vote, team, member, admin)
+    pv = Repo.get!(PaperVote, paper_vote.id)
+
+    PaperVote.changeset(pv,
+      %{
+        redeemed_admin_id: admin.id,
+        redeemed_at: DateTime.utc_now,
+        redeeming_member_id: member.id,
+        team_id: team.id
+      }
+    )
+    |> Repo.update!
     pv
-  end
-
-  def team_short_view(t) do
-    %{"id" => t.id, "name" => t.name}
-  end
-
-  def team_view(t) do
-    %{
-      "applied" => t.applied,
-      "disqualified_at" => t.disqualified_at,
-      "eligible" => t.eligible,
-      "id" => t.id,
-      "invites" => nil,
-      "members" => nil,
-      "name" => t.name,
-      "prize_preference" => t.prize_preference,
-      "project_name" => t.project_name,
-      "project_desc" => t.project_desc,
-      "technologies" => t.technologies,
-    }
-  end
-
-  def admin_user_short_view(u) do
-    %{
-      "display_name" => UserHelper.display_name(u),
-      "first_name" => u.first_name,
-      "last_name" => u.last_name,
-      "gravatar_hash" => UserHelper.gravatar_hash(u),
-      "id" => u.id,
-      "tshirt_size" => u.tshirt_size,
-      "email" => u.email
-    }
   end
 end
