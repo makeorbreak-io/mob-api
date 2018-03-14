@@ -81,7 +81,7 @@ defmodule Api.AICompetition.Games do
       payload: %{
         game_state: game.initial_state,
       },
-      callback_url: System.get_env("HOST") <> "/api/games/" <> game.id,
+      callback_url: System.get_env("AI_CALLBACK_URL") <> "/api/games/" <> game.id,
       auth_token: game.id,
     }
 
