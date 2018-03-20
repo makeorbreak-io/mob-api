@@ -1,6 +1,6 @@
 defmodule Api.GraphQL.Types do
   use Absinthe.Schema.Notation
-  use Absinthe.Relay.Schema.Notation
+  use Absinthe.Relay.Schema.Notation, :modern
   use Absinthe.Ecto, repo: Api.Repo
 
   alias Api.Repo
@@ -190,6 +190,7 @@ defmodule Api.GraphQL.Types do
 
   connection node_type: :workshop
   object :workshop do
+    field :id, :string
     field :name, :string
     field :slug, :string
     field :summary, :string
@@ -201,6 +202,24 @@ defmodule Api.GraphQL.Types do
     field :banner_image, :string
     field :short_speaker, :string
     field :short_date, :string
+
+    field :attendances, list_of(:attendance), resolve: assoc(:attendances)
+    field :users, list_of(:user), resolve: assoc(:users)
+  end
+
+  object :attendance do
+    field :id, :string
+    field :checked_in, :boolean
+
+    field :user, :user, resolve: assoc(:user)
+  end
+
+  #============================================================================ Admin
+  object :admin_stats do
+    field :users, :json
+    field :roles, :json
+    field :teams, :json
+    field :workshops, :json
   end
 
 end

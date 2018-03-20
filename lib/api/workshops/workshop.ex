@@ -43,6 +43,7 @@ defmodule Api.Workshops.Workshop do
     timestamps()
 
     has_many :attendances, Attendance, foreign_key: :workshop_id, on_delete: :delete_all
+    has_many :users, through: [:attendances, :user]
   end
 
   @doc """
