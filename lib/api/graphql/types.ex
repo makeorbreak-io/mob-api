@@ -222,4 +222,19 @@ defmodule Api.GraphQL.Types do
     field :workshops, :json
   end
 
+  connection node_type: :flyby
+  object :flyby do
+    field :id, :string
+    field :name, :string
+    field :email, :string do
+      resolve fn _args, %{source: source, context: %{current_user: current_user}} ->
+        if current_user && current_user.role == "admin" do
+          {:ok, source.email}
+        else
+          {:ok, nil}
+        end
+      end
+    end
+    field :time, :integer
+  end
 end

@@ -43,4 +43,10 @@ defmodule Api.GraphQL.InputTypes do
     field :speaker_image, :string
     field :banner_image, :string
   end
+
+  input_object :flyby_input do
+    field :name, non_null(:string)
+    field :email, non_null(:string)
+    field :time, non_null(:integer)
+  end
 end
