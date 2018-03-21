@@ -1,35 +1,30 @@
 defmodule Api.GraphQL.Schema do
   use Absinthe.Schema
-  use Absinthe.Relay.Schema
+  use Absinthe.Relay.Schema, :modern
 
-  alias Api.GraphQL.Middleware.{RequireAuthn}
+  alias Api.GraphQL.Middleware.{RequireAuthn, RequireAdmin}
   alias Api.GraphQL.Resolvers
 
   alias Api.Accounts
   alias Api.Accounts.User
-  alias Api.Competitions
-  alias Api.Competitions.Competition
   alias Api.Teams
-  alias Api.Teams.{Team, Invite}
-  alias Api.AICompetition.{Game, Games, Bots, Bot}
-  alias Api.Workshops.Workshop
-  alias Api.Integrations.Medium
+  alias Api.Teams.{Team}
+  alias Api.Competitions
+  alias Api.AICompetition.{Games, Bots}
+  alias Api.Workshops
+  alias Api.Workshops.{Workshop}
 
   import_types Api.GraphQL.Types
 
   query do
+
     #
     # single resources
     field :me, :user do
       resolve &Resolvers.me/2
     end
 
-    # field :competition, :competition do
-    #   arg :id, non_null(:string)
-
-    #   resolve Resolvers.by_id(Competition)
-    # end
-
+    @desc "Single team details"
     field :team, :team do
       arg :id, non_null(:string)
 
@@ -38,17 +33,12 @@ defmodule Api.GraphQL.Schema do
       resolve Resolvers.by_id(Team)
     end
 
-    # field :user, :user do
-    #   arg :id, non_null(:string)
+    @desc "Single workshop details"
+    field :workshop, :workshop do
+      arg :slug, non_null(:string)
 
-    #   resolve Resolvers.by_id(User)
-    # end
-
-    # field :workshop, :workshop do
-    #   arg :slug, non_null(:string)
-
-    #   resolve Resolvers.by_attr(Workshop, :slug)
-    # end
+      resolve Resolvers.by_attr(Workshop, :slug)
+    end
 
     #
     # non-paginated collections
@@ -65,30 +55,6 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    #
-    # paginated resource collections
-    # connection field :teams, node_type: :team do
-    #   arg :order_by, :string
-
-    #   middleware RequireAuthn
-
-    #   resolve Resolvers.all(Team)
-    # end
-
-    # connection field :users, node_type: :user do
-    #   arg :order_by, :string
-
-    #   middleware RequireAuthn
-
-    #   resolve Resolvers.all(User)
-    # end
-
-    # connection field :workshops, node_type: :workshop do
-    #   arg :order_by, :string
-
-    #   resolve Resolvers.all(Workshop)
-    # end
-
     field :ai_games, list_of(:ai_competition_game) do
       middleware RequireAuthn
 
@@ -97,6 +63,45 @@ defmodule Api.GraphQL.Schema do
       end
 
       # resolve Resolvers.all(Game)
+    end
+
+    #
+    # admin fields
+
+    #
+    # stats / analytics
+    field :admin_stats, :admin_stats do
+      middleware RequireAdmin
+
+      resolve fn _args, _info ->
+        {:ok, Api.Stats.get()}
+      end
+    end
+
+    #
+    # paginated resource collections
+    connection field :users, node_type: :user do
+      arg :order_by, :string
+
+      middleware RequireAdmin
+
+      resolve Resolvers.all(User)
+    end
+
+    connection field :teams, node_type: :team do
+      arg :order_by, :string
+
+      middleware RequireAdmin
+
+      resolve Resolvers.all(User)
+    end
+
+    connection field :workshops, node_type: :workshop do
+      arg :order_by, :string
+
+      middleware RequireAdmin
+
+      resolve Resolvers.all(Workshop)
     end
   end
 
@@ -243,6 +248,42 @@ defmodule Api.GraphQL.Schema do
         Bots.create_bot(current_user, bot)
 
         {:ok, current_user}
+      end
+    end
+
+    #========================================================================== ADMIN
+
+    @desc "Creates a workshop (admin only)"
+    field :create_workshop, :workshop do
+      arg :workshop, non_null(:workshop_input)
+
+      middleware RequireAdmin
+
+      resolve fn %{workshop: workshop}, _info ->
+        Workshops.create(workshop)
+      end
+    end
+
+    @desc "Updates a workshop (admin only)"
+    field :update_workshop, :workshop do
+      arg :slug, non_null(:string)
+      arg :workshop, non_null(:workshop_input)
+
+      middleware RequireAdmin
+
+      resolve fn %{workshop: workshop, slug: slug}, _info ->
+        Workshops.update(slug, workshop)
+      end
+    end
+
+    @desc "Deletes a workshop (admin only)"
+    field :delete_workshop, :workshop do
+      arg :slug, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{slug: slug}, _info ->
+        Workshops.delete(slug)
       end
     end
   end
