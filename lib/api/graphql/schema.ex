@@ -7,6 +7,7 @@ defmodule Api.GraphQL.Schema do
 
   alias Api.Accounts
   alias Api.Accounts.User
+  alias Api.Integrations.Medium
   alias Api.Teams
   alias Api.Teams.{Team}
   alias Api.Competitions
@@ -91,7 +92,8 @@ defmodule Api.GraphQL.Schema do
     connection field :teams, node_type: :team do
       arg :order_by, :string
 
-      middleware RequireAdmin
+      middleware R
+      mix edeliver restart productioedequireAdmin
 
       resolve Resolvers.all(User)
     end
