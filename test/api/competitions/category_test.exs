@@ -1,4 +1,4 @@
-defmodule Api.CategoryTest do
+defmodule Api.Competitions.CategoryTest do
   use Api.DataCase
 
   alias Api.Competitions.Category

@@ -13,6 +13,7 @@ defmodule Api.GraphQL.Schema do
   alias Api.Teams.{Team, Invite}
   alias Api.AICompetition.{Game, Games, Bots, Bot}
   alias Api.Workshops.Workshop
+  alias Api.Integrations.Medium
 
   import_types Api.GraphQL.Types
 
@@ -53,7 +54,7 @@ defmodule Api.GraphQL.Schema do
     # non-paginated collections
     field :medium, :medium do
       resolve fn _args, _info ->
-        json = Api.Integrations.Medium.get_latest_posts(2)
+        json = Medium.get_latest_posts(2)
         {:ok, %{posts:
           json
           |> Map.get("payload")

@@ -29,7 +29,8 @@ defmodule Api.GraphQL.Errors do
     |> Changeset.traverse_errors(fn {msg, opts} ->
       cond do
         Enum.empty?(opts) ->
-          # TODO: refactor to remove credo disable below
+          # Refactor to remove credo disable below
+          # Nested modules could be aliased at the top of the invoking module.
           # credo:disable-for-next-line
           case msg do
             "has already been taken" -> {:already_taken, %{}}
