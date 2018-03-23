@@ -7,7 +7,10 @@ defmodule Api.GraphQL.Schema do
 
   alias Api.Accounts
   alias Api.Accounts.User
+  alias Api.Competitions
   alias Api.Integrations.Medium
+  alias Api.Flyby
+  alias Api.Flybys
   alias Api.Teams
   alias Api.Teams.{Team}
   alias Api.Competitions
@@ -64,6 +67,10 @@ defmodule Api.GraphQL.Schema do
       end
 
       # resolve Resolvers.all(Game)
+    end
+
+    field :flybys, list_of(:flyby) do
+      resolve fn _args, _info -> {:ok, Flybys.all} end
     end
 
     #
@@ -288,6 +295,27 @@ defmodule Api.GraphQL.Schema do
         Workshops.delete(slug)
       end
     end
-  end
 
+    @desc "Creates a paper plane competition entry"
+    field :create_flyby, :flyby do
+      arg :flyby, non_null(:flyby_input)
+
+      middleware RequireAdmin
+
+      resolve fn %{flyby: flyby}, _info ->
+        Flybys.create(flyby)
+      end
+    end
+
+    @desc "Deletes a paper plane competition entry"
+    field :delete_flyby, :flyby do
+      arg :id, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{id: id}, _info ->
+        Flybys.delete(id)
+      end
+    end
+  end
 end
