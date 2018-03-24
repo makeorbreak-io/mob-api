@@ -15,6 +15,7 @@ defmodule Api.GraphQL.Schema do
   alias Api.Teams.{Team}
   alias Api.Competitions
   alias Api.AICompetition.{Games, Bots}
+  alias Api.Stats
   alias Api.Workshops
   alias Api.Workshops.{Workshop}
 
@@ -84,7 +85,7 @@ defmodule Api.GraphQL.Schema do
       middleware RequireAdmin
 
       resolve fn _args, _info ->
-        {:ok, Api.Stats.get()}
+        {:ok, Stats.get()}
       end
     end
 
@@ -137,8 +138,6 @@ defmodule Api.GraphQL.Schema do
       middleware RequireAuthn
 
       resolve fn %{user: params}, %{context: %{current_user: current_user}} ->
-        # {:ok, user} = Accounts.update_user(current_user, current_user.id, params)
-        # user
         Accounts.update_user(current_user, current_user.id, params)
       end
     end

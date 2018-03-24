@@ -41,11 +41,18 @@ defmodule Api.Competitions do
   end
 
   def create_attendance(competition_id, attendee_id) do
-    %Attendance{}
-    |> Attendance.changeset(%{
+    attendee = Repo.get(User, attendee_id)
+    changeset = Attendance.changeset(%Attendance{}, %{
       competition_id: competition_id,
       attendee: attendee_id
-    }) |> Repo.insert()
+    })
+
+    case Repo.insert(changeset) do
+      {:ok, attendance} ->
+        Emails.checkin_email(attendee) |> Mailer.deliver_later
+        {:ok, attendance}
+      {:error, changeset} -> {:error, changeset}
+    end
   end
 
   def toggle_checkin(competition_id, attendee_id, value) do
@@ -65,5 +72,13 @@ defmodule Api.Competitions do
   def delete_attendance(id), do: Repo.get(Attendance, id) |> Repo.delete
   def delete_attendance(id, attendee) do
     get_attendance(id, attendee) |> Repo.delete
+  end
+
+  def send_not_applied_email do
+    non_applied_users = from u in Membership,
+      join: t in assoc(u, :team),
+      where: t.applied == false,
+      preload: [team: t, user: u],
+      select: u
   end
 end

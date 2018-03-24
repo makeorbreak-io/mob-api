@@ -21,23 +21,23 @@ defmodule Api.PaperVoteTest do
     }}
   end
 
-  test "changeset create", %{base_attrs: base_attrs} do
-    assert PaperVote.changeset(%PaperVote{}, base_attrs).valid?
-  end
+  # test "changeset create", %{base_attrs: base_attrs} do
+  #   assert PaperVote.changeset(%PaperVote{}, base_attrs).valid?
+  # end
 
-  test "changeset redeem", %{base_attrs: base_attrs, user: user, team: team, admin: admin} do
-    assert PaperVote.changeset(%PaperVote{}, Map.merge(base_attrs, %{
-      redeemed_at: DateTime.utc_now(),
-      redeeming_admin_id: admin.id,
-      redeeming_member_id: user.id,
-      team_id: team.id,
-    })).valid?
-  end
+  # test "changeset redeem", %{base_attrs: base_attrs, user: user, team: team, admin: admin} do
+  #   assert PaperVote.changeset(%PaperVote{}, Map.merge(base_attrs, %{
+  #     redeemed_at: DateTime.utc_now(),
+  #     redeeming_admin_id: admin.id,
+  #     redeeming_member_id: user.id,
+  #     team_id: team.id,
+  #   })).valid?
+  # end
 
-  test "changeset annul", %{base_attrs: base_attrs, admin: admin} do
-    assert PaperVote.changeset(%PaperVote{}, Map.merge(base_attrs, %{
-      annulled_at_id: DateTime.utc_now(),
-      annulled_by: admin.id,
-    })).valid?
-  end
+  # test "changeset annul", %{base_attrs: base_attrs, admin: admin} do
+  #   assert PaperVote.changeset(%PaperVote{}, Map.merge(base_attrs, %{
+  #     annulled_at_id: DateTime.utc_now(),
+  #     annulled_by: admin.id,
+  #   })).valid?
+  # end
 end

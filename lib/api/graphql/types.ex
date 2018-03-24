@@ -134,6 +134,18 @@ defmodule Api.GraphQL.Types do
       end
     end
 
+    field :can_apply_to_workshops, :boolean do
+      resolve fn _args, %{source: source} ->
+        {:ok, User.can_apply_to_workshops(source)}
+      end
+    end
+
+    field :can_apply_to_hackathon, :boolean do
+      resolve fn _args, %{source: source} ->
+        {:ok, User.can_apply_to_hackathon(source)}
+      end
+    end
+
     field :ai_competition_bot, :ai_competition_bot do
       arg :id, :string
 

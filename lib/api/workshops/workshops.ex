@@ -34,20 +34,23 @@ defmodule Api.Workshops do
   def join(user, slug) do
     workshop = get(slug)
 
-    if workshop.participants_counter < workshop.participant_limit do
-      changeset = Attendance.changeset(%Attendance{},
-        %{user_id: user.id, workshop_id: workshop.id})
+    cond do
+      workshop.participants_counter < workshop.participant_limit &&
+      User.can_apply_to_workshops(user) ->
+        changeset = Attendance.changeset(%Attendance{},
+          %{user_id: user.id, workshop_id: workshop.id})
 
-      case Repo.insert(changeset) do
-        {:ok, attendance} ->
-          increase_participants_counter(workshop)
-          Emails.joined_workshop_email(user, workshop) |> Mailer.deliver_later
+        case Repo.insert(changeset) do
+          {:ok, attendance} ->
+            increase_participants_counter(workshop)
+            Emails.joined_workshop_email(user, workshop) |> Mailer.deliver_later
 
-          {:ok, workshop |> Repo.preload(:attendances)}
-        {:error, _} -> :join_workshop
-      end
-    else
-      {:error, :workshop_full}
+            {:ok, workshop |> Repo.preload(:attendances)}
+          {:error, _} -> :join_workshop
+        end
+
+     !User.can_apply_to_workshops(user) -> {:error, :user_cant_apply}
+     true -> {:error, :workshop_full}
     end
   end
 
