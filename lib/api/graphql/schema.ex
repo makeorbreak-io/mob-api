@@ -99,8 +99,7 @@ defmodule Api.GraphQL.Schema do
     connection field :teams, node_type: :team do
       arg :order_by, :string
 
-      middleware R
-      mix edeliver restart productioedequireAdmin
+      middleware RequireAdmin
 
       resolve Resolvers.all(User)
     end
