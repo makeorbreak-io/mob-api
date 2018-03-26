@@ -101,7 +101,7 @@ defmodule Api.GraphQL.Schema do
 
       middleware RequireAdmin
 
-      resolve Resolvers.all(User)
+      resolve Resolvers.all(Team)
     end
 
     connection field :workshops, node_type: :workshop do
