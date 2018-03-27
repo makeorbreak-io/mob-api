@@ -65,12 +65,14 @@ defmodule Api.GraphQL.Schema do
       resolve fn _args, %{context: %{current_user: current_user}} ->
         {:ok, Games.user_games(current_user)}
       end
-
-      # resolve Resolvers.all(Game)
     end
 
     field :flybys, list_of(:flyby) do
       resolve fn _args, _info -> {:ok, Flybys.all} end
+    end
+
+    field :workshops, list_of(:workshop) do
+      resolve fn _args, _info -> {:ok, Workshops.all} end
     end
 
     #
@@ -101,15 +103,7 @@ defmodule Api.GraphQL.Schema do
 
       middleware RequireAdmin
 
-      resolve Resolvers.all(Team)
-    end
-
-    connection field :workshops, node_type: :workshop do
-      arg :order_by, :string
-
-      middleware RequireAdmin
-
-      resolve Resolvers.all(Workshop)
+      resolve Resolvers.all(User)
     end
   end
 
@@ -256,6 +250,28 @@ defmodule Api.GraphQL.Schema do
         Bots.create_bot(current_user, bot)
 
         {:ok, current_user}
+      end
+    end
+
+    @desc "Joins a workshop"
+    field :join_workshop, :workshop do
+      arg :slug, non_null(:string)
+
+      middleware RequireAuthn
+
+      resolve fn %{slug: slug}, %{context: %{current_user: current_user}} ->
+        Workshops.join(current_user, slug)
+      end
+    end
+
+    @desc "Leaves a workshop"
+    field :leave_workshop, :workshop do
+      arg :slug, non_null(:string)
+
+      middleware RequireAuthn
+
+      resolve fn %{slug: slug}, %{context: %{current_user: current_user}} ->
+        Workshops.leave(current_user, slug)
       end
     end
 

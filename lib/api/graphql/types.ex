@@ -142,6 +142,16 @@ defmodule Api.GraphQL.Types do
       end
     end
 
+    field :current_team, :team do
+      resolve fn _args, %{source: source} ->
+        team = Repo.preload(source, :teams).teams
+          |> Enum.at(0)
+          |> Repo.preload([:invites, :memberships])
+
+        {:ok, team}
+      end
+    end
+
     field :current_ai_competition_bot, :ai_competition_bot do
       resolve fn _args, %{source: source} ->
         {:ok, Bots.current_bot(source)}
@@ -152,6 +162,7 @@ defmodule Api.GraphQL.Types do
     field :invites, list_of(:invite), resolve: assoc(:invites)
     field :invitations, list_of(:invite), resolve: assoc(:invitations)
     field :ai_competition_bots, list_of(:ai_competition_bot), resolve: assoc(:ai_competition_bots)
+    field :workshops, list_of(:workshop), resolve: assoc(:workshops)
   end
 
   connection node_type: :invite
@@ -204,7 +215,15 @@ defmodule Api.GraphQL.Types do
     field :short_date, :string
 
     field :attendances, list_of(:attendance), resolve: assoc(:attendances)
-    field :users, list_of(:user), resolve: assoc(:users)
+    field :users, list_of(:user) do
+      resolve fn _args, %{source: source, context: %{current_user: current_user}} ->
+        role = current_user && current_user.role
+        case role do
+          "admin" -> {:ok, Repo.preload(source, :users).users}
+          _ -> {:ok, []}
+        end
+      end
+    end
   end
 
   object :attendance do
