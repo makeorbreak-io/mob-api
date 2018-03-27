@@ -8,7 +8,6 @@ defmodule Api.Teams do
   alias Api.{Mailer, Repo}
   alias Api.Accounts.User
   alias Api.Competitions
-  alias Api.Competitions.Attendance
   alias Api.Teams.{Invite, Membership, Team}
   alias Api.Notifications.Emails
   alias Ecto.{Changeset}

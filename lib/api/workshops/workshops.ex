@@ -42,11 +42,12 @@ defmodule Api.Workshops do
         {:ok, attendance} ->
           increase_participants_counter(workshop)
           Emails.joined_workshop_email(user, workshop) |> Mailer.deliver_later
-          {:ok, attendance}
+
+          {:ok, workshop |> Repo.preload(:attendances)}
         {:error, _} -> :join_workshop
       end
     else
-      :workshop_full
+      {:error, :workshop_full}
     end
   end
 
@@ -60,8 +61,9 @@ defmodule Api.Workshops do
     case Repo.delete_all(query) do
       {1, nil} ->
         decrease_participants_counter(workshop)
-        :ok
-      {0, nil} -> :not_workshop_attendee
+
+        {:ok, workshop |> Repo.preload(:attendances)}
+      {0, nil} -> {:error, :not_workshop_attendee}
     end
   end
 
