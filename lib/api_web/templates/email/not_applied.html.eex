@@ -1,24 +1,34 @@
 <tr style="box-sizing:border-box;" >
   <td class="title" style="box-sizing:border-box;padding-top:50px;padding-bottom:50px;padding-right:0;padding-left:0;text-align:center;font-style:normal;font-variant:normal;font-weight:bold;font-size:24px;font-family:Helvetica,Arial,sans-serif;line-height:normal;" ><%= @title %></td>
 </tr>
-
 <tr style="box-sizing:border-box;" >
   <td class="body" style="box-sizing:border-box;font-style:normal;font-variant:normal;font-weight:normal;font-size:16px;font-family:Helvetica,Arial,sans-serif;line-height:normal;" >
-    <p style="box-sizing:border-box;font-style:normal;font-variant:normal;font-weight:normal;font-size:16px;font-family:Helvetica,Arial,sans-serif;line-height:normal;color:#808080;margin-top:20px;margin-bottom:20px;margin-right:auto;margin-left:auto;max-width:600px;" >Hello <%= @name %>,</p>
-    <p style="box-sizing:border-box;font-style:normal;font-variant:normal;font-weight:normal;font-size:16px;font-family:Helvetica,Arial,sans-serif;line-height:normal;color:#808080;margin-top:20px;margin-bottom:20px;margin-right:auto;margin-left:auto;max-width:600px;" >We don’t mean to bother, but we wanted to let you know you still haven’t applied to the Make or Break hackathon.</p>
+    <p style="box-sizing:border-box;font-style:normal;font-variant:normal;font-weight:normal;font-size:16px;font-family:Helvetica,Arial,sans-serif;line-height:normal;color:#808080;margin-top:20px;margin-bottom:20px;margin-right:auto;margin-left:auto;max-width:600px;" >Hello <%= @name %></p>
 
-    <p style="box-sizing:border-box;font-style:normal;font-variant:normal;font-weight:normal;font-size:16px;font-family:Helvetica,Arial,sans-serif;line-height:normal;color:#808080;margin-top:20px;margin-bottom:20px;margin-right:auto;margin-left:auto;max-width:600px;" ><a href="https://makeorbreak.io" style="box-sizing:border-box;color:#5d00f3;text-decoration:underline;" >If you are in a team, you must go to the dashboard, and click on “Apply to hackathon.” You have until March 28 to do so.</p>
+    <b style="box-sizing:border-box;font-style:normal;font-variant:normal;font-size:16px;font-family:Helvetica,Arial,sans-serif;line-height:normal;color:#808080;margin-top:20px;margin-bottom:20px;margin-right:auto;margin-left:auto;max-width:600px;display:block;font-weight:bold;" >
+    We don’t mean to bother, but we wanted to let you know you still haven’t applied to the Make or Break hackathon.
+    </b>
 
-    <p style="box-sizing:border-box;font-style:normal;font-variant:normal;font-weight:normal;font-size:16px;font-family:Helvetica,Arial,sans-serif;line-height:normal;color:#808080;margin-top:20px;margin-bottom:20px;margin-right:auto;margin-left:auto;max-width:600px;" >If you are looking for a team, you can try to find one by filling the Team Formation form.</p>
+    <p style="box-sizing:border-box;font-style:normal;font-variant:normal;font-weight:normal;font-size:16px;font-family:Helvetica,Arial,sans-serif;line-height:normal;color:#808080;margin-top:20px;margin-bottom:20px;margin-right:auto;margin-left:auto;max-width:600px;" >
+      If you are in a team, you must go to the <a href="https://makeorbreak.io/dashboard" style="box-sizing:border-box;color:#5d00f3;text-decoration:underline;" >dashboard</a>, and click on “Apply to hackathon.” You have until March 31 to do so.
+    </p>
 
-    <p style="box-sizing:border-box;font-style:normal;font-variant:normal;font-weight:normal;font-size:16px;font-family:Helvetica,Arial,sans-serif;line-height:normal;color:#808080;margin-top:20px;margin-bottom:20px;margin-right:auto;margin-left:auto;max-width:600px;" >Make or Break will happen on April 13, 14, and 15, in the heart of Porto, at Palácio dos Correios.</p>
+    <p style="box-sizing:border-box;font-style:normal;font-variant:normal;font-weight:normal;font-size:16px;font-family:Helvetica,Arial,sans-serif;line-height:normal;color:#808080;margin-top:20px;margin-bottom:20px;margin-right:auto;margin-left:auto;max-width:600px;" >
+      If you are looking for a team, you can try to find one by filling the <a href="https://goo.gl/forms/BjLTqSKyZwJUNMOO2" style="box-sizing:border-box;color:#5d00f3;text-decoration:underline;" >Team Formation form</a>.
+    </p>
 
-    <p style="box-sizing:border-box;font-style:normal;font-variant:normal;font-weight:normal;font-size:16px;font-family:Helvetica,Arial,sans-serif;line-height:normal;color:#808080;margin-top:20px;margin-bottom:20px;margin-right:auto;margin-left:auto;max-width:600px;" >Do not miss the best tech event in Porto!</p>
+    <p style="box-sizing:border-box;font-style:normal;font-variant:normal;font-weight:normal;font-size:16px;font-family:Helvetica,Arial,sans-serif;line-height:normal;color:#808080;margin-top:20px;margin-bottom:20px;margin-right:auto;margin-left:auto;max-width:600px;" >
+      Make or Break will happen on April 13, 14, and 15, in the heart of Porto, at <a href="https://goo.gl/maps/42M1CBz6xrk" style="box-sizing:border-box;color:#5d00f3;text-decoration:underline;" >Palácio dos Correios</a>.
+    </p>
+
+    <p style="box-sizing:border-box;font-style:normal;font-variant:normal;font-weight:normal;font-size:16px;font-family:Helvetica,Arial,sans-serif;line-height:normal;color:#808080;margin-top:20px;margin-bottom:20px;margin-right:auto;margin-left:auto;max-width:600px;" >
+      Do not miss the best tech event in Porto!
+    </p>
 
     <p style="box-sizing:border-box;font-style:normal;font-variant:normal;font-weight:normal;font-size:16px;font-family:Helvetica,Arial,sans-serif;line-height:normal;color:#808080;margin-top:20px;margin-bottom:20px;margin-right:auto;margin-left:auto;max-width:600px;" >
       See you there!
       <br style="box-sizing:border-box;" />
-      The Make or Break team
+      Make or Break team
     </p>
   </td>
 </tr>
