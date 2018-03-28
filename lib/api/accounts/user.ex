@@ -2,6 +2,7 @@ defmodule Api.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Api.Repo
   alias Api.{Workshops.Workshop, Workshops.Attendance}
   alias Api.{Teams.Invite, Teams.Membership}
   alias Api.AICompetition.Bot
@@ -107,9 +108,9 @@ defmodule Api.Accounts.User do
   end
 
   def can_apply_to_workshops(user) do
-    user = Repo.preload(user, :workshops)
+    user = Repo.preload(user, [:workshops, :teams])
 
-    Enum.count(user.workshops) < 2
+    (Enum.any?(user.teams, fn team -> team.applied == true end) && Enum.count(user.workshops) < 2) || true
   end
 
   def can_apply_to_hackathon(user) do

@@ -2,6 +2,7 @@ defmodule Api.Workshops do
   import Ecto.Query, warn: false
 
   alias Api.{Mailer, Repo}
+  alias Api.Accounts.User
   alias Api.{Workshops.Workshop, Workshops.Attendance}
   alias Api.Notifications.Emails
 
