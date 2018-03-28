@@ -75,10 +75,25 @@ defmodule Api.Competitions do
   end
 
   def send_not_applied_email do
-    non_applied_users = from u in Membership,
-      join: t in assoc(u, :team),
+    non_applied_users = from(u in Api.Accounts.User,
+      join: m in assoc(u, :memberships),
+      join: t in assoc(m, :team),
       where: t.applied == false,
-      preload: [team: t, user: u],
-      select: u
+      preload: [memberships: {m, team: t}],
+      select: u) |> Api.Repo.all()
+
+    users_without_team = Enum.filter(
+      Api.Repo.all(Api.Accounts.User) |> Api.Repo.preload(:memberships),
+      fn(user) ->
+        user.memberships == []
+      end
+    )
+
+    Enum.each(
+      non_applied_users ++ users_without_team,
+      fn(user) ->
+        Emails.not_applied(user) |> Mailer.deliver_later
+      end
+    )
   end
 end
