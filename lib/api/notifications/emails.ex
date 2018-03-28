@@ -72,6 +72,24 @@ defmodule Api.Notifications.Emails do
     |> render("recover_password.html")
   end
 
+  def team_acceptance(recipient) do
+    base_email(recipient)
+    |> subject("Cheers, mate! You and your team are in Make or Break!")
+    |> put_html_layout({LayoutView, "email.html"})
+    |> assign(:title, "Welcome to Make or Break!")
+    |> assign(:name, recipient.name)
+    |> render("team_acceptance.html")
+  end
+
+  def not_applied(recipient) do
+    base_email(recipient)
+    |> subject("Apply to Make or Break hackathon until March 31")
+    |> put_html_layout({LayoutView, "email.html"})
+    |> assign(:name, recipient.name)
+    |> assign(:title, "Apply to Make or Break hackathon")
+    |> render("not_applied.html")
+  end
+
   defp base_email(recipient) do
     # Here you can set a default from, default headers, etc.
     new_email()

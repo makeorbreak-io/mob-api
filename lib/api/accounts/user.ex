@@ -106,6 +106,18 @@ defmodule Api.Accounts.User do
     name || email |> String.split("@") |> Enum.at(0)
   end
 
+  def can_apply_to_workshops(user) do
+    user = Repo.preload(user, :workshops)
+
+    Enum.count(user.workshops) < 2
+  end
+
+  def can_apply_to_hackathon(user) do
+    user = Repo.preload(user, :workshops)
+
+    Enum.count(user.workshops) <= 2
+  end
+
   # generate password recovery token
   def generate_token(length \\ 32) do
     :crypto.strong_rand_bytes(length)

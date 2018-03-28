@@ -267,16 +267,22 @@ defmodule Api.Teams do
   end
 
   defp create_membership(invite) do
+    user = Repo.get!(User, invite.invitee_id)
+
     changeset = Membership.changeset(
       %Membership{},
       %{user_id: invite.invitee_id, team_id: invite.team_id}
     )
 
-    case Repo.insert(changeset) do
-      {:ok, membership} ->
-        Repo.delete(invite)
-        {:ok, membership}
-      {:error, _} -> {:error, "Unable to create membership"}
+    if User.can_apply_to_hackathon(user) do
+      case Repo.insert(changeset) do
+        {:ok, membership} ->
+          Repo.delete(invite)
+          {:ok, membership}
+        {:error, _} -> {:error, "Unable to create membership"}
+      end
+    else
+      :user_cant_apply
     end
   end
 

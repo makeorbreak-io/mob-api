@@ -36,9 +36,9 @@ defmodule Api.AccountsTest do
   end
 
   test "create valid user" do
-    {:ok, _, user} = Accounts.create_user(@valid_attrs)
+    assert {:ok, jwt} = Accounts.create_user(@valid_attrs)
 
-    assert Repo.get(User, user.id)
+    refute is_nil(jwt)
   end
 
   test "create invalid user" do
@@ -138,18 +138,17 @@ defmodule Api.AccountsTest do
 
   test "create session" do
     u1 = create_user(@valid_attrs)
-    {:ok, jwt, u2} = Accounts.create_session("johndoe@example.com", "thisisapassword")
+    {:ok, jwt} = Accounts.create_session("johndoe@example.com", "thisisapassword")
 
     refute is_nil(jwt)
-    assert u2.email == u1.email
   end
 
   test "create session with invalid email", %{u1: u1} do
-    assert :wrong_credentials == Accounts.create_session("invalid@email.com", "newpassword")
+    assert {:error, :wrong_credentials} == Accounts.create_session("invalid@email.com", "newpassword")
   end
 
   test "revoke session", %{u1: u1} do
-    {:ok, jwt, u2} = Accounts.create_session(u1.email, "thisisapassword")
+    {:ok, jwt} = Accounts.create_session(u1.email, "thisisapassword")
 
     assert :ok == Accounts.delete_session(jwt)
   end

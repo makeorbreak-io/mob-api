@@ -41,11 +41,18 @@ defmodule Api.Competitions do
   end
 
   def create_attendance(competition_id, attendee_id) do
-    %Attendance{}
-    |> Attendance.changeset(%{
+    attendee = Repo.get(User, attendee_id)
+    changeset = Attendance.changeset(%Attendance{}, %{
       competition_id: competition_id,
       attendee: attendee_id
-    }) |> Repo.insert()
+    })
+
+    case Repo.insert(changeset) do
+      {:ok, attendance} ->
+        Emails.checkin_email(attendee) |> Mailer.deliver_later
+        {:ok, attendance}
+      {:error, changeset} -> {:error, changeset}
+    end
   end
 
   def toggle_checkin(competition_id, attendee_id, value) do
@@ -65,5 +72,31 @@ defmodule Api.Competitions do
   def delete_attendance(id), do: Repo.get(Attendance, id) |> Repo.delete
   def delete_attendance(id, attendee) do
     get_attendance(id, attendee) |> Repo.delete
+  end
+
+  def send_not_applied_email do
+    non_applied_users =
+    from(u in Api.Accounts.User,
+      join: m in assoc(u, :memberships),
+      join: t in assoc(m, :team),
+      where: t.applied == false,
+      preload: [memberships: {m, team: t}],
+      select: u
+    )
+    |> Repo.all
+
+    users_without_team = Enum.filter(
+      Api.Repo.all(Api.Accounts.User) |> Api.Repo.preload(:memberships),
+      fn(user) ->
+        user.memberships == []
+      end
+    )
+
+    Enum.each(
+      non_applied_users ++ users_without_team,
+      fn(user) ->
+        Emails.not_applied(user) |> Mailer.deliver_later
+      end
+    )
   end
 end
