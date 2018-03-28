@@ -410,14 +410,14 @@ defmodule Api.GraphQL.Schema do
     end
 
     @desc "Delete the team (admin only)"
-    field :delete_team, :string do
+    field :delete_any_team, :string do
       arg :id, non_null(:string)
 
       middleware RequireAdmin
 
       resolve fn %{id: id}, _info ->
-        Teams.delete_any_team(:id)
-        id
+        Teams.delete_any_team(id)
+        {:ok, id}
       end
     end
 
