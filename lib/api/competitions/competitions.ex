@@ -49,7 +49,7 @@ defmodule Api.Competitions do
 
     case Repo.insert(changeset) do
       {:ok, attendance} ->
-        Emails.checkin_email(attendee) |> Mailer.deliver_later
+        # FIXME: only send if checkin changed to true # Emails.checkin_email(attendee) |> Mailer.deliver_later
         {:ok, attendance}
       {:error, changeset} -> {:error, changeset}
     end

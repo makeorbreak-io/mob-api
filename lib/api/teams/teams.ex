@@ -235,7 +235,7 @@ defmodule Api.Teams do
     if accepted_change and accepted_true do
       members = Repo.all Ecto.assoc(team, :members)
       Enum.map(members, fn(member) ->
-        Emails.joined_hackathon_email(member, team) |> Mailer.deliver_later
+        Emails.team_acceptance(member) |> Mailer.deliver_later
       end)
     end
 
