@@ -331,5 +331,15 @@ defmodule Api.GraphQL.Schema do
         Flybys.delete(id)
       end
     end
+
+    @desc "Send emails to users that haven't applied to the hackathon yet"
+    field :send_not_applied_emails, :string do
+      middleware RequireAdmin
+
+      resolve fn _args, _info ->
+        Api.Competitions.send_not_applied_email
+        {:ok, ""}
+      end
+    end
   end
 end

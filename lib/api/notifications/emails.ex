@@ -83,9 +83,10 @@ defmodule Api.Notifications.Emails do
 
   def not_applied(recipient) do
     base_email(recipient)
-    |> subject("Apply to Make or Break 2018 until March 28")
+    |> subject("Apply to Make or Break hackathon until March 31")
     |> put_html_layout({LayoutView, "email.html"})
     |> assign(:name, recipient.name)
+    |> assign(:title, "Apply to Make or Break hackathon")
     |> render("not_applied.html")
   end
 
