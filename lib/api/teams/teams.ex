@@ -8,6 +8,7 @@ defmodule Api.Teams do
   alias Api.{Mailer, Repo}
   alias Api.Accounts.User
   alias Api.Competitions
+  alias Api.Teams
   alias Api.Teams.{Invite, Membership, Team}
   alias Api.Notifications.Emails
   alias Ecto.{Changeset}
@@ -56,6 +57,7 @@ defmodule Api.Teams do
 
     Team.admin_changeset(team, team_params, Repo)
     |> email_if_applying(team)
+    |> email_if_accepted(team)
     |> Repo.update
   end
 
@@ -63,6 +65,7 @@ defmodule Api.Teams do
     team = get_team(id)
 
     changeset = Team.admin_changeset(team, %{accepted: true}, Repo)
+    |> email_if_accepted(team)
 
     case Repo.update(changeset) do
       {:ok, team} ->
@@ -216,6 +219,20 @@ defmodule Api.Teams do
     applied_true = Map.get(changeset.changes, :applied) == true
 
     if applied_change and applied_true do
+      members = Repo.all Ecto.assoc(team, :members)
+      Enum.map(members, fn(member) ->
+        Emails.joined_hackathon_email(member, team) |> Mailer.deliver_later
+      end)
+    end
+
+    changeset
+  end
+
+  defp email_if_accepted(changeset, team) do
+    accepted_change = Map.has_key?(changeset.changes, :accepted)
+    accepted_true = Map.get(changeset.changes, :accepted) == true
+
+    if accepted_change and accepted_true do
       members = Repo.all Ecto.assoc(team, :members)
       Enum.map(members, fn(member) ->
         Emails.joined_hackathon_email(member, team) |> Mailer.deliver_later
