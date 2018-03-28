@@ -104,7 +104,7 @@ defmodule Api.Accounts.User do
     do: :crypto.hash(:md5, String.trim(email)) |> Base.encode16(case: :lower)
 
   def display_name(%{name: name, email: email}) do
-    name || email |> String.split("@") |> Enum.at(0)
+    name || (email |> String.split("@") |> Enum.at(0))
   end
 
   def can_apply_to_workshops(user) do

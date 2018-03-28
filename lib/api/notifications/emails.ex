@@ -1,14 +1,15 @@
 defmodule Api.Notifications.Emails do
   use Bamboo.Phoenix, view: ApiWeb.EmailView
 
+  alias Api.Accounts.User
   alias ApiWeb.LayoutView
 
   def invite_email(recipient, host) do
     base_email(recipient)
-    |> subject("Join #{host.name}'s team in this year's Make or Break!")
+    |> subject("Join #{User.display_name(host)}'s team in this year's Make or Break!")
     |> put_html_layout({LayoutView, "email.html"})
-    |> assign(:title, "Join #{host.name}'s team in this year's Make or Break")
-    |> assign(:host_name, host.name)
+    |> assign(:title, "Join #{User.display_name(host)}'s team in this year's Make or Break")
+    |> assign(:host_name, User.display_name(host))
     |> assign(:email, recipient)
     |> render("invite.html")
   end
@@ -17,9 +18,9 @@ defmodule Api.Notifications.Emails do
     base_email(recipient)
     |> subject("Join #{host.name}'s team in this year's Make or Break!")
     |> put_html_layout({LayoutView, "email.html"})
-    |> assign(:title, "Join #{host.name}'s team in this year's Make or Break")
-    |> assign(:host_name, host.name)
-    |> assign(:name, recipient.name)
+    |> assign(:title, "Join #{User.display_name(host)}'s team in this year's Make or Break")
+    |> assign(:host_name, User.display_name(host))
+    |> assign(:name, User.display_name(recipient))
     |> assign(:email, recipient.email)
     |> render("invite_notification.html")
   end
@@ -29,16 +30,16 @@ defmodule Api.Notifications.Emails do
     |> subject("Make or Break - You are almost there!")
     |> put_html_layout({LayoutView, "email.html"})
     |> assign(:title, "Welcome to Make or Break!")
-    |> assign(:name, recipient.name)
+    |> assign(:name, User.display_name(recipient))
     |> render("registration.html")
   end
 
   def joined_hackathon_email(recipient, team) do
     base_email(recipient)
-    |> subject("Welcome to the Make or Break hackathon!")
+    |> subject("You have applied to the Make or Break hackathon!")
     |> put_html_layout({LayoutView, "email.html"})
-    |> assign(:title, "Welcome to the Make or Break hackathon!")
-    |> assign(:name, recipient.name)
+    |> assign(:title, "Your team's application is currently under review")
+    |> assign(:name, User.display_name(recipient))
     |> assign(:team_name, team.name)
     |> render("hackathon.html")
   end
@@ -48,7 +49,7 @@ defmodule Api.Notifications.Emails do
     |> subject("You have applied to #{workshop.name}")
     |> put_html_layout({LayoutView, "email.html"})
     |> assign(:title, "You have applied to #{workshop.name}")
-    |> assign(:name, recipient.name)
+    |> assign(:name, User.display_name(recipient))
     |> assign(:workshop, workshop)
     |> render("workshop.html")
   end
@@ -58,7 +59,7 @@ defmodule Api.Notifications.Emails do
     |> subject("Welcome to Make or Break!")
     |> put_html_layout({LayoutView, "email.html"})
     |> assign(:title, "Welcome to Make or Break!")
-    |> assign(:name, recipient.name)
+    |> assign(:name, User.display_name(recipient))
     |> render("checkin.html")
   end
 
@@ -67,7 +68,7 @@ defmodule Api.Notifications.Emails do
     |> subject("Reset your MoB password.")
     |> put_html_layout({LayoutView, "email.html"})
     |> assign(:title, "Reset your password")
-    |> assign(:name, recipient.name)
+    |> assign(:name, User.display_name(recipient))
     |> assign(:token, recipient.pwd_recovery_token)
     |> render("recover_password.html")
   end
@@ -77,7 +78,7 @@ defmodule Api.Notifications.Emails do
     |> subject("Cheers, mate! You and your team are in Make or Break!")
     |> put_html_layout({LayoutView, "email.html"})
     |> assign(:title, "Welcome to Make or Break!")
-    |> assign(:name, recipient.name)
+    |> assign(:name, User.display_name(recipient))
     |> render("team_acceptance.html")
   end
 
@@ -85,7 +86,7 @@ defmodule Api.Notifications.Emails do
     base_email(recipient)
     |> subject("Apply to Make or Break hackathon until March 31")
     |> put_html_layout({LayoutView, "email.html"})
-    |> assign(:name, recipient.name)
+    |> assign(:name, User.display_name(recipient))
     |> assign(:title, "Apply to Make or Break hackathon")
     |> render("not_applied.html")
   end

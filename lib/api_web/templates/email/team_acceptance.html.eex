@@ -3,7 +3,7 @@
 </tr>
 <tr style="box-sizing:border-box;" >
   <td class="body" style="box-sizing:border-box;font-style:normal;font-variant:normal;font-weight:normal;font-size:16px;font-family:Helvetica,Arial,sans-serif;line-height:normal;" >
-    <p style="box-sizing:border-box;font-style:normal;font-variant:normal;font-weight:normal;font-size:16px;font-family:Helvetica,Arial,sans-serif;line-height:normal;color:#808080;margin-top:20px;margin-bottom:20px;margin-right:auto;margin-left:auto;max-width:600px;" >Hello <%= @name %></p>
+    <p style="box-sizing:border-box;font-style:normal;font-variant:normal;font-weight:normal;font-size:16px;font-family:Helvetica,Arial,sans-serif;line-height:normal;color:#808080;margin-top:20px;margin-bottom:20px;margin-right:auto;margin-left:auto;max-width:600px;" >Hello <%= @name %>,</p>
 
     <b style="box-sizing:border-box;font-style:normal;font-variant:normal;font-size:16px;font-family:Helvetica,Arial,sans-serif;line-height:normal;color:#808080;margin-top:20px;margin-bottom:20px;margin-right:auto;margin-left:auto;max-width:600px;display:block;font-weight:bold;" >Congrats, your team’s application was accepted so you are now officially a part of the Make or Break 2018 hackathon!</b>
 
