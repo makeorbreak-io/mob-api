@@ -99,6 +99,7 @@ defmodule Api.GraphQL.Types do
     field :project_desc, :string
     # field :technologies, :array
     field :applied, :boolean
+    field :accepted, :boolean
 
     field :competition, :competition, resolve: assoc(:competition)
 

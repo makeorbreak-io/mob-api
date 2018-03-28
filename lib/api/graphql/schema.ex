@@ -104,7 +104,7 @@ defmodule Api.GraphQL.Schema do
 
       middleware RequireAdmin
 
-      resolve Resolvers.all(User)
+      resolve Resolvers.all(Team)
     end
   end
 
@@ -341,5 +341,95 @@ defmodule Api.GraphQL.Schema do
         {:ok, ""}
       end
     end
+
+    @desc "Makes a user admin (admin only)"
+    field :make_admin, :user do
+      arg :id, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{id: id}, _info ->
+        Accounts.update_any_user(id, %{role: "admin"})
+      end
+    end
+
+    @desc "Makes a user participant (admin only)"
+    field :make_participant, :user do
+      arg :id, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{id: id}, _info ->
+        Accounts.update_any_user(id, %{role: "participant"})
+      end
+    end
+
+    @desc "Removes a user (admin only)"
+    field :remove_user, :string do
+      arg :id, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{id: id}, _info ->
+        Accounts.delete_any_user(id)
+        id
+      end
+    end
+
+    @desc "Apply the team to the hackathon (admin only)"
+    field :apply_team_to_hackathon, :team do
+      arg :id, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{id: id}, _info ->
+        Teams.update_any_team(id, %{applied: true})
+      end
+    end
+
+    @desc "De-apply the team from the hackathon (admin only)"
+    field :deapply_team_from_hackathon, :team do
+      arg :id, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{id: id}, _info ->
+        Teams.update_any_team(id, %{applied: false})
+      end
+    end
+
+    @desc "Accepts a team in the hackathon"
+    field :accept_team, :team do
+      arg :id, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{id: id}, _info ->
+        Teams.accept_team(id)
+      end
+    end
+
+    @desc "Delete the team (admin only)"
+    field :delete_team, :string do
+      arg :id, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{id: id}, _info ->
+        Teams.delete_any_team(:id)
+        id
+      end
+    end
+
+    # @desc "Disqualify team (admin only)"
+    # field :disqualify_team, :string do
+    #   arg :id, non_null(:string)
+
+    #   middleware RequireAdmin
+
+    #   resolve fn %{id: id}, _info ->
+    #     Suffrages.disqualify_team
+    #   end
+    # end
   end
 end
