@@ -12,7 +12,7 @@
     </ul>
 
     <p style="box-sizing:border-box;font-style:normal;font-variant:normal;font-weight:normal;font-size:16px;font-family:Helvetica,Arial,sans-serif;line-height:normal;color:#808080;margin-top:20px;margin-bottom:20px;margin-right:auto;margin-left:auto;max-width:600px;" >
-      If, for some reason, you can’t attend, you should leave the workshop as soon as possible, by visiting the workshop page <a href="https://makeorbreak.io/#workshop-#{<%= @workshop.slug %>}">here</a>
+      If, for some reason, you can’t attend, you should leave the workshop as soon as possible, by visiting the workshop page <a href="https://makeorbreak.io/#workshop-<%= @workshop.slug %>">here</a>
     </p>
 
     <p style="box-sizing:border-box;font-style:normal;font-variant:normal;font-weight:normal;font-size:16px;font-family:Helvetica,Arial,sans-serif;line-height:normal;color:#808080;margin-top:20px;margin-bottom:20px;margin-right:auto;margin-left:auto;max-width:600px;" >
