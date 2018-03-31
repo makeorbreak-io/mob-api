@@ -104,6 +104,22 @@ defmodule Api.GraphQL.Types do
     field :memberships, list_of(:membership), resolve: assoc(:memberships)
     field :members, list_of(:user), resolve: assoc(:members)
     field :invites, list_of(:invite), resolve: assoc(:invites)
+    field :favorites, list_of(:project_favorite), resolve: assoc(:project_favorites)
+  end
+
+  object :project_favorite do
+    field :id, :string
+    field :team_id, :string
+    field :user_id, :string do
+      resolve fn _args, %{source: source, context: %{current_user: current_user}} ->
+        if source.user_id == current_user.id do
+          {:ok, source.user_id}
+        else
+          {:ok, nil}
+        end
+      end
+    end
+
   end
 
   connection node_type: :user
@@ -180,6 +196,7 @@ defmodule Api.GraphQL.Types do
     field :invitations, list_of(:invite), resolve: assoc(:invitations)
     field :ai_competition_bots, list_of(:ai_competition_bot), resolve: assoc(:ai_competition_bots)
     field :workshops, list_of(:workshop), resolve: assoc(:workshops)
+    field :favorites, list_of(:project_favorite), resolve: assoc(:project_favorites)
   end
 
   connection node_type: :invite

@@ -13,7 +13,7 @@ defmodule Api.GraphQL.Schema do
   alias Api.Integrations.{Medium, Github}
   alias Api.Flybys
   alias Api.Teams
-  alias Api.Teams.{Team}
+  alias Api.Teams.{Team, ProjectFavorites}
   alias Api.Competitions
   alias Api.AICompetition
   alias Api.AICompetition.{Games, Bots, Bot}
@@ -98,6 +98,10 @@ defmodule Api.GraphQL.Schema do
       resolve fn _args, %{context: %{current_user: current_user}} ->
         Suffrages.get_votes(current_user)
       end
+    end
+
+    field :projects, list_of(:team) do
+      resolve fn _args, _info -> {:ok, Teams.with_project} end
     end
 
     #----------------------------------------------------------------------- Admin / dashboard stats
@@ -255,6 +259,12 @@ defmodule Api.GraphQL.Schema do
       middleware RequireAuthn
 
       resolve fn %{id: id, team: params}, %{context: %{current_user: current_user}} ->
+        params = if Map.has_key?(params, :prize_preference) do
+          Map.put(params, :prize_preference, params.prize_preference |> Poison.decode!)
+        else
+          params
+        end
+
         Teams.update_team(current_user, id, params)
       end
     end
@@ -380,6 +390,18 @@ defmodule Api.GraphQL.Schema do
         Suffrages.upsert_votes(current_user, ballots)
 
         {:ok, Accounts.get_user(current_user.id)}
+      end
+    end
+
+    #-------------------------------------------------------------------------- Participant / projects
+    @desc "Toggles favorite status on a project"
+    field :toggle_project_favorite, :project_favorite do
+      arg :team_id, non_null(:string)
+
+      middleware RequireAuthn
+
+      resolve fn %{team_id: team_id}, %{context: %{current_user: current_user}} ->
+        ProjectFavorites.toggle_favorite(current_user.id, team_id)
       end
     end
 

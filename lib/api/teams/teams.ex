@@ -16,6 +16,14 @@ defmodule Api.Teams do
     Repo.all(Team)
   end
 
+  def with_project do
+    from(t in Team,
+      where: not is_nil(t.project_name),
+      where: not is_nil(t.project_desc)
+    )
+    |> Repo.all
+  end
+
   def get_team(id) do
     Repo.get!(Team, id)
   end
