@@ -339,4 +339,5 @@ defmodule Api.Teams do
   defp message(:channel_not_found), do: "couldn't join inexistent channel"
   defp message(:user_disabled), do: "account has been deactivated"
   defp message(:sent_recently), do: "was invited recently"
+  defp message(:not_authed), do: "not authorized"
 end
