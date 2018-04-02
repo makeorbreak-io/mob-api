@@ -14,6 +14,7 @@ defmodule Api.GraphQL.Schema do
   alias Api.Teams
   alias Api.Teams.{Team}
   alias Api.Competitions
+  alias Api.AICompetition
   alias Api.AICompetition.{Games, Bots}
   alias Api.Stats
   alias Api.Workshops
@@ -57,6 +58,12 @@ defmodule Api.GraphQL.Schema do
           |> Map.get("Post")
           |> Map.values
         }}
+      end
+    end
+
+    field :ai_leaderboard, :array do
+      resolve fn _args, _info ->
+        {:ok, AICompetition.leaderboard}
       end
     end
 
