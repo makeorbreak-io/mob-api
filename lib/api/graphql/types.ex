@@ -4,6 +4,7 @@ defmodule Api.GraphQL.Types do
   use Absinthe.Ecto, repo: Api.Repo
 
   alias Api.Repo
+  alias Api.Competitions
   alias Api.Accounts.User
   alias Api.AICompetition.Bots
 
@@ -22,18 +23,8 @@ defmodule Api.GraphQL.Types do
     field :inserted_at, :utc_datetime
     field :updated_at, :utc_datetime
 
-    # field :game_bots, :ai_competition_game_bot, resolve: assoc(:game_bots)
     field :bots, list_of(:ai_competition_bot), resolve: assoc(:bots)
-    # field :users, :user, resolve: assoc(:users)
   end
-
-  # connection node_type: :ai_competition_game_bot
-  # object :ai_competition_game_bot do
-  #   field :id, :string
-  #   field :score, :integer
-
-  #   field :bot, :ai_competition_bot, resolve: assoc(:bot)
-  # end
 
   connection node_type: :ai_competition_bot
   object :ai_competition_bot do
@@ -65,9 +56,6 @@ defmodule Api.GraphQL.Types do
         end
       end
     end
-
-    # field :user, :user, resolve: assoc(:user)
-    # field :game_bots, :ai_competition_game_bot, resolve: assoc(:game_bots)
   end
 
   connection node_type: :competition
@@ -174,6 +162,12 @@ defmodule Api.GraphQL.Types do
       end
     end
 
+    field :current_attendance, :attendance do
+      resolve fn _args, %{source: source} ->
+        {:ok, Competitions.get_attendance(Competitions.default_competition.id, source.id)}
+      end
+    end
+
     field :teams, list_of(:team), resolve: assoc(:teams)
     field :invites, list_of(:invite), resolve: assoc(:invites)
     field :invitations, list_of(:invite), resolve: assoc(:invitations)
@@ -244,9 +238,11 @@ defmodule Api.GraphQL.Types do
 
   object :attendance do
     field :id, :string
+    field :competition_id, :string
+    field :attendee, :string
     field :checked_in, :boolean
+  end
 
-    field :user, :user, resolve: assoc(:user)
   end
 
   #============================================================================ Admin

@@ -484,6 +484,15 @@ defmodule Api.GraphQL.Schema do
         AICompetition.perform_ranked_matches(name, timestamp, templates)
 
         {:ok, ""}
+
+    @desc "Toggles check in status for user"
+    field :toggle_user_checkin, :user do
+      arg :user_id, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{user_id: user_id}, _info ->
+        Competitions.toggle_checkin(Competitions.default_competition.id, user_id)
       end
     end
 

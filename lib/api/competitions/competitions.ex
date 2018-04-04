@@ -51,6 +51,11 @@ defmodule Api.Competitions do
     Repo.insert(changeset)
   end
 
+  def toggle_checkin(competition_id, attendee_id) do
+    attendance = get_attendance(competition_id, attendee_id)
+    toggle_checkin(competition_id, attendee_id, !attendance.checked_in)
+  end
+
   def toggle_checkin(competition_id, attendee_id, value) do
     attendance = get_attendance(competition_id, attendee_id)
     attendee = Repo.get(User, attendee_id)
@@ -60,7 +65,7 @@ defmodule Api.Competitions do
     case Repo.update(changeset) do
       {:ok, attendance} ->
         value && (Emails.checkin_email(attendee) |> Mailer.deliver_later)
-        {:ok, attendance}
+        {:ok, attendee}
       {:error, changeset} -> {:error, changeset}
     end
   end
