@@ -4,6 +4,7 @@ defmodule Api.Suffrages do
   alias Api.Repo
   alias Api.Accounts.User
   alias Api.Teams.Team
+  alias Api.Competitions
   alias Api.Suffrages.{Suffrage, Vote, PaperVote, Candidate, Category}
   alias Ecto.{Multi, Changeset}
 
@@ -276,7 +277,7 @@ defmodule Api.Suffrages do
     from(
       pv in PaperVote,
       where: pv.suffrage_id == ^suffrage_id,
-      where: is_nil(pv.annulled_at) or pv.annulled_at > ^at,
+      where: is_nil(pv.annulled_at) or pv.annulled_at > ^at
     )
   end
 
@@ -357,6 +358,13 @@ defmodule Api.Suffrages do
           |> Repo.preload(:suffrage)
         }
     end
+  end
+
+  def create_suffrage(params) do
+    changeset = Suffrage.changeset(
+      %Suffrage{competition_id: Competitions.default_competition.id}, params, Repo)
+
+    Repo.insert(changeset)
   end
 
   def get_suffrage(id) do

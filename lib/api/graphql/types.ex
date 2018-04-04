@@ -243,6 +243,12 @@ defmodule Api.GraphQL.Types do
     field :checked_in, :boolean
   end
 
+  #============================================================================ Voting / competition
+  object :suffrage do
+    field :name, :string
+    field :status, :string
+    field :voting_started_at, :naive_datetime
+    field :voting_ended_at, :naive_datetime
   end
 
   #============================================================================ Admin

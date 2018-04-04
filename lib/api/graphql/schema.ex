@@ -84,6 +84,12 @@ defmodule Api.GraphQL.Schema do
     end
 
     #
+    # voting / competition
+    field :suffrages, :suffrage do
+      middleware RequireAuth
+    end
+
+    #
     # admin fields
 
     #

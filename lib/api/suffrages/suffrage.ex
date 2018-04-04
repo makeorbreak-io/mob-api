@@ -14,6 +14,7 @@ defmodule Api.Suffrages.Suffrage do
   )a
 
   @required_attrs ~w(
+    name
     competition_id
   )a
 
