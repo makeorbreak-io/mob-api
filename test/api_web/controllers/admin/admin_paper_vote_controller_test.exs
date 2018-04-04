@@ -1,36 +1,36 @@
 defmodule ApiWeb.Admin.PaperVoteControllerTest do
   use ApiWeb.ConnCase
 
-  alias Api.Competitions
-  alias Api.Voting.PaperVote
-  alias Guardian.{Permissions}
+  # alias Api.Competitions
+  # alias Api.Voting.PaperVote
+  # alias Guardian.{Permissions}
 
-  setup %{conn: conn} do
-    admin = create_admin()
-    c = create_category()
-    pv = create_paper_vote(c, admin)
+  # setup %{conn: conn} do
+  #   admin = create_admin()
+  #   c = create_category()
+  #   pv = create_paper_vote(c, admin)
 
-    m = create_user()
-    t = create_team(m, create_competition())
+  #   m = create_user()
+  #   t = create_team(m, create_competition())
 
-    make_teams_eligible()
-    Competitions.start_voting()
+  #   make_teams_eligible()
+  #   Competitions.start_voting()
 
-    {:ok, jwt, _} =
-      Guardian.encode_and_sign(admin, :token, perms: %{admin: Permissions.max})
+  #   {:ok, jwt, _} =
+  #     Guardian.encode_and_sign(admin, :token, perms: %{admin: Permissions.max})
 
-    {:ok, %{
-      admin: admin,
-      category: c,
-      paper_vote: pv,
-      member: m,
-      team: t,
-      conn:
-        conn
-        |> put_req_header("authorization", "Bearer #{jwt}")
-        |> put_req_header("content-type", "application/json")
-    }}
-  end
+  #   {:ok, %{
+  #     admin: admin,
+  #     category: c,
+  #     paper_vote: pv,
+  #     member: m,
+  #     team: t,
+  #     conn:
+  #       conn
+  #       |> put_req_header("authorization", "Bearer #{jwt}")
+  #       |> put_req_header("content-type", "application/json")
+  #   }}
+  # end
 
   # test "create", %{conn: conn, category: c, admin: a} do
   #   conn = post(conn, admin_paper_vote_path(conn, :create), %{

@@ -8,7 +8,6 @@ defmodule Api.Teams do
   alias Api.{Mailer, Repo}
   alias Api.Accounts.User
   alias Api.Competitions
-  alias Api.Teams
   alias Api.Teams.{Invite, Membership, Team}
   alias Api.Notifications.Emails
   alias Ecto.{Changeset}
@@ -22,7 +21,7 @@ defmodule Api.Teams do
   end
 
   def create_team(current_user, team_params) do
-    changeset = Team.changeset(%Team{}, team_params, Repo)
+    changeset = Team.changeset(%Team{}, team_params)
 
     case Repo.insert(changeset) do
       {:ok, team} ->
@@ -41,7 +40,7 @@ defmodule Api.Teams do
     team = get_team(id)
 
     if is_team_member?(team, current_user) do
-      Team.changeset(team, team_params, Repo)
+      Team.changeset(team, team_params)
       |> email_if_applying(team)
       |> Repo.update
     else
@@ -55,7 +54,7 @@ defmodule Api.Teams do
     {_, team_params} = Map.pop(team_params, :eligible)
     {_, team_params} = Map.pop(team_params, "eligible")
 
-    Team.admin_changeset(team, team_params, Repo)
+    Team.admin_changeset(team, team_params)
     |> email_if_applying(team)
     |> email_if_accepted(team)
     |> Repo.update
@@ -64,7 +63,7 @@ defmodule Api.Teams do
   def accept_team(id) do
     team = get_team(id)
 
-    changeset = Team.admin_changeset(team, %{accepted: true}, Repo)
+    changeset = Team.admin_changeset(team, %{accepted: true})
     |> email_if_accepted(team)
 
     case Repo.update(changeset) do

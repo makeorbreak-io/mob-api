@@ -1,6 +1,4 @@
 defmodule Api.GraphQL.Resolvers do
-  import Ecto.Query
-
   alias Absinthe.Relay.Connection
   alias Api.Repo
   alias Api.GraphQL.Errors
@@ -12,7 +10,7 @@ defmodule Api.GraphQL.Resolvers do
     end
   end
 
-  def by_attr(type, attr) when is_atom(type) do
+  def by_attr(type, _attr) when is_atom(type) do
     fn args, _info ->
       {:ok, type |> Repo.get_by(args)}
     end

@@ -362,7 +362,9 @@ defmodule Api.Suffrages do
 
   def create_suffrage(params) do
     changeset = Suffrage.changeset(
-      %Suffrage{competition_id: Competitions.default_competition.id}, params, Repo)
+      %Suffrage{competition_id: Competitions.default_competition.id},
+      params
+    )
 
     Repo.insert(changeset)
   end

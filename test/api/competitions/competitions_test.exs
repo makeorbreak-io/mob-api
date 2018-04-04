@@ -26,7 +26,7 @@ defmodule Api.CompetitionsTest do
   test "list competitions", %{c1: c1, c2: c2} do
     competitions = Competitions.list_competitions()
 
-    assert competitions = [c1, c2]
+    assert competitions == [c1, c2]
     assert length(competitions) == 2
   end
 
@@ -87,12 +87,16 @@ defmodule Api.CompetitionsTest do
   end
 
   test "toggle checkin works", %{c1: c1, user: user} do
-    {:ok, a1} = Competitions.toggle_checkin(c1.id, user.id, true)
+    Competitions.toggle_checkin(c1.id, user.id, true)
+
+    a1 = Competitions.get_attendance(c1.id, user.id)
 
     assert a1.checked_in == true
     assert_delivered_email Emails.checkin_email(user)
 
-    {:ok, a2} = Competitions.toggle_checkin(c1.id, user.id, false)
+    Competitions.toggle_checkin(c1.id, user.id, false)
+
+    a2 = Competitions.get_attendance(c1.id, user.id)
 
     assert a2.checked_in == false
   end

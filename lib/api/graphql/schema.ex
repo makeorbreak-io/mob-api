@@ -9,7 +9,6 @@ defmodule Api.GraphQL.Schema do
   alias Api.Accounts.User
   alias Api.Competitions
   alias Api.Integrations.Medium
-  alias Api.Flyby
   alias Api.Flybys
   alias Api.Teams
   alias Api.Teams.{Team}
@@ -490,6 +489,8 @@ defmodule Api.GraphQL.Schema do
         AICompetition.perform_ranked_matches(name, timestamp, templates)
 
         {:ok, ""}
+      end
+    end
 
     @desc "Toggles check in status for user"
     field :toggle_user_checkin, :user do

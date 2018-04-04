@@ -8,9 +8,8 @@ defmodule ApiWeb.TestHelper do
   alias Api.Workshops.{Workshop, Attendance}
   alias Api.Teams.{Team, Membership, Invite}
   alias Api.Competitions.Competition
-  alias Api.Suffrages.{Category, Suffrage, Vote, PaperVote}
+  alias Api.Suffrages.{Suffrage, Vote, PaperVote}
   alias Api.Competitions.Attendance, as: CompAttendance
-  alias ApiWeb.StringHelper
 
   @valid_user_attrs %{
     name: "john doe",
@@ -61,7 +60,7 @@ defmodule ApiWeb.TestHelper do
   def create_team(user, competition, params \\ nil) do
     params = params || %{name: "awesome team #{to_string(:rand.uniform())}"}
     team = %Team{competition_id: competition.id}
-    |> Team.changeset(params, Repo)
+    |> Team.changeset(params)
     |> Repo.insert!
 
     Repo.insert! %Membership{user_id: user.id, team_id: team.id, role: "owner"}
@@ -122,21 +121,11 @@ defmodule ApiWeb.TestHelper do
     |> Repo.insert!
   end
 
-  def create_category(params \\ %{}) do
-    %Category{}
-    |> Category.changeset(
-      %{
-        name: StringHelper.slugify("cool #{:rand.uniform()}"),
-      }
-      |> Map.merge(params)
-    )
-    |> Repo.insert!
-  end
-
   def create_suffrage(competition) do
     %Suffrage{}
     |> Suffrage.changeset(
       %{
+        name: "awesome",
         competition_id: competition.id
       }
     )

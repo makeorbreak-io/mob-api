@@ -12,7 +12,7 @@ defmodule Api.SuffragesTest do
     {
       :ok,
       %{
-        category: create_category(),
+        competition: team.competition,
         admin: create_admin(),
         member: member,
         team: team,

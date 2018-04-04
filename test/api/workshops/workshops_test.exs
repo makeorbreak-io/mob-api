@@ -36,6 +36,7 @@ defmodule Api.WorkshopsTest do
     {:ok, workshop} = Workshops.join(u1, w1.slug)
 
     w2 = Workshops.get(workshop.slug)
+    assert workshop.id == w1.id
 
     assert w2.participants_counter == 1
   end

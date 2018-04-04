@@ -1,12 +1,12 @@
 defmodule ApiWeb.VotingControllerTest do
   use ApiWeb.ConnCase
 
-  alias Api.Competitions
-  alias Api.Competitions.Category
-  alias Api.Teams
-  alias Api.Teams.Team
-  alias Api.Voting.Vote
-  import ApiWeb.StringHelper, only: [slugify: 1]
+  # alias Api.Competitions
+  # alias Api.Competitions.Category
+  # alias Api.Teams
+  # alias Api.Teams.Team
+  # alias Api.Voting.Vote
+  # import ApiWeb.StringHelper, only: [slugify: 1]
 
   setup %{conn: conn} do
     user = create_user()

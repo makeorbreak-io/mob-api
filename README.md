@@ -18,10 +18,6 @@ The deployment process is done using the following commands:
 * mix edeliver restart production
 * mix edeliver migrate production
 
-Alternatively, there's a mix task that joins these commands into one:
-
-* mix deploy
-
 ## Environment Variables
 
 Use your preferred method to add the following variables to your environment.

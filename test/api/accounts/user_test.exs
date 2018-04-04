@@ -1,8 +1,7 @@
 defmodule Api.UserTest do
   use Api.DataCase
 
-  alias Api.{Accounts, Accounts.User}
-  alias Api.Teams
+  alias Api.Accounts.User
 
   @valid_attrs %{
     email: "johndoe@example.com",

@@ -42,7 +42,6 @@ defmodule Api.Competitions do
   end
 
   def create_attendance(competition_id, attendee_id) do
-    attendee = Repo.get(User, attendee_id)
     changeset = Attendance.changeset(%Attendance{}, %{
       competition_id: competition_id,
       attendee: attendee_id
@@ -63,7 +62,7 @@ defmodule Api.Competitions do
     changeset = Attendance.changeset(attendance, %{checked_in: value})
 
     case Repo.update(changeset) do
-      {:ok, attendance} ->
+      {:ok, _attendance} ->
         value && (Emails.checkin_email(attendee) |> Mailer.deliver_later)
         {:ok, attendee}
       {:error, changeset} -> {:error, changeset}
