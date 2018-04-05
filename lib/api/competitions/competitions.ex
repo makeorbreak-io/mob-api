@@ -99,4 +99,26 @@ defmodule Api.Competitions do
       end
     )
   end
+
+  def send_food_allergies_email do
+    query =
+    "select users from users left join users_teams on users.id = users_teams.user_id
+      left join teams on users_teams.team_id = teams.id
+      where users_teams.user_id is not null and teams.accepted = true
+    union distinct
+    select users from users left join users_workshops on users.id = users_workshops.user_id
+      left join workshops on users_workshops.workshop_id = workshops.id
+      where workshops.year = 2018
+    union distinct
+    select users from ai_competition_bots left join users on ai_competition_bots.user_id = users.id;"
+
+    result = Ecto.Adapters.SQL.query!(Repo, query, [])
+    cols = Enum.map result.columns, &(String.to_atom(&1))
+
+    users = Enum.map result.rows, fn(row) ->
+      struct(User, Enum.zip(cols, row))
+    end
+
+    Enum.each(users, fn(user) -> Emails.food_allergies(user) end)
+  end
 end

@@ -91,6 +91,15 @@ defmodule Api.Notifications.Emails do
     |> render("not_applied.html")
   end
 
+  def food_allergies(recipient) do
+    base_email(recipient)
+    |> subject("Make or Break — food restrictions inquiry")
+    |> put_html_layout({LayoutView, "email.html"})
+    |> assign(:name, User.display_name(recipient))
+    |> assign(:title, "Food restrictions inquiry")
+    |> render("food_allergies.html")
+  end
+
   defp base_email(recipient) do
     # Here you can set a default from, default headers, etc.
     new_email()
