@@ -224,7 +224,7 @@ defmodule Api.GraphQL.Types do
     field :short_speaker, :string
     field :short_date, :string
 
-    field :attendances, list_of(:attendance), resolve: assoc(:attendances)
+    field :attendances, list_of(:workshop_attendance), resolve: assoc(:attendances)
     field :users, list_of(:user) do
       resolve fn _args, %{source: source, context: %{current_user: current_user}} ->
         role = current_user && current_user.role
@@ -241,6 +241,19 @@ defmodule Api.GraphQL.Types do
     field :competition_id, :string
     field :attendee, :string
     field :checked_in, :boolean
+  end
+
+  object :workshop_attendance do
+    field :checked_in, :boolean
+    field :user, :user do
+      resolve fn _args, %{source: source, context: %{current_user: current_user}} ->
+        role = current_user && current_user.role
+        case role do
+          "admin" -> {:ok, Repo.preload(source, :user).user}
+          _ -> {:ok, nil}
+        end
+      end
+    end
   end
 
   #============================================================================ Voting / competition

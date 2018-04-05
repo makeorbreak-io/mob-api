@@ -492,7 +492,7 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    @desc "Toggles check in status for user"
+    @desc "Toggles competition check in status for user"
     field :toggle_user_checkin, :user do
       arg :user_id, non_null(:string)
 
@@ -500,6 +500,19 @@ defmodule Api.GraphQL.Schema do
 
       resolve fn %{user_id: user_id}, _info ->
         Competitions.toggle_checkin(Competitions.default_competition.id, user_id)
+      end
+    end
+
+    @desc "Toggle workshop check in status for user"
+    field :toggle_workshop_checkin, :workshop do
+      arg :slug, non_null(:string)
+      arg :user_id, non_null(:string)
+      arg :value, non_null(:boolean)
+
+      middleware RequireAdmin
+
+      resolve fn %{slug: slug, user_id: user_id, value: value}, _info ->
+        Workshops.toggle_checkin(slug, user_id, value)
       end
     end
 
