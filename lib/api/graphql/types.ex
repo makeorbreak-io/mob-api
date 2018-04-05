@@ -258,7 +258,9 @@ defmodule Api.GraphQL.Types do
 
   #============================================================================ Voting / competition
   object :suffrage do
+    field :id, :string
     field :name, :string
+    field :slug, :string
     field :status, :string
     field :voting_started_at, :naive_datetime
     field :voting_ended_at, :naive_datetime

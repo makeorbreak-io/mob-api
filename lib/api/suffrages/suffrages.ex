@@ -360,6 +360,10 @@ defmodule Api.Suffrages do
     end
   end
 
+  def all_suffrages do
+    Repo.all(Suffrage)
+  end
+
   def create_suffrage(params) do
     changeset = Suffrage.changeset(
       %Suffrage{competition_id: Competitions.default_competition.id},
@@ -377,7 +381,14 @@ defmodule Api.Suffrages do
     suffrage = get_suffrage(id)
 
     Suffrage.changeset(suffrage, params)
-    |> Repo.update!
+    |> Repo.update
+  end
+
+  def delete_suffrage(id) do
+    suffrage = get_suffrage(id)
+
+    suffrage
+    |> Repo.delete
   end
 
   def suffrage_voting_status(id) do

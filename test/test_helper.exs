@@ -126,6 +126,7 @@ defmodule ApiWeb.TestHelper do
     |> Suffrage.changeset(
       %{
         name: "awesome",
+        slug: "awesome",
         competition_id: competition.id
       }
     )

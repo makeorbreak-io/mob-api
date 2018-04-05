@@ -16,28 +16,20 @@ defmodule Api.GraphQL.Schema do
   alias Api.AICompetition
   alias Api.AICompetition.{Games, Bots, Bot}
   alias Api.Stats
+  alias Api.Suffrages
   alias Api.Workshops
   alias Api.Workshops.{Workshop}
 
   import_types Api.GraphQL.Types
 
+  #----------------------------------------------------------------------------- Queries
   query do
 
-    #
-    # single resources
     field :me, :user do
       resolve &Resolvers.me/2
     end
 
-    @desc "Single team details"
-    field :team, :team do
-      arg :id, non_null(:string)
-
-      middleware RequireAuthn
-
-      resolve Resolvers.by_id(Team)
-    end
-
+    #-------------------------------------------------------------------------- Publicly available information
     @desc "Single workshop details"
     field :workshop, :workshop do
       arg :slug, non_null(:string)
@@ -45,8 +37,16 @@ defmodule Api.GraphQL.Schema do
       resolve Resolvers.by_attr(Workshop, :slug)
     end
 
-    #
-    # non-paginated collections
+    @desc "MoB 2018 FLY paper plane competition entries"
+    field :flybys, list_of(:flyby) do
+      resolve fn _args, _info -> {:ok, Flybys.all} end
+    end
+
+    @desc "workshops list"
+    field :workshops, list_of(:workshop) do
+      resolve fn _args, _info -> {:ok, Workshops.all} end
+    end
+
     field :medium, :medium do
       resolve fn _args, _info ->
         json = Medium.get_latest_posts(2)
@@ -60,12 +60,18 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    # field :ai_leaderboard, :array do
-    #   resolve fn _args, _info ->
-    #     {:ok, AICompetition.leaderboard}
-    #   end
-    # end
+    #-------------------------------------------------------------------------- Participant / non-paginated resources
 
+    @desc "Single team details"
+    field :team, :team do
+      arg :id, non_null(:string)
+
+      middleware RequireAuthn
+
+      resolve Resolvers.by_id(Team)
+    end
+
+    @desc "Last 50 AI Competition games for the current user"
     field :ai_games, list_of(:ai_competition_game) do
       middleware RequireAuthn
 
@@ -74,25 +80,16 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    field :flybys, list_of(:flyby) do
-      resolve fn _args, _info -> {:ok, Flybys.all} end
+    @desc "Voting categories"
+    field :suffrages, list_of(:suffrage) do
+      middleware RequireAuthn
+
+      resolve fn _args, _info ->
+        {:ok, Suffrages.all_suffrages}
+      end
     end
 
-    field :workshops, list_of(:workshop) do
-      resolve fn _args, _info -> {:ok, Workshops.all} end
-    end
-
-    #
-    # voting / competition
-    field :suffrages, :suffrage do
-      middleware RequireAuth
-    end
-
-    #
-    # admin fields
-
-    #
-    # stats / analytics
+    #-------------------------------------------------------------------------- Admin / dashboard stats
     field :admin_stats, :admin_stats do
       middleware RequireAdmin
 
@@ -153,7 +150,7 @@ defmodule Api.GraphQL.Schema do
     end
   end
 
-  #-----------------------------------------------------------------------------Mutations
+  #----------------------------------------------------------------------------- Mutations
 
   mutation do
     #-------------------------------------------------------------------------- User session
@@ -504,6 +501,51 @@ defmodule Api.GraphQL.Schema do
 
       resolve fn %{slug: slug, user_id: user_id, value: value}, _info ->
         Workshops.toggle_checkin(slug, user_id, value)
+      end
+    end
+
+    #-------------------------------------------------------------------------- Admin / voting
+    @desc "Create suffrage (admin only)"
+    field :create_suffrage, :suffrage do
+      arg :suffrage, non_null(:suffrage_input)
+
+      middleware RequireAdmin
+
+      resolve fn %{suffrage: suffrage}, _info ->
+        Suffrages.create_suffrage(suffrage)
+      end
+    end
+
+    @desc "Delete suffrage (admin only)"
+    field :delete_suffrage, :suffrage do
+      arg :id, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{id: id}, _info ->
+        Suffrages.delete_suffrage(id)
+      end
+    end
+
+    @desc "Opens voting for a suffrage"
+    field :start_suffrage_voting, :suffrage do
+      arg :id, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{id: id}, _info ->
+        Suffrages.start_voting(id)
+      end
+    end
+
+    @desc "Closes voting for a suffrage"
+    field :end_suffrage_voting, :suffrage do
+      arg :id, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{id: id}, _info ->
+        Suffrages.end_voting(id)
       end
     end
 

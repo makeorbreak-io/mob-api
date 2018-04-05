@@ -7,6 +7,7 @@ defmodule Api.Suffrages.Suffrage do
 
   @valid_attrs ~w(
     name
+    slug
     voting_started_at
     voting_ended_at
     competition_id
@@ -14,6 +15,7 @@ defmodule Api.Suffrages.Suffrage do
 
   @required_attrs ~w(
     name
+    slug
     competition_id
   )a
 
@@ -21,6 +23,7 @@ defmodule Api.Suffrages.Suffrage do
   @foreign_key_type :binary_id
   schema "suffrages" do
     field :name, :string
+    field :slug, :string
     field :voting_started_at, :utc_datetime
     field :voting_ended_at, :utc_datetime
     field :podium, {:array, :binary_id}
