@@ -47,12 +47,7 @@ defmodule Api.Competitions do
       attendee: attendee_id
     })
 
-    case Repo.insert(changeset) do
-      {:ok, attendance} ->
-        # FIXME: only send if checkin changed to true # Emails.checkin_email(attendee) |> Mailer.deliver_later
-        {:ok, attendance}
-      {:error, changeset} -> {:error, changeset}
-    end
+    Repo.insert(changeset)
   end
 
   def toggle_checkin(competition_id, attendee_id, value) do
