@@ -342,6 +342,16 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
+    @desc "Send food allergies inquiry emails"
+    field :send_food_allergies_emails, :string do
+      middleware RequireAdmin
+
+      resolve fn _args, _info ->
+        Competitions.send_food_allergies_email
+        {:ok, ""}
+      end
+    end
+
     @desc "Makes a user admin (admin only)"
     field :make_admin, :user do
       arg :id, non_null(:string)
