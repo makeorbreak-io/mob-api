@@ -4,7 +4,7 @@ defmodule Api.AICompetition do
   alias Api.Repo
   alias Api.Accounts
   alias Api.Accounts.User
-  alias Api.AICompetition.{Games, Game, GameBot, Bot, Bots}
+  alias Api.AICompetition.{Games, Game, GameBot, Bot, Bots, GameTemplates}
 
   def users_with_valid_bots do
     users = from(
@@ -32,6 +32,28 @@ defmodule Api.AICompetition do
     end)
     |> Enum.flat_map(&(&1))
     |> Enum.uniq
+  end
+
+  def perform_training_matches do
+    templates = [
+      &GameTemplates.ten_by_ten/2,
+      &GameTemplates.five_by_eleven/2,
+    ]
+
+    users_with_valid_bots
+    |> user_pairs
+    |> Enum.flat_map(fn [u1, u2] ->
+      templates
+      |> Enum.map(fn template ->
+        Games.create_game(
+          Bots.current_bot(u1),
+          Bots.current_bot(u2),
+          false,
+          nil,
+          template
+        )
+      end)
+    end)
   end
 
   def schedule_run(run_name, timestamp, templates \\ []) do

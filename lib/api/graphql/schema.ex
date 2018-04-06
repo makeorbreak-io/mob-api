@@ -61,11 +61,11 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    field :ai_leaderboard, :array do
-      resolve fn _args, _info ->
-        {:ok, AICompetition.leaderboard}
-      end
-    end
+    # field :ai_leaderboard, :array do
+    #   resolve fn _args, _info ->
+    #     {:ok, AICompetition.leaderboard}
+    #   end
+    # end
 
     field :ai_games, list_of(:ai_competition_game) do
       middleware RequireAuthn

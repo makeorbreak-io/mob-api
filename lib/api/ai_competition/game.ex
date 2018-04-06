@@ -24,6 +24,6 @@ defmodule Api.AICompetition.Game do
   def changeset(%Game{} = ai_game, attrs) do
     ai_game
     |> cast(attrs, [:status, :initial_state, :final_state, :is_ranked, :run])
-    |> validate_required([:status, :initial_state, :is_ranked, :run])
+    |> validate_required([:status, :initial_state, :is_ranked])
   end
 end

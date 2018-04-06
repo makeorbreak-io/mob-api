@@ -3,8 +3,7 @@ defmodule Api.AICompetition.Games do
 
   alias Api.Repo
   alias Api.Accounts.User
-  alias Api.AICompetition
-  alias Api.AICompetition.{Game, GameTemplates, GameBot, Bot, Bots}
+  alias Api.AICompetition.{Game, GameBot, Bot}
 
   def get_game(id) do
     Repo.get!(Game, id)
@@ -33,20 +32,6 @@ defmodule Api.AICompetition.Games do
     )
 
     Repo.all(games)
-  end
-
-  def perform_matches do
-    AICompetition.users_with_valid_bots
-    |> AICompetition.user_pairs
-    |> Enum.map(fn [u1, u2] ->
-      create_game(
-        Bots.current_bot(u1),
-        Bots.current_bot(u2),
-        false,
-        nil,
-        &GameTemplates.ten_by_ten/2
-      )
-    end)
   end
 
   def create_game(bot1, bot2, is_ranked, run, template) do
