@@ -5,7 +5,11 @@ defmodule Api.EmailsTest do
   alias Api.Notifications.Emails
 
   test "invite email" do
-    host = create_user(%{email: "host@example.com", password: "thisisapassword"})
+    host = create_user(%{
+      name: "Random User",
+      email: "host@example.com",
+      password: "thisisapassword"
+    })
 
     email = Emails.invite_email("email@example.com", host)
 

@@ -66,7 +66,6 @@ defmodule Api.CompetitionsTest do
     {:ok, attendance} = Competitions.create_attendance(c2.id, u1.id)
 
     assert Repo.get(Attendance, attendance.id)
-    assert_delivered_email Emails.checkin_email(u1)
   end
 
   test "can't create duplicate attendance", %{c1: c1, user: u1} do

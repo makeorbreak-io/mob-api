@@ -5,6 +5,7 @@ defmodule Api.Competitions do
   alias Api.Accounts.User
   alias Api.Competitions.{Competition, Attendance}
   alias Api.Notifications.Emails
+  alias Ecto.Adapters.SQL
 
   def list_competitions do
     Repo.all(Competition)
@@ -47,12 +48,7 @@ defmodule Api.Competitions do
       attendee: attendee_id
     })
 
-    case Repo.insert(changeset) do
-      {:ok, attendance} ->
-        # FIXME: only send if checkin changed to true # Emails.checkin_email(attendee) |> Mailer.deliver_later
-        {:ok, attendance}
-      {:error, changeset} -> {:error, changeset}
-    end
+    Repo.insert(changeset)
   end
 
   def toggle_checkin(competition_id, attendee_id, value) do
@@ -76,7 +72,7 @@ defmodule Api.Competitions do
 
   def send_not_applied_email do
     non_applied_users =
-    from(u in Api.Accounts.User,
+    from(u in User,
       join: m in assoc(u, :memberships),
       join: t in assoc(m, :team),
       where: t.applied == false,
@@ -86,7 +82,7 @@ defmodule Api.Competitions do
     |> Repo.all
 
     users_without_team = Enum.filter(
-      Api.Repo.all(Api.Accounts.User) |> Api.Repo.preload(:memberships),
+      Repo.all(User) |> Repo.preload(:memberships),
       fn(user) ->
         user.memberships == []
       end
@@ -98,5 +94,27 @@ defmodule Api.Competitions do
         Emails.not_applied(user) |> Mailer.deliver_later
       end
     )
+  end
+
+  def send_food_allergies_email do
+    query =
+    "select users from users left join users_teams on users.id = users_teams.user_id
+      left join teams on users_teams.team_id = teams.id
+      where users_teams.user_id is not null and teams.accepted = true
+    union distinct
+    select users from users left join users_workshops on users.id = users_workshops.user_id
+      left join workshops on users_workshops.workshop_id = workshops.id
+      where workshops.year = 2018
+    union distinct
+    select users from ai_competition_bots left join users on ai_competition_bots.user_id = users.id;"
+
+    result = SQL.query!(Repo, query, [])
+    cols = Enum.map result.columns, &(String.to_atom(&1))
+
+    users = Enum.map result.rows, fn(row) ->
+      struct(User, Enum.zip(cols, row))
+    end
+
+    Enum.each(users, fn(user) -> Emails.food_allergies(user) end)
   end
 end
