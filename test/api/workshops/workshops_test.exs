@@ -33,12 +33,10 @@ defmodule Api.WorkshopsTest do
     u1 = create_user()
     assert w1.participants_counter == 0
 
-    {:ok, attendance} = Workshops.join(u1, w1.slug)
+    {:ok, workshop} = Workshops.join(u1, w1.slug)
 
-    assert attendance.workshop_id == w1.id
-    assert attendance.user_id == u1.id
+    w2 = Workshops.get(workshop.slug)
 
-    w2 = Workshops.get(w1.slug)
     assert w2.participants_counter == 1
   end
 
@@ -46,7 +44,7 @@ defmodule Api.WorkshopsTest do
     u1 = create_user()
     u2 = create_user()
     create_workshop_attendance(w1, u1)
-    assert Workshops.join(u2, w1.slug) == :workshop_full
+    assert Workshops.join(u2, w1.slug) == {:error, :workshop_full}
   end
 
   test "leave workshop if attending", %{w1: w1} do
@@ -56,7 +54,8 @@ defmodule Api.WorkshopsTest do
     w2 = Workshops.get(w1.slug)
 
     assert w2.participants_counter == 1
-    assert Workshops.leave(u1, w1.slug) == :ok
+
+    Workshops.leave(u1, w1.slug)
 
     w3 = Workshops.get(w1.slug)
     assert w3.participants_counter == 0
@@ -65,7 +64,7 @@ defmodule Api.WorkshopsTest do
   test "leave workshop if not attending", %{w1: w1} do
     u1 = create_user()
 
-    assert Workshops.leave(u1, w1.slug) == :not_workshop_attendee
+    assert Workshops.leave(u1, w1.slug) == {:error, :not_workshop_attendee}
   end
 
   test "create valid workshop" do

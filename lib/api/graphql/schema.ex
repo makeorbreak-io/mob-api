@@ -337,7 +337,7 @@ defmodule Api.GraphQL.Schema do
       middleware RequireAdmin
 
       resolve fn _args, _info ->
-        Api.Competitions.send_not_applied_email
+        Competitions.send_not_applied_email
         {:ok, ""}
       end
     end

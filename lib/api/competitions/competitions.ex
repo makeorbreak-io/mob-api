@@ -5,6 +5,7 @@ defmodule Api.Competitions do
   alias Api.Accounts.User
   alias Api.Competitions.{Competition, Attendance}
   alias Api.Notifications.Emails
+  alias Ecto.Adapters.SQL
 
   def list_competitions do
     Repo.all(Competition)
@@ -71,7 +72,7 @@ defmodule Api.Competitions do
 
   def send_not_applied_email do
     non_applied_users =
-    from(u in Api.Accounts.User,
+    from(u in User,
       join: m in assoc(u, :memberships),
       join: t in assoc(m, :team),
       where: t.applied == false,
@@ -81,7 +82,7 @@ defmodule Api.Competitions do
     |> Repo.all
 
     users_without_team = Enum.filter(
-      Api.Repo.all(Api.Accounts.User) |> Api.Repo.preload(:memberships),
+      Repo.all(User) |> Repo.preload(:memberships),
       fn(user) ->
         user.memberships == []
       end
@@ -107,7 +108,7 @@ defmodule Api.Competitions do
     union distinct
     select users from ai_competition_bots left join users on ai_competition_bots.user_id = users.id;"
 
-    result = Ecto.Adapters.SQL.query!(Repo, query, [])
+    result = SQL.query!(Repo, query, [])
     cols = Enum.map result.columns, &(String.to_atom(&1))
 
     users = Enum.map result.rows, fn(row) ->
