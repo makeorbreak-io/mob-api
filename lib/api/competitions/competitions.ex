@@ -98,15 +98,16 @@ defmodule Api.Competitions do
 
   def send_food_allergies_email do
     query =
-    "select users from users left join users_teams on users.id = users_teams.user_id
+    "select users.id,users.name,users.email from users left join users_teams on users.id = users_teams.user_id
       left join teams on users_teams.team_id = teams.id
       where users_teams.user_id is not null and teams.accepted = true
     union distinct
-    select users from users left join users_workshops on users.id = users_workshops.user_id
+    select users.id,users.name,users.email from users left join users_workshops on users.id = users_workshops.user_id
       left join workshops on users_workshops.workshop_id = workshops.id
       where workshops.year = 2018
     union distinct
-    select users from ai_competition_bots left join users on ai_competition_bots.user_id = users.id;"
+    select users.id,users.name,users.email from users left join ai_competition_bots on users.id = ai_competition_bots.user_id
+      where ai_competition_bots.user_id is not null;"
 
     result = SQL.query!(Repo, query, [])
     cols = Enum.map result.columns, &(String.to_atom(&1))
@@ -115,6 +116,9 @@ defmodule Api.Competitions do
       struct(User, Enum.zip(cols, row))
     end
 
-    Enum.each(users, fn(user) -> Emails.food_allergies(user) end)
+    Enum.each(users, fn(user) ->
+      Emails.food_allergies(user)
+      |> Mailer.deliver_later
+    end)
   end
 end
