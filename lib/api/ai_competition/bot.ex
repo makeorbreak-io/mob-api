@@ -19,7 +19,8 @@ defmodule Api.AICompetition.Bot do
 
     # Associations
     belongs_to :user, User
-    # has_many :ai_competition_game_bots, GameBot
+    has_many :game_bots, GameBot, foreign_key: :ai_competition_bot_id
+    has_many :games, through: [:game_bots, :game]
   end
 
   @doc false

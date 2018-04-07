@@ -2,6 +2,7 @@ defmodule ApiWeb.BotsController do
   use Api.Web, :controller
 
   alias Api.Repo
+  alias Api.AICompetition
   alias Api.AICompetition.{Bot, Bots, Games}
 
   def callback(conn, %{"id" => id, "status" => status, "result" => result}) do
@@ -15,7 +16,7 @@ defmodule ApiWeb.BotsController do
     Repo.update(changeset)
 
     if status == "processed" do
-      Games.perform_matches
+      AICompetition.perform_training_matches
     end
 
     send_resp(conn, 200, "")

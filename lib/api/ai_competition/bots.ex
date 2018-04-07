@@ -49,6 +49,15 @@ defmodule Api.AICompetition.Bots do
     |> Repo.one
   end
 
+  def current_bot(user, timestamp) do
+    from(b in Bot,
+      where: b.user_id == ^user.id and b.inserted_at <= ^timestamp,
+      order_by: [desc: b.inserted_at],
+      limit: 1
+    )
+    |> Repo.one
+  end
+
   defp submit_to_ai_server(bot, "compile") do
     body = %{
       type: "compile",

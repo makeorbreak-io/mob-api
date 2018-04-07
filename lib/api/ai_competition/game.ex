@@ -10,6 +10,8 @@ defmodule Api.AICompetition.Game do
     field :initial_state, :map
     field :final_state, :map
     field :status, :string
+    field :is_ranked, :boolean
+    field :run, :string
 
     belongs_to :game_template, GameTemplate, foreign_key: :ai_competition_game_template_id
     has_many :game_bots, GameBot, foreign_key: :ai_competition_game_id
@@ -21,7 +23,7 @@ defmodule Api.AICompetition.Game do
   @doc false
   def changeset(%Game{} = ai_game, attrs) do
     ai_game
-    |> cast(attrs, [:status, :initial_state, :final_state])
-    |> validate_required([:status, :initial_state])
+    |> cast(attrs, [:status, :initial_state, :final_state, :is_ranked, :run])
+    |> validate_required([:status, :initial_state, :is_ranked])
   end
 end

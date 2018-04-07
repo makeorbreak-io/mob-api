@@ -3,12 +3,22 @@ defmodule Api.AICompetition.Games do
 
   alias Api.Repo
   alias Api.Accounts.User
-  alias Api.AICompetition.{Game, GameTemplates, GameBot, Bot, Bots}
+  alias Api.AICompetition.{Game, GameBot, Bot}
 
   def get_game(id) do
     Repo.get!(Game, id)
     |> Repo.preload(:game_bots)
     |> Repo.preload(:game_template)
+  end
+
+  def set_result(id) do
+    game = get_game(id)
+
+    game.game_bots
+    |> Enum.map(fn game_bot ->
+      GameBot.changeset(game_bot, %{score: game_performance(game, game_bot.ai_competition_bot_id)})
+      |> Repo.update
+    end)
   end
 
   def user_games(user) do
@@ -24,44 +34,13 @@ defmodule Api.AICompetition.Games do
     Repo.all(games)
   end
 
-  def perform_matches do
-    # users with valid code bots
-    users = from(
-      u in User,
-      join: b in Bot,
-      where:
-        b.user_id == u.id and
-        not is_nil(b.id) and
-        b.status == "processed",
-      order_by: u.id,
-      distinct: u.id
-    )
-    |> Repo.all
-
-    # make pairs of users with valid bots face off against each other
-    user_pairs = users
-    |> Enum.map(fn u1 ->
-      users
-      |> Enum.map(fn u2 ->
-          [u1, u2]
-          |> Enum.sort(&(&1.id < &2.id))
-        end)
-      |> Enum.filter(&(&1 != nil && Enum.at(&1, 0).id != Enum.at(&1, 1).id))
-    end)
-    |> Enum.flat_map(&(&1))
-    |> Enum.uniq
-
-    user_pairs
-    |> Enum.map(fn [u1, u2] -> create_game(u1, u2) end)
-  end
-
-  def create_game(user1, user2) do
-    bot1 = Bots.current_bot(user1)
-    bot2 = Bots.current_bot(user2)
+  def create_game(bot1, bot2, is_ranked, run, template) do
 
     changeset = Game.changeset(%Game{}, %{
       status: "pending",
-      initial_state: GameTemplates.ten_by_ten(bot1, bot2),
+      initial_state: apply(template, [bot1, bot2]),
+      is_ranked: is_ranked,
+      run: run,
     })
 
     case Repo.insert!(changeset) do
@@ -73,6 +52,48 @@ defmodule Api.AICompetition.Games do
 
         {:ok, game}
       {:error, changeset} -> {:error, changeset}
+    end
+  end
+
+  defp day_performance(games, bot_id) do
+    games
+    |> Enum.map(fn game -> game_performance(game, bot_id) end)
+    |> Api.Enum.avg
+  end
+
+  def game_performance(game, bot_id) do
+    all_bot_ids = game.game_bots |> Enum.map(&(&1.ai_competition_bot_id))
+
+    all_scores = all_bot_ids
+    |> Enum.map(fn id -> %{id: id, score: base_points(game, id)} end)
+    |> Enum.sort(fn %{score: score1}, %{score: score2} -> score1 > score2 end)
+    |> Enum.chunk_by(fn %{score: score} -> score end)
+
+    winners = Enum.at(all_scores, 0)
+    winner = Enum.find(winners, fn %{id: id} -> id == bot_id end)
+
+    if winner && winner.score > 0 do
+      if Enum.count(winners) > 1 do
+        winner.score + 5
+      else
+        winner.score + 10
+      end
+    else
+      base_points(game, bot_id)
+    end
+  end
+
+  defp base_points(game, bot_id) do
+    try do
+      score = game.final_state
+      |> Map.fetch!("colors")
+      |> Enum.flat_map(fn c -> c end)
+      |> Enum.map(fn c -> (if c == bot_id, do: 1, else: 0) end)
+      |> Api.Enum.avg
+
+      score * 100 |> trunc
+    rescue
+      Enum.OutOfBoundsError -> 0
     end
   end
 

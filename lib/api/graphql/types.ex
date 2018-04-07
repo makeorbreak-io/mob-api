@@ -17,6 +17,8 @@ defmodule Api.GraphQL.Types do
     field :initial_state, :json
     field :final_state, :json
     field :status, :string
+    field :is_ranked, :boolean
+    field :inserted_at, :naive_datetime
     field :updated_at, :naive_datetime
 
     # field :game_bots, :ai_competition_game_bot, resolve: assoc(:game_bots)
