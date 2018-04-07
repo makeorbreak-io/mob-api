@@ -147,7 +147,7 @@ defmodule ApiWeb.VotingControllerTest do
   #   pv_b_h1 = redeem_paper_vote(create_paper_vote(hardcore, admin), t1, u1, admin)
   #   pv_c_h2 = redeem_paper_vote(create_paper_vote(hardcore, admin), t2, u1, admin)
 
-  #   Competitions.end_voting()
+  #   Competitions.end_suffrage()
   #   conn = get conn, voting_path(conn, :info_end)
   #   assert json_response(conn, 200) ==  %{
   #     "paper_votes" => %{"initial_count" => 9, "final_count" => 9},
@@ -371,7 +371,7 @@ defmodule ApiWeb.VotingControllerTest do
   #     "funny" => [t3.id, t2.id]
   #   }
 
-  #   Competitions.end_voting()
+  #   Competitions.end_suffrage()
 
   #   conn2 = conn0
   #   |> put_req_header("authorization", "Bearer #{jwt}")

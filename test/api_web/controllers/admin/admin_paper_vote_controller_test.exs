@@ -97,7 +97,7 @@ defmodule ApiWeb.Admin.PaperVoteControllerTest do
   # end
 
   # test "redeem error", %{conn: conn, paper_vote: pv, team: t, member: m} do
-  #   Competitions.end_voting()
+  #   Competitions.end_suffrage()
 
   #   conn = post(conn, admin_paper_vote_path(conn, :redeem, pv.id), %{
   #     team_id: t.id,

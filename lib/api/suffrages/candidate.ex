@@ -19,7 +19,7 @@ defmodule Api.Suffrages.Candidate do
   @foreign_key_type :binary_id
   schema "teams_suffrages" do
     field :disqualified_at, :utc_datetime
-    field :eligible, :boolean
+    field :eligible, :boolean, default: false
     field :prize_preference_hmac_secret, :string
     field :prize_preference, {:array, :string}
     field :tie_breaker, :integer

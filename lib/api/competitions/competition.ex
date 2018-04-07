@@ -13,6 +13,7 @@ defmodule Api.Competitions.Competition do
   @foreign_key_type :binary_id
   schema "competitions" do
     field :name, :string
+    # Enum - "created", "started", "ended"
     field :status, :string, default: "created"
 
     has_many :suffrages, Suffrage

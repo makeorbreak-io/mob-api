@@ -7,6 +7,7 @@ defmodule ApiWeb.TestHelper do
   alias Api.Accounts.User
   alias Api.Workshops.{Workshop, Attendance}
   alias Api.Teams.{Team, Membership, Invite}
+  alias Api.Competitions
   alias Api.Competitions.Competition
   alias Api.Suffrages.{Suffrage, Vote, PaperVote}
   alias Api.Competitions.Attendance, as: CompAttendance
@@ -133,25 +134,12 @@ defmodule ApiWeb.TestHelper do
     |> Repo.insert!
   end
 
-  def check_in_everyone(people \\ nil) do
+  def check_in_everyone(competition_id, people \\ nil) do
     people = people || Repo.all(User)
 
     people
     |> Enum.map(fn user ->
-      user
-      |> User.admin_changeset()
-      |> Repo.update!
-    end)
-  end
-
-  def make_teams_eligible(teams \\ nil) do
-    teams = teams || Repo.all(Team)
-
-    teams
-    |> Enum.map(fn team ->
-      team
-      |> Team.admin_changeset(%{eligible: true}, Repo)
-      |> Repo.update!
+      Competitions.toggle_checkin(competition_id, user.id)
     end)
   end
 

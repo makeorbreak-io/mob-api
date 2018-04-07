@@ -1,18 +1,22 @@
 defmodule Api.SuffragesTest do
   use Api.DataCase
 
-  # alias Api.Suffrages
+  alias Api.Suffrages
+  alias Api.Teams.Team
 
   setup do
     member = create_user()
-    team = create_team(member, create_competition())
+    competition = create_competition()
+    create_competition_attendance(competition, member)
+    team = create_team(member, competition)
 
-    [member] = check_in_everyone()
+    [member] = check_in_everyone(competition.id)
 
     {
       :ok,
       %{
-        competition: team.competition,
+        competition: competition,
+        suffrage: create_suffrage(competition),
         admin: create_admin(),
         member: member,
         team: team,
@@ -20,91 +24,115 @@ defmodule Api.SuffragesTest do
     }
   end
 
-  # test "create", %{category: c, admin: a} do
-  #   {:ok, _} = Voting.create_paper_vote(c, a)
-  # end
+  test "before start", %{suffrage: suffrage} do
+     assert Suffrages.suffrage_status(suffrage.id) == :not_started
+  end
 
-  # test "create after end", %{category: c, admin: a} do
-  #   Competitions.start_voting()
-  #   Competitions.end_voting()
+  test "start_suffrage", %{suffrage: suffrage} do
+    {:ok, _} = Suffrages.start_suffrage(suffrage.id)
+    assert Suffrages.suffrage_status(suffrage.id) == :started
+  end
 
-  #   :already_ended = Voting.create_paper_vote(c, a)
-  # end
+  test "end_suffrage", %{suffrage: suffrage} do
+    {:ok, _} = Suffrages.start_suffrage(suffrage.id)
+    {:ok, _} = Suffrages.end_suffrage(suffrage.id)
+    assert Suffrages.suffrage_status(suffrage.id) == :ended
+  end
 
-  # test "redeem", %{category: c, admin: a, member: m, team: t} do
-  #   {:ok, p} = Voting.create_paper_vote(c, a)
-  #   [t] = make_teams_eligible([t])
-  #   Competitions.start_voting()
+  test "start_suffrage twice", %{suffrage: suffrage} do
+    {:ok, _} = Suffrages.start_suffrage(suffrage.id)
+    :already_started = Suffrages.start_suffrage(suffrage.id)
+  end
 
-  #   {:ok, _} = Voting.redeem_paper_vote(p, t, m, a)
-  # end
+  test "end_suffrage without starting", %{suffrage: suffrage} do
+    :not_started = Suffrages.end_suffrage(suffrage.id)
+  end
 
-  # test "redeem not twice", %{category: c, admin: a, member: m, team: t} do
-  #   {:ok, p} = Voting.create_paper_vote(c, a)
-  #   [t] = make_teams_eligible([t])
-  #   Competitions.start_voting()
+  test "end_suffrage twice", %{suffrage: suffrage} do
+    {:ok, _} = Suffrages.start_suffrage(suffrage.id)
+    {:ok, _} = Suffrages.end_suffrage(suffrage.id)
+    :already_ended = Suffrages.end_suffrage(suffrage.id)
+  end
 
-  #   {:ok, p} = Voting.redeem_paper_vote(p, t, m, a)
-  #   :already_redeemed = Voting.redeem_paper_vote(p, t, m, a)
-  # end
+  test "create paper vote", %{suffrage: s, admin: a} do
+    {:ok, _} = Suffrages.create_paper_vote(s, a)
+  end
 
-  # test "redeem not annulled", %{category: c, admin: a, member: m, team: t} do
-  #   {:ok, p} = Voting.create_paper_vote(c, a)
-  #   [t] = make_teams_eligible([t])
-  #   Competitions.start_voting()
+  test "create paper vote after end", %{suffrage: s, admin: a} do
+    Suffrages.start_suffrage(s.id)
+    Suffrages.end_suffrage(s.id)
 
-  #   {:ok, p} = Voting.annul_paper_vote(p, a)
-  #   :annulled = Voting.redeem_paper_vote(p, t, m, a)
-  # end
+    :already_ended = Suffrages.create_paper_vote(s, a)
+  end
 
-  # test "redeem not eligible", %{category: c, admin: a, member: m, team: t} do
-  #   {:ok, p} = Voting.create_paper_vote(c, a)
-  #   # Notice I'm not making teams eligible
-  #   Competitions.start_voting()
+  test "redeem paper vote", %{suffrage: s, admin: a, member: m, team: t} do
+    {:ok, p} = Suffrages.create_paper_vote(s, a)
+    Suffrages.start_suffrage(s.id)
 
-  #   :team_not_eligible = Voting.redeem_paper_vote(p, t, m, a)
-  # end
+    {:ok, _} = Suffrages.redeem_paper_vote(p, t, m, s, a)
+  end
 
-  # test "redeem disqualified", %{category: c, admin: a, member: m, team: t} do
-  #   {:ok, p} = Voting.create_paper_vote(c, a)
-  #   [t] = make_teams_eligible([t])
-  #   Competitions.start_voting()
+  test "redeem paper vote not twice", %{suffrage: s, admin: a, member: m, team: t} do
+    {:ok, p} = Suffrages.create_paper_vote(s, a)
+    Suffrages.start_suffrage(s.id)
 
-  #   Teams.disqualify_team(t.id, a)
-  #   t = Repo.get!(Team, t.id)
+    {:ok, p} = Suffrages.redeem_paper_vote(p, t, m, s, a)
+    :already_redeemed = Suffrages.redeem_paper_vote(p, t, m, s, a)
+  end
 
-  #   :team_disqualified = Voting.redeem_paper_vote(p, t, m, a)
-  # end
+  test "redeem paper vote not annulled", %{suffrage: s, admin: a, member: m, team: t} do
+    {:ok, p} = Suffrages.create_paper_vote(s, a)
+    Suffrages.start_suffrage(s.id)
 
-  # test "redeem before start", %{category: c, admin: a, member: m, team: t} do
-  #   {:ok, p} = Voting.create_paper_vote(c, a)
-  #   [t] = make_teams_eligible([t])
+    {:ok, p} = Suffrages.annul_paper_vote(p, a, s)
+    :annulled = Suffrages.redeem_paper_vote(p, t, m, s, a)
+  end
 
-  #   :not_started = Voting.redeem_paper_vote(p, t, m, a)
-  # end
+  test "redeem paper vote not eligible", %{suffrage: s, admin: a, member: m, team: t} do
+    {:ok, p} = Suffrages.create_paper_vote(s, a)
+    # Notice I'm not making teams eligible
+    Suffrages.start_suffrage(s.id)
 
-  # test "redeem after end", %{category: c, admin: a, member: m, team: t} do
-  #   {:ok, p} = Voting.create_paper_vote(c, a)
-  #   [t] = make_teams_eligible([t])
-  #   Competitions.start_voting()
-  #   Competitions.end_voting()
+    :team_not_eligible = Suffrages.redeem_paper_vote(p, t, m, s, a)
+  end
 
-  #   :already_ended = Voting.redeem_paper_vote(p, t, m, a)
-  # end
+  test "redeem paper vote disqualified", %{suffrage: s, admin: a, member: m, team: t} do
+    {:ok, p} = Suffrages.create_paper_vote(s, a)
+    Suffrages.start_suffrage(s.id)
 
-  # test "annul", %{category: c, admin: a} do
-  #   {:ok, p} = Voting.create_paper_vote(c, a)
-  #   {:ok, _} = Voting.annul_paper_vote(p, a)
-  # end
+    Suffrages.disqualify_team(t, s, a)
+    t = Repo.get!(Team, t.id)
 
-  # test "annul after end", %{category: c, admin: a} do
-  #   {:ok, p} = Voting.create_paper_vote(c, a)
+    :team_disqualified = Suffrages.redeem_paper_vote(p, t, m, s, a)
+  end
 
-  #   Competitions.start_voting()
-  #   Competitions.end_voting()
+  test "redeem paper vote before start", %{suffrage: s, admin: a, member: m, team: t} do
+    {:ok, p} = Suffrages.create_paper_vote(s, a)
 
-  #   :already_ended = Voting.annul_paper_vote(p, a)
-  # end
+    :not_started = Suffrages.redeem_paper_vote(p, t, m, s, a)
+  end
+
+  test "redeem paper vote after end", %{suffrage: s, admin: a, member: m, team: t} do
+    {:ok, p} = Suffrages.create_paper_vote(s, a)
+    Suffrages.start_suffrage(s.id)
+    Suffrages.end_suffrage(s.id)
+
+    :already_ended = Suffrages.redeem_paper_vote(p, t, m, s, a)
+  end
+
+  test "annul paper vote", %{suffrage: s, admin: a} do
+    {:ok, p} = Suffrages.create_paper_vote(s, a)
+    {:ok, _} = Suffrages.annul_paper_vote(p, a, s)
+  end
+
+  test "annul paper vote after end", %{suffrage: s, admin: a} do
+    {:ok, p} = Suffrages.create_paper_vote(s, a)
+
+    Suffrages.start_suffrage(s.id)
+    Suffrages.end_suffrage(s.id)
+
+    :already_ended = Suffrages.annul_paper_vote(p, a, s)
+  end
 end
 
 defmodule Api.VotingTest.CalculatePodium do
@@ -126,9 +154,8 @@ defmodule Api.VotingTest.CalculatePodium do
     u4 = create_user()
     t4 = create_team(u4, c1)
 
-    check_in_everyone()
-    make_teams_eligible()
-    Competitions.start_voting()
+    check_in_everyone(c1.id)
+    Suffrages.start_suffrage()
 
     {
       :ok,

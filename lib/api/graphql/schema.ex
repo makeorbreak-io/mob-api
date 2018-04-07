@@ -22,14 +22,14 @@ defmodule Api.GraphQL.Schema do
 
   import_types Api.GraphQL.Types
 
-  #----------------------------------------------------------------------------- Queries
+  #----------------------------------------------------------------- Queries
   query do
 
     field :me, :user do
       resolve &Resolvers.me/2
     end
 
-    #-------------------------------------------------------------------------- Publicly available information
+    #--------------------------------------------------------------- Publicly available information
     @desc "Single workshop details"
     field :workshop, :workshop do
       arg :slug, non_null(:string)
@@ -60,7 +60,7 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    #-------------------------------------------------------------------------- Participant / non-paginated resources
+    #-------------------------------------------------------- Participant / non-paginated resources
 
     @desc "Single team details"
     field :team, :team do
@@ -89,7 +89,7 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    #-------------------------------------------------------------------------- Admin / dashboard stats
+    #---------------------------------------------------------------------- Admin / dashboard stats
     field :admin_stats, :admin_stats do
       middleware RequireAdmin
 
@@ -98,7 +98,7 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    #-------------------------------------------------------------------------- Admin / Paginated resources
+    #------------------------------------------------------------------ Admin / Paginated resources
     connection field :users, node_type: :user do
       arg :order_by, :string
 
@@ -187,7 +187,7 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    #-------------------------------------------------------------------------- Participant / team & invites
+    #----------------------------------------------------------------- Participant / team & invites
     @desc "Creates a team"
     field :create_team, type: :team do
       arg :team, non_null(:team_input)
@@ -285,7 +285,7 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    #-------------------------------------------------------------------------- Participant / ai competition
+    #----------------------------------------------------------------- Participant / ai competition
     @desc "Creates an AI competition bot"
     field :create_ai_competition_bot, :user do
       arg :bot, non_null(:ai_competition_bot_input)
@@ -299,7 +299,7 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    #-------------------------------------------------------------------------- Participant / workshops
+    #---------------------------------------------------------------------- Participant / workshops
     @desc "Joins a workshop"
     field :join_workshop, :workshop do
       arg :slug, non_null(:string)
@@ -534,7 +534,7 @@ defmodule Api.GraphQL.Schema do
       middleware RequireAdmin
 
       resolve fn %{id: id}, _info ->
-        Suffrages.start_voting(id)
+        Suffrages.start_suffrage(id)
       end
     end
 
@@ -545,7 +545,7 @@ defmodule Api.GraphQL.Schema do
       middleware RequireAdmin
 
       resolve fn %{id: id}, _info ->
-        Suffrages.end_voting(id)
+        Suffrages.end_suffrage(id)
       end
     end
 

@@ -8,6 +8,117 @@ defmodule Api.Suffrages do
   alias Api.Suffrages.{Suffrage, Vote, PaperVote, Candidate, Category}
   alias Ecto.{Multi, Changeset}
 
+  def all_suffrages do
+    Repo.all(Suffrage)
+  end
+
+  def create_suffrage(params) do
+    changeset = Suffrage.changeset(
+      %Suffrage{competition_id: Competitions.default_competition.id},
+      params
+    )
+
+    Repo.insert(changeset)
+  end
+
+  def get_suffrage(id) do
+    Repo.get(Suffrage, id)
+  end
+
+  def update_suffrage(id, params) do
+    suffrage = get_suffrage(id)
+
+    Suffrage.changeset(suffrage, params)
+    |> Repo.update
+  end
+
+  def delete_suffrage(id) do
+    suffrage = get_suffrage(id)
+
+    suffrage
+    |> Repo.delete
+  end
+
+  def suffrage_status(id) do
+    s = get_suffrage(id)
+    now = DateTime.utc_now
+
+    cond do
+      s.voting_ended_at && DateTime.compare(s.voting_ended_at, now) == :lt -> :ended
+      s.voting_started_at && DateTime.compare(s.voting_started_at, now) == :lt -> :started
+      true -> :not_started
+    end
+  end
+
+  def suffrage_voting_started_at(id) do
+    get_suffrage(id).voting_started_at
+  end
+
+  def suffrage_voting_ended_at(id) do
+    get_suffrage(id).voting_ended_at
+  end
+
+  def suffrage_summary(id) do
+    %{
+      status: suffrage_status(id),
+      unredeemed_paper_votes: unredeemed_paper_votes(id),
+      missing_voters: missing_voters(),
+    }
+  end
+
+  def start_suffrage(suffrage_id) do
+    case suffrage_status(suffrage_id) do
+      :not_started ->
+        create_candidates(suffrage_id)
+        assign_tie_breakers(suffrage_id)
+        update_suffrage(suffrage_id, %{voting_started_at: DateTime.utc_now})
+      :started -> :already_started
+      :ended -> :already_ended
+    end
+  end
+
+  def candidates(suffrage_id, at \\ nil) do
+    at = at || DateTime.utc_now
+
+    from(
+      c in Candidate,
+      left_join: t in assoc(c, :team),
+      where: c.suffrage_id == ^suffrage_id,
+      where: is_nil(c.disqualified_at) or c.disqualified_at > ^at,
+      select: c
+    )
+  end
+
+  def create_candidate(params) do
+    changeset = Candidate.changeset(%Candidate{}, params)
+
+    Repo.insert(changeset)
+  end
+
+  def update_candidate(candidate, params) do
+    Candidate.changeset(candidate, params) |> Repo.update()
+  end
+
+  def create_candidates(suffrage_id) do
+    suffrage = Repo.get(Suffrage, suffrage_id)
+    from(t in Team, where: t.competition_id == ^suffrage.competition_id and t.eligible == true)
+    |> Repo.all()
+    |> Enum.each(fn team ->
+      create_candidate(%{team_id: team.id, suffrage_id: suffrage_id})
+    end)
+  end
+
+  def end_suffrage(suffrage_id) do
+    case suffrage_status(suffrage_id) do
+      :not_started -> :not_started
+      :started ->
+        at = DateTime.utc_now
+        resolve_suffrage!(suffrage_id, at)
+        update_suffrage(suffrage_id, %{voting_ended_at: at})
+      :ended -> :already_ended
+    end
+  end
+
   def upsert_votes(user, votes, suffrage_id) do
     multi = Multi.new()
 
@@ -21,7 +132,7 @@ defmodule Api.Suffrages do
       throw {:error, "Invalid vote"}
     end
 
-    case suffrage_voting_status(suffrage_id) do
+    case suffrage_status(suffrage_id) do
       :not_started -> throw {:error, :not_started}
       :ended -> throw {:error, :already_ended}
     end
@@ -70,19 +181,6 @@ defmodule Api.Suffrages do
       },
       teams: candidates(suffrage_id, at) |> Repo.all(),
     }
-  end
-
-  def candidates(suffrage_id, at \\ nil) do
-    at = at || DateTime.utc_now
-
-    from(
-      c in Candidate,
-      left_join: t in assoc(c, :team),
-      where: c.suffrage_id == ^suffrage_id,
-      where: c.eligible == true,
-      where: is_nil(c.disqualified_at) or c.disqualified_at > ^at,
-      select: t
-    )
   end
 
   def voters(suffrage_id, at \\ nil) do
@@ -191,34 +289,29 @@ defmodule Api.Suffrages do
     (paper_votes ++ votes)
   end
 
-  def resolve_voting!(at \\ nil) do
-    Enum.map(
-      Repo.all(Category),
-      fn c ->
-        c
-        |> Changeset.change(podium: calculate_podium(c, at))
-        |> Repo.update!
-      end
-    )
+  def resolve_suffrage!(suffrage_id, at \\ nil) do
+    get_suffrage(suffrage_id)
+    |> Changeset.change(podium: calculate_podium(suffrage_id, at))
+    |> Repo.update!
   end
 
-  def calculate_podium(suffrage, at \\ nil) do
-    candidates = candidates(suffrage, at)
+  def calculate_podium(suffrage_id, at \\ nil) do
+    candidates = candidates(suffrage_id, at)
     |> Repo.all()
 
     valid_team_ids =
       candidates
-      |> Enum.map(&(&1.id))
+      |> Enum.map(&(&1.team_id))
 
     votes =
-      ballots(suffrage, at)
+      ballots(suffrage_id, at)
       |> clean_votes_into_ballots(valid_team_ids)
 
     tie_breakers =
       candidates
       |> Map.new(fn t ->
         {
-          t.id,
+          t.team_id,
           t.tie_breaker,
         }
       end)
@@ -301,7 +394,7 @@ defmodule Api.Suffrages do
   end
 
   def create_paper_vote(suffrage, admin) do
-    case suffrage_voting_status(suffrage.id) do
+    case suffrage_status(suffrage.id) do
       :ended -> :already_ended
       _ ->
         {
@@ -316,16 +409,22 @@ defmodule Api.Suffrages do
     end
   end
 
-  def redeem_paper_vote(paper_vote, team, member, admin, at \\ nil) do
+  def redeem_paper_vote(paper_vote, team, member, suffrage, admin, at \\ nil) do
     at = at || DateTime.utc_now
 
+    candidate = from(
+      c in Candidate,
+      where: c.team_id == ^team.id,
+      where: c.suffrage_id == ^suffrage.id,
+      where: is_nil(c.disqualified_at)
+    ) |> Repo.one()
+
     cond do
-      !team.eligible -> :team_not_eligible
-      team.disqualified_at -> :team_disqualified
+      candidate.disqualified_at -> :team_disqualified
       paper_vote.redeemed_at -> :already_redeemed
       paper_vote.annulled_at -> :annulled
-      suffrage_voting_status(paper_vote.suffrage_id) == :not_started -> :not_started
-      suffrage_voting_status(paper_vote.suffrage_id) == :ended -> :already_ended
+      suffrage_status(paper_vote.suffrage_id) == :not_started -> :not_started
+      suffrage_status(paper_vote.suffrage_id) == :ended -> :already_ended
       true ->
         {
           :ok,
@@ -344,7 +443,7 @@ defmodule Api.Suffrages do
   def annul_paper_vote(paper_vote, admin, suffrage, at \\ nil) do
     at = at || DateTime.utc_now
 
-    case suffrage_voting_status(suffrage.id) do
+    case suffrage_status(suffrage.id) do
       :ended -> :already_ended
       _ ->
         {
@@ -360,154 +459,28 @@ defmodule Api.Suffrages do
     end
   end
 
-  def all_suffrages do
-    Repo.all(Suffrage)
-  end
-
-  def create_suffrage(params) do
-    changeset = Suffrage.changeset(
-      %Suffrage{competition_id: Competitions.default_competition.id},
-      params
-    )
-
-    Repo.insert(changeset)
-  end
-
-  def get_suffrage(id) do
-    Repo.get(Suffrage, id)
-  end
-
-  def update_suffrage(id, params) do
-    suffrage = get_suffrage(id)
-
-    Suffrage.changeset(suffrage, params)
-    |> Repo.update
-  end
-
-  def delete_suffrage(id) do
-    suffrage = get_suffrage(id)
-
-    suffrage
-    |> Repo.delete
-  end
-
-  def suffrage_voting_status(id) do
-    s = get_suffrage(id)
-    now = DateTime.utc_now
-
-    cond do
-      s.voting_ended_at && DateTime.compare(s.voting_ended_at, now) == :lt -> :ended
-      s.voting_started_at && DateTime.compare(s.voting_started_at, now) == :lt -> :started
-      true -> :not_started
-    end
-  end
-
-  def suffrage_voting_started_at(id) do
-    get_suffrage(id).voting_started_at
-  end
-
-  def suffrage_voting_ended_at(id) do
-    get_suffrage(id).voting_ended_at
-  end
-
-  def suffrage_status(id) do
-    %{
-      voting_status: suffrage_voting_status(id),
-      unredeemed_paper_votes: unredeemed_paper_votes(id),
-      missing_voters: missing_voters(),
-    }
-  end
-
-  def start_voting(suffrage_id) do
-    case suffrage_voting_status(suffrage_id) do
-      :not_started ->
-        shuffle_tie_breakers()
-        assign_missing_preferences()
-        update_suffrage(suffrage_id, %{voting_started_at: DateTime.utc_now})
-      :started -> :already_started
-      :ended -> :already_ended
-    end
-  end
-
-  def end_voting(suffrage_id) do
-    case suffrage_voting_status(suffrage_id) do
-      :not_started -> :not_started
-      :started ->
-        at = DateTime.utc_now
-        resolve_voting!(at)
-        # update(id, %{voting_ended_at: at})
-      :ended -> :already_ended
-    end
-  end
-
-  def disqualify_team(team_id, suffrage_id, admin_id) do
+  def disqualify_team(team, suffrage, admin) do
     from(
       c in Candidate,
-      where: c.team_id == ^team_id,
-      where: c.suffrage_id == ^suffrage_id,
+      where: c.team_id == ^team.id,
+      where: c.suffrage_id == ^suffrage.id,
       where: is_nil(c.disqualified_at),
       update: [set: [
         disqualified_at: ^(DateTime.utc_now),
-        disqualified_by_id: ^(admin_id),
+        disqualified_by_id: ^(admin.id),
       ]]
     )
     |> Repo.update_all([])
   end
 
-  def shuffle_tie_breakers do
-    teams = Repo.all(from t in Team)
+  def assign_tie_breakers(suffrage_id) do
+    candidates = candidates(suffrage_id) |> Repo.all()
 
-    multi = Multi.new
+    tie_breakers = 1..Enum.count(candidates) |> Enum.shuffle()
 
-    # I can't update the tie breakers to their intended value on just one pass.
-    # Consider the case where you have two teams, A and B, with tie breakers 1
-    # and 2, respectively. If we decide that team A gets the tie breaker 2,
-    # on the fisrt update, the BD will complain that both A and B have the tie
-    # breaker 1. In order to get around that, we make them all negative first,
-    # and only assign the new tie breakers after that. Since we know the new
-    # tie breakers won't ever be negative, this gets rid of all conflicts.
-    multi =
-      Enum.reduce(
-        teams,
-        multi,
-        fn team, multi ->
-          Multi.update(
-            multi,
-            "#{team.id} to negative",
-            Changeset.change(team, tie_breaker: -1 * team.tie_breaker)
-          )
-        end
-      )
-
-    multi =
-      Enum.reduce(
-        Enum.zip([
-          teams,
-          (1..Enum.count(teams)) |> Enum.shuffle
-        ]),
-        multi,
-        fn {team, new_tb}, multi ->
-          Multi.update(
-            multi,
-            "#{team.id} to shuffled",
-            team
-            |> Changeset.change()
-            |> Changeset.force_change(:tie_breaker, new_tb)
-          )
-        end
-      )
-
-    Repo.transaction(multi)
-  end
-
-  def assign_missing_preferences do
-    cats = Repo.all(Category) |> Enum.map(&(&1.name))
-
-    Repo.all(from(t in Team, where: is_nil(t.prize_preference)))
-    |> Enum.map(fn t ->
-      t
-      |> Changeset.change(prize_preference: cats |> Enum.shuffle)
-      |> Repo.update!
+    Enum.each(candidates, fn candidate ->
+      {number, tie_breakers} = List.pop_at(tie_breakers, 0)
+      update_candidate(candidate, %{tie_breaker: number})
     end)
   end
 end

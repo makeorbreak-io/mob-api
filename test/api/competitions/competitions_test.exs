@@ -100,34 +100,4 @@ defmodule Api.CompetitionsTest do
 
     assert a2.checked_in == false
   end
-
-  # test "before start" do
-  #   assert Competitions.voting_status == :not_started
-  # end
-
-  # test "start_voting" do
-  #   {:ok, _} = Competitions.start_voting()
-  #   assert Competitions.voting_status == :started
-  # end
-
-  # test "end_voting" do
-  #   {:ok, _} = Competitions.start_voting()
-  #   {:ok, _} = Competitions.end_voting()
-  #   assert Competitions.voting_status == :ended
-  # end
-
-  # test "start_voting twice" do
-  #   {:ok, _} = Competitions.start_voting()
-  #   :already_started = Competitions.start_voting()
-  # end
-
-  # test "end_voting without starting" do
-  #   :not_started = Competitions.end_voting()
-  # end
-
-  # test "end_voting twice" do
-  #   {:ok, _} = Competitions.start_voting()
-  #   {:ok, _} = Competitions.end_voting()
-  #   :already_ended = Competitions.end_voting()
-  # end
 end
