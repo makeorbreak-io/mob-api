@@ -339,25 +339,25 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    @desc "Send emails to users that haven't applied to the hackathon yet"
-    field :send_not_applied_emails, :string do
-      middleware RequireAdmin
+    # @desc "Send emails to users that haven't applied to the hackathon yet"
+    # field :send_not_applied_emails, :string do
+    #   middleware RequireAdmin
 
-      resolve fn _args, _info ->
-        Competitions.send_not_applied_email
-        {:ok, ""}
-      end
-    end
+    #   resolve fn _args, _info ->
+    #     Competitions.send_not_applied_email
+    #     {:ok, ""}
+    #   end
+    # end
 
-    @desc "Send food allergies inquiry emails"
-    field :send_food_allergies_emails, :string do
-      middleware RequireAdmin
+    # @desc "Send food allergies inquiry emails"
+    # field :send_food_allergies_emails, :string do
+    #   middleware RequireAdmin
 
-      resolve fn _args, _info ->
-        Competitions.send_food_allergies_email
-        {:ok, ""}
-      end
-    end
+    #   resolve fn _args, _info ->
+    #     Competitions.send_food_allergies_email
+    #     {:ok, ""}
+    #   end
+    # end
 
     @desc "Makes a user admin (admin only)"
     field :make_admin, :user do
@@ -435,6 +435,21 @@ defmodule Api.GraphQL.Schema do
       resolve fn %{id: id}, _info ->
         Teams.delete_any_team(id)
         {:ok, id}
+      end
+    end
+
+    @desc "Runs AI Competition ranked games"
+    field :perform_ranked_ai_games, :string do
+      arg :name, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{name: name}, _info ->
+        %{timestamp: timestamp, templates: templates} = AICompetition.ranked_match_config(name)
+
+        AICompetition.perform_ranked_matches(name, timestamp, templates)
+
+        {:ok, ""}
       end
     end
 

@@ -18,8 +18,9 @@ defmodule Api.GraphQL.Types do
     field :final_state, :json
     field :status, :string
     field :is_ranked, :boolean
-    field :inserted_at, :naive_datetime
-    field :updated_at, :naive_datetime
+    field :run, :string
+    field :inserted_at, :utc_datetime
+    field :updated_at, :utc_datetime
 
     # field :game_bots, :ai_competition_game_bot, resolve: assoc(:game_bots)
     field :bots, list_of(:ai_competition_bot), resolve: assoc(:bots)
@@ -42,7 +43,7 @@ defmodule Api.GraphQL.Types do
     field :title, :string
     field :compilation_output, :string
     field :revision, :integer
-    field :inserted_at, :naive_datetime
+    field :inserted_at, :utc_datetime
 
     field :author, :json do
       resolve fn _args, %{source: source} ->
