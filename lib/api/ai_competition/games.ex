@@ -22,16 +22,24 @@ defmodule Api.AICompetition.Games do
   end
 
   def user_games(user) do
-    games = from(
+    unranked = from(
       g in Game,
       join: gb in GameBot, where: gb.ai_competition_game_id == g.id,
       join: b in Bot, where: b.id == gb.ai_competition_bot_id and b.user_id == ^user.id,
-      where: g.status == "processed",
+      where: g.status == "processed" and g.is_ranked == false,
       order_by: [desc: g.updated_at],
       limit: 50
     )
 
-    Repo.all(games)
+    ranked = from(
+      g in Game,
+      join: gb in GameBot, where: gb.ai_competition_game_id == g.id,
+      join: b in Bot, where: b.id == gb.ai_competition_bot_id and b.user_id == ^user.id,
+      where: g.status == "processed" and g.is_ranked == true,
+      order_by: [desc: g.updated_at],
+    )
+
+    Repo.all(unranked) ++ Repo.all(ranked)
   end
 
   def create_game(bot1, bot2, is_ranked, run, template) do
