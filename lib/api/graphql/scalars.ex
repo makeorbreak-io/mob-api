@@ -19,7 +19,7 @@ defmodule Api.GraphQL.Scalars do
     serialize fn x -> x end
   end
 
-  scalar :utc_datetime, name: "UTC Datetime" do
+  scalar :utc_datetime, name: "UTCDatetime" do
     description """
       Represents a datetime in UTC
     """
