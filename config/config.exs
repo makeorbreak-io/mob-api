@@ -65,7 +65,7 @@ config :sentry,
 # https://github.com/quantum-elixir/quantum-core
 config :api, Api.Scheduler,
   jobs: [
-    {"*/30 * * * *", &Api.AICompetition.perform_training_matches/0}, # run games every 30 minutes
+    {"@hourly", &Api.AICompetition.perform_training_matches/0}, # run games every 30 minutes
   ]
 
 
