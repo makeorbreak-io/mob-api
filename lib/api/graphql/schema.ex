@@ -15,7 +15,7 @@ defmodule Api.GraphQL.Schema do
   alias Api.Teams.{Team}
   alias Api.Competitions
   alias Api.AICompetition
-  alias Api.AICompetition.{Games, Bots}
+  alias Api.AICompetition.{Games, Bots, Bot}
   alias Api.Stats
   alias Api.Workshops
   alias Api.Workshops.{Workshop}
@@ -112,6 +112,40 @@ defmodule Api.GraphQL.Schema do
       middleware RequireAdmin
 
       resolve Resolvers.all(Team)
+    end
+
+    field :bot, :ai_competition_bot do
+      arg :id, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve Resolvers.by_id(Bot)
+    end
+
+    field :bots, list_of(:ai_competition_bot) do
+      middleware RequireAdmin
+
+      resolve fn _args, _info ->
+        bots =
+        AICompetition.users_with_valid_bots
+        |> Enum.map(&(Bots.current_bot(&1)))
+
+        {:ok, bots}
+      end
+    end
+
+    field :run_bots, list_of(:ai_competition_bot) do
+      arg :run_name, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{run_name: run_name}, _info ->
+        bots =
+        AICompetition.users_with_valid_bots
+        |> Enum.map(&(Bots.current_bot(&1, AICompetition.ranked_match_config(run_name).timestamp)))
+
+        {:ok, bots}
+      end
     end
   end
 

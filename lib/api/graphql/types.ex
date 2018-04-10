@@ -58,7 +58,7 @@ defmodule Api.GraphQL.Types do
     # source code can only be shown to their respective authors
     field :source_code, :string do
       resolve fn _args, %{source: source, context: %{current_user: current_user}} ->
-        if source.user_id == current_user.id do
+        if source.user_id == current_user.id || current_user.role == "admin" do
           {:ok, source.source_code}
         else
           {:ok, nil}
