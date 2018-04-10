@@ -110,9 +110,10 @@ defmodule Api.Accounts.User do
   def can_apply_to_workshops(user) do
     user = Repo.preload(user, [:workshops, :teams])
 
-    (Enum.any?(
-      user.teams, fn team -> team.applied == true &&
-    end) && Enum.count(user.workshops, fn(w) -> w.year == DateTime.utc_now.year end) < 2) || true
+    (
+      Enum.any?(user.teams, fn team -> team.applied == true && team.accepted == true end) &&
+      Enum.count(user.workshops, fn(w) -> w.year == DateTime.utc_now.year end) < 2
+    ) || true
   end
 
   def can_apply_to_hackathon(user) do
