@@ -15,10 +15,6 @@ defmodule ApiWeb.BotsController do
 
     Repo.update(changeset)
 
-    if status == "processed" do
-      AICompetition.perform_training_matches
-    end
-
     send_resp(conn, 200, "")
   end
 
