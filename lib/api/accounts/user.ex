@@ -111,14 +111,14 @@ defmodule Api.Accounts.User do
     user = Repo.preload(user, [:workshops, :teams])
 
     (Enum.any?(
-      user.teams, fn team -> team.applied == true
-    end) && Enum.count(user.workshops) < 2) || true
+      user.teams, fn team -> team.applied == true &&
+    end) && Enum.count(user.workshops, fn(w) -> w.year == DateTime.utc_now.year end) < 2) || true
   end
 
   def can_apply_to_hackathon(user) do
     user = Repo.preload(user, :workshops)
 
-    Enum.count(user.workshops) <= 2
+    Enum.count(user.workshops, fn(w) -> w.year == DateTime.utc_now.year end) <= 2
   end
 
   # generate password recovery token
