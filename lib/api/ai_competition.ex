@@ -109,6 +109,7 @@ defmodule Api.AICompetition do
         join: gb in assoc(g, :game_bots),
         where:
           g.is_ranked == true and
+          g.status == "processed" and
           g.run == ^run_name and
           gb.ai_competition_bot_id == ^bot.id,
         preload: [:game_bots]
@@ -128,7 +129,7 @@ defmodule Api.AICompetition do
       player = %{
         name: User.display_name(user),
         bot: "#{bot.title} (rev. #{bot.revision})",
-        day_performance: ranks |> Enum.map(&(&1.mine)) |> Api.Enum.avg,
+        day_performance: ranks |> Enum.map(&(&1.mine)) |> Enum.filter(fn x -> x != nil end) |> Api.Enum.avg,
         matches: games |> Enum.count,
       }
 
@@ -149,7 +150,13 @@ defmodule Api.AICompetition do
     end)
     |> Enum.sort_by(&(-&1.day_performance))
     |> Enum.scan(%{ idx: 0, rank: 0, day_performance: 0 }, fn(player, %{idx: idx, rank: rank, day_performance: score}) ->
-      Map.merge(player, %{rank: (if (player.day_performance < score), do: idx, else: rank), idx: idx + 1 })
+      rank = if (player.day_performance < score), do: idx, else: rank
+
+      Map.merge(player, %{
+        rank: rank,
+        idx: idx + 1,
+        bonus_points: day_performance_bonus(run_name) |> Enum.at(rank),
+      })
     end)
   end
 
