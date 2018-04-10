@@ -58,7 +58,7 @@ defmodule Api.AICompetition.Bots do
     |> Repo.one
   end
 
-  defp submit_to_ai_server(bot, "compile") do
+  def submit_to_ai_server(bot, "compile") do
     body = %{
       type: "compile",
       payload: %{

@@ -63,7 +63,7 @@ defmodule Api.AICompetition.Games do
     end
   end
 
-  defp day_performance(games, bot_id) do
+  def day_performance(games, bot_id) do
     games
     |> Enum.map(fn game -> game_performance(game, bot_id) end)
     |> Api.Enum.avg
@@ -91,7 +91,7 @@ defmodule Api.AICompetition.Games do
     end
   end
 
-  defp base_points(game, bot_id) do
+  def base_points(game, bot_id) do
     try do
       score = game.final_state
       |> Map.fetch!("colors")
@@ -105,7 +105,7 @@ defmodule Api.AICompetition.Games do
     end
   end
 
-  defp submit_to_ai_server(game, "compete") do
+  def submit_to_ai_server(game, "compete") do
     body = %{
       type: "compete",
       payload: %{
