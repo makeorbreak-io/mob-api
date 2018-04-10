@@ -61,6 +61,13 @@ config :sentry,
   enable_source_code_context: true,
   root_source_code_path: File.cwd!
 
+# Quantum scheduler config
+# https://github.com/quantum-elixir/quantum-core
+config :api, Api.Scheduler,
+  jobs: [
+    {"*/30 * * * *", &Api.AICompetition.perform_training_matches/0}, # run games every 30 minutes
+  ]
+
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

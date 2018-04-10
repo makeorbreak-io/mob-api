@@ -87,8 +87,10 @@ defmodule Api.Mixfile do
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:poison, ">= 2.2.0"},
       {:postgrex, "~> 0.13.3"},
+      {:quantum, "~> 2.2"},
       {:sentry, "~> 5.0.1"},
       {:tentacat, "~> 0.6.2"},
+      {:timex, "~> 3.0"},
     ]
   end
 
