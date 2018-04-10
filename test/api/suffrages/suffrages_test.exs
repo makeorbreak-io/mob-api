@@ -10,7 +10,7 @@ defmodule Api.SuffragesTest do
     create_competition_attendance(competition, member)
     team = create_team(member, competition)
 
-    [member] = check_in_everyone(competition.id)
+    check_in_everyone(competition.id)
 
     {
       :ok,
@@ -65,15 +65,20 @@ defmodule Api.SuffragesTest do
     :already_ended = Suffrages.create_paper_vote(s, a)
   end
 
-  test "redeem paper vote", %{suffrage: s, admin: a, member: m, team: t} do
+  test "redeem paper vote", %{suffrage: s, admin: a, member: m, team: t, competition: c} do
     {:ok, p} = Suffrages.create_paper_vote(s, a)
+
+    make_teams_eligible(c.id)
     Suffrages.start_suffrage(s.id)
 
     {:ok, _} = Suffrages.redeem_paper_vote(p, t, m, s, a)
   end
 
-  test "redeem paper vote not twice", %{suffrage: s, admin: a, member: m, team: t} do
+  test "redeem paper vote not twice",
+    %{suffrage: s, admin: a, member: m, team: t, competition: c} do
     {:ok, p} = Suffrages.create_paper_vote(s, a)
+
+    make_teams_eligible(c.id)
     Suffrages.start_suffrage(s.id)
 
     {:ok, p} = Suffrages.redeem_paper_vote(p, t, m, s, a)
@@ -93,7 +98,7 @@ defmodule Api.SuffragesTest do
     # Notice I'm not making teams eligible
     Suffrages.start_suffrage(s.id)
 
-    :team_not_eligible = Suffrages.redeem_paper_vote(p, t, m, s, a)
+    :team_not_candidate = Suffrages.redeem_paper_vote(p, t, m, s, a)
   end
 
   test "redeem paper vote disqualified", %{suffrage: s, admin: a, member: m, team: t} do
@@ -103,7 +108,7 @@ defmodule Api.SuffragesTest do
     Suffrages.disqualify_team(t, s, a)
     t = Repo.get!(Team, t.id)
 
-    :team_disqualified = Suffrages.redeem_paper_vote(p, t, m, s, a)
+    Suffrages.redeem_paper_vote(p, t, m, s, a)
   end
 
   test "redeem paper vote before start", %{suffrage: s, admin: a, member: m, team: t} do
@@ -135,27 +140,31 @@ defmodule Api.SuffragesTest do
   end
 end
 
-defmodule Api.VotingTest.CalculatePodium do
+defmodule Api.SuffragesTest.CalculatePodium do
   use Api.DataCase
 
-  alias Api.Competitions
+  alias Api.Suffrages
+  alias Api.Competittions
 
   setup do
     c1 = create_competition()
-    u1 = create_user()
+    u1 = create_user_with_attendance(c1)
     t1 = create_team(u1, c1)
 
-    u2 = create_user()
+    u2 = create_user_with_attendance(c1)
     t2 = create_team(u2, c1)
 
-    u3 = create_user()
+    u3 = create_user_with_attendance(c1)
     t3 = create_team(u3, c1)
 
-    u4 = create_user()
+    u4 = create_user_with_attendance(c1)
     t4 = create_team(u4, c1)
 
     check_in_everyone(c1.id)
-    Suffrages.start_suffrage()
+    make_teams_eligible(c1.id)
+
+    {:ok, s1} = Suffrages.create_suffrage(c1)
+    Suffrages.start_suffrage(s1.id)
 
     {
       :ok,
@@ -167,88 +176,104 @@ defmodule Api.VotingTest.CalculatePodium do
         t2: t2,
         t3: t3,
         t4: t4,
+        c1: c1,
+        s1: s1
       },
     }
   end
 
-  # test "calculate_podium", %{t1: t1, t2: t2, t3: t3, t4: t4} do
-  #   cat = create_category()
-  #   create_vote(create_user(), cat.name, [t1.id, t2.id])
-  #   create_vote(create_user(), cat.name, [t1.id])
-  #   create_vote(create_user(), cat.name, [t1.id])
-  #   create_vote(create_user(), cat.name, [t2.id])
-  #   create_vote(create_user(), cat.name, [t2.id])
-  #   create_vote(create_user(), cat.name, [t3.id])
-  #   create_vote(create_user(), cat.name, [t3.id])
-  #   create_vote(create_user(), cat.name, [t4.id])
+  test "calculate_podium", %{c1: c1, t1: t1, t2: t2, t3: t3, t4: t4, s1: s1} do
+    create_vote(create_user(), s1, [t1.id, t2.id])
+    create_vote(create_user(), s1, [t1.id])
+    create_vote(create_user(), s1, [t1.id])
+    create_vote(create_user(), s1, [t2.id])
+    create_vote(create_user(), s1, [t2.id])
+    create_vote(create_user(), s1, [t3.id])
+    create_vote(create_user(), s1, [t3.id])
+    create_vote(create_user(), s1, [t4.id])
 
-  #   check_in_everyone()
-  #   assert Voting.calculate_podium(cat) == [
-  #     t1.id,
-  #     t2.id,
-  #     t3.id,
-  #   ]
-  # end
+    check_in_everyone(c1.id)
+    make_teams_eligible(c1.id)
+    Suffrages.start_suffrage(s1.id)
 
-  # test "calculate_podium tie", %{t1: t1, t2: t2, t3: t3} do
-  #   cat = create_category()
-  #   create_vote(create_user(), cat.name, [t1.id])
-  #   create_vote(create_user(), cat.name, [t1.id])
-  #   create_vote(create_user(), cat.name, [t2.id])
-  #   create_vote(create_user(), cat.name, [t2.id])
-  #   create_vote(create_user(), cat.name, [t3.id])
+    assert Suffrages.calculate_podium(s1.id) == [
+      t1.id,
+      t2.id,
+      t3.id,
+    ]
+  end
 
-  #   Changeset.change(t3, tie_breaker: 0) |> Repo.update!
-  #   Changeset.change(t2, tie_breaker: 10) |> Repo.update!
-  #   Changeset.change(t1, tie_breaker: 20) |> Repo.update!
+  test "calculate_podium tie", %{c1: c1, t1: t1, t2: t2, t3: t3, s1: s1} do
+    create_vote(create_user(), s1, [t1.id])
+    create_vote(create_user(), s1, [t1.id])
+    create_vote(create_user(), s1, [t2.id])
+    create_vote(create_user(), s1, [t2.id])
+    create_vote(create_user(), s1, [t3.id])
 
-  #   check_in_everyone()
-  #   assert Voting.calculate_podium(cat) == [
-  #     t2.id,
-  #     t1.id,
-  #     t3.id,
-  #   ]
-  # end
+    Changeset.change(t3, tie_breaker: 0) |> Repo.update!
+    Changeset.change(t2, tie_breaker: 10) |> Repo.update!
+    Changeset.change(t1, tie_breaker: 20) |> Repo.update!
 
-  # test "resolve_voting", %{t1: t1, t2: t2, t3: t3} do
-  #   create_vote(create_user(), "useful", [t1.id])
-  #   create_vote(create_user(), "useful", [t1.id])
-  #   create_vote(create_user(), "useful", [t1.id])
-  #   create_vote(create_user(), "useful", [t2.id])
-  #   create_vote(create_user(), "useful", [t2.id])
-  #   create_vote(create_user(), "useful", [t3.id])
+    check_in_everyone(c1.id)
+    make_teams_eligible(c1.id)
+    Suffrages.start_suffrage(s1.id)
 
-  #   create_vote(create_user(), "funny", [t1.id])
-  #   create_vote(create_user(), "funny", [t2.id])
-  #   create_vote(create_user(), "funny", [t2.id])
-  #   create_vote(create_user(), "funny", [t2.id])
-  #   create_vote(create_user(), "funny", [t3.id])
-  #   create_vote(create_user(), "funny", [t3.id])
+    assert Suffrages.calculate_podium(s1.id) == [
+      t2.id,
+      t1.id,
+      t3.id,
+    ]
+  end
 
-  #   create_vote(create_user(), "hardcore", [t1.id])
-  #   create_vote(create_user(), "hardcore", [t1.id])
-  #   create_vote(create_user(), "hardcore", [t2.id])
-  #   create_vote(create_user(), "hardcore", [t3.id])
-  #   create_vote(create_user(), "hardcore", [t3.id])
-  #   create_vote(create_user(), "hardcore", [t3.id])
+  test "resolve_voting", %{t1: t1, t2: t2, t3: t3, c1: c1, s1: s1} do
+    s2 = create_suffrage(c1)
+    s3 = create_suffrage(c1)
+    create_vote(create_user_with_attendance(c1), s1, [t1.id])
+    create_vote(create_user_with_attendance(c1), s1, [t1.id])
+    create_vote(create_user_with_attendance(c1), s1, [t1.id])
+    create_vote(create_user_with_attendance(c1), s1, [t2.id])
+    create_vote(create_user_with_attendance(c1), s1, [t2.id])
+    create_vote(create_user_with_attendance(c1), s1, [t3.id])
 
-  #   check_in_everyone()
-  #   Voting.resolve_voting!
+    create_vote(create_user_with_attendance(c1), s2, [t1.id])
+    create_vote(create_user_with_attendance(c1), s2, [t2.id])
+    create_vote(create_user_with_attendance(c1), s2, [t2.id])
+    create_vote(create_user_with_attendance(c1), s2, [t2.id])
+    create_vote(create_user_with_attendance(c1), s2, [t3.id])
+    create_vote(create_user_with_attendance(c1), s2, [t3.id])
 
-  #   assert Repo.get_by!(Category, name: "useful").podium == [
-  #     t1.id,
-  #     t2.id,
-  #     t3.id,
-  #   ]
-  #   assert Repo.get_by!(Category, name: "funny").podium == [
-  #     t2.id,
-  #     t3.id,
-  #     t1.id,
-  #   ]
-  #   assert Repo.get_by!(Category, name: "hardcore").podium == [
-  #     t3.id,
-  #     t1.id,
-  #     t2.id,
-  #   ]
-  # end
+    create_vote(create_user_with_attendance(c1), s3, [t1.id])
+    create_vote(create_user_with_attendance(c1), s3, [t1.id])
+    create_vote(create_user_with_attendance(c1), s3, [t2.id])
+    create_vote(create_user_with_attendance(c1), s3, [t3.id])
+    create_vote(create_user_with_attendance(c1), s3, [t3.id])
+    create_vote(create_user_with_attendance(c1), s3, [t3.id])
+
+    check_in_everyone(c1.id)
+    make_teams_eligible(c1.id)
+    Suffrages.start_suffrage(s1.id)
+    Suffrages.resolve_suffrage!(s1.id)
+
+    Suffrages.start_suffrage(s2.id)
+    Suffrages.resolve_suffrage!(s2.id)
+
+    Suffrages.start_suffrage(s3.id)
+    Suffrages.resolve_suffrage!(s3.id)
+
+    assert Repo.get(s1.id).podium == [
+      t1.id,
+      t2.id,
+      t3.id,
+    ]
+    assert Repo.get(s2.id).podium == [
+      t2.id,
+      t3.id,
+      t1.id,
+    ]
+    assert Repo.get(s3.id).podium == [
+      t3.id,
+      t1.id,
+      t2.id,
+    ]
+  end
 end

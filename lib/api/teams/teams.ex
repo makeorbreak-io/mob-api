@@ -51,9 +51,6 @@ defmodule Api.Teams do
   def update_any_team(id, team_params) do
     team = get_team(id)
 
-    {_, team_params} = Map.pop(team_params, :eligible)
-    {_, team_params} = Map.pop(team_params, "eligible")
-
     Team.admin_changeset(team, team_params)
     |> email_if_applying(team)
     |> email_if_accepted(team)

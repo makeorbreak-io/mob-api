@@ -14,7 +14,7 @@ defmodule Api.Teams.Team do
     competition_id
   )a
 
-  @admin_attrs @valid_attrs ++ ~w(repo accepted)a
+  @admin_attrs @valid_attrs ++ ~w(repo accepted eligible)a
 
   @required_attrs ~w(
     name
@@ -28,6 +28,7 @@ defmodule Api.Teams.Team do
     field :repo, :map
     field :applied, :boolean, default: false
     field :accepted, :boolean, default: false
+    field :eligible, :boolean, default: false
     field :project_name, :string
     field :project_desc, :string
     field :technologies, {:array, :string}

@@ -101,7 +101,7 @@ defmodule Api.Suffrages do
 
   def create_candidates(suffrage_id) do
     suffrage = Repo.get(Suffrage, suffrage_id)
-    from(t in Team, where: t.competition_id == ^suffrage.competition_id and t.eligible == true)
+    from(t in Team, where: t.competition_id == ^suffrage.competition_id and t.eligible == ^true)
     |> Repo.all()
     |> Enum.each(fn team ->
       create_candidate(%{team_id: team.id, suffrage_id: suffrage_id})
@@ -420,11 +420,12 @@ defmodule Api.Suffrages do
     ) |> Repo.one()
 
     cond do
-      candidate.disqualified_at -> :team_disqualified
-      paper_vote.redeemed_at -> :already_redeemed
-      paper_vote.annulled_at -> :annulled
       suffrage_status(paper_vote.suffrage_id) == :not_started -> :not_started
       suffrage_status(paper_vote.suffrage_id) == :ended -> :already_ended
+      paper_vote.redeemed_at -> :already_redeemed
+      paper_vote.annulled_at -> :annulled
+      is_nil(candidate) -> :team_not_candidate
+      !is_nil(candidate.disqualified_at) -> :team_disqualified
       true ->
         {
           :ok,

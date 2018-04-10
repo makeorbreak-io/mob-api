@@ -3,12 +3,15 @@ ExUnit.start
 Ecto.Adapters.SQL.Sandbox.mode(Api.Repo, :manual)
 
 defmodule ApiWeb.TestHelper do
+  import Ecto.Query, warn: false
+
   alias Api.Repo
   alias Api.Accounts.User
   alias Api.Workshops.{Workshop, Attendance}
   alias Api.Teams.{Team, Membership, Invite}
   alias Api.Competitions
   alias Api.Competitions.Competition
+  alias Api.Teams
   alias Api.Suffrages.{Suffrage, Vote, PaperVote}
   alias Api.Competitions.Attendance, as: CompAttendance
 
@@ -46,6 +49,18 @@ defmodule ApiWeb.TestHelper do
       |> add_email
     )
     |> Repo.insert!
+  end
+
+  def create_user_with_attendance(competition, params \\ @valid_user_attrs) do
+    user = %User{}
+    |> User.registration_changeset(
+      params
+      |> add_email
+    )
+    |> Repo.insert!
+
+    create_competition_attendance(competition, user)
+    user
   end
 
   def create_admin(params \\ @valid_user_attrs) do
@@ -126,8 +141,8 @@ defmodule ApiWeb.TestHelper do
     %Suffrage{}
     |> Suffrage.changeset(
       %{
-        name: "awesome",
-        slug: "awesome",
+        name: "awesome #{to_string(:rand.uniform())}",
+        slug: "awesome #{to_string(:rand.uniform())}",
         competition_id: competition.id
       }
     )
@@ -140,6 +155,16 @@ defmodule ApiWeb.TestHelper do
     people
     |> Enum.map(fn user ->
       Competitions.toggle_checkin(competition_id, user.id)
+    end)
+  end
+
+  def make_teams_eligible(competition_id, teams \\ nil) do
+    teams = teams || Repo.all(from t in Team, where: t.competition_id == ^competition_id)
+
+    teams
+    |> Enum.map(fn team ->
+      {:ok, team} = Teams.update_any_team(team.id, %{eligible: true})
+      team
     end)
   end
 
