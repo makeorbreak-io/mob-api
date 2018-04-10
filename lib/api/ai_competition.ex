@@ -11,6 +11,7 @@ defmodule Api.AICompetition do
       u in User,
       join: b in Bot,
       where:
+        u.role == "participant" and
         b.user_id == u.id and
         not is_nil(b.id) and
         b.status == "processed",
