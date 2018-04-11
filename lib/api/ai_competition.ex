@@ -104,7 +104,7 @@ defmodule Api.AICompetition do
     |> Enum.map(fn user ->
       bot = Bots.current_bot(user, timestamp)
 
-      games = from(
+      game_scores = from(
         g in Game,
         join: gb in assoc(g, :game_bots),
         where:
@@ -115,9 +115,6 @@ defmodule Api.AICompetition do
         preload: [:game_bots]
       )
       |> Repo.all
-
-      ranks =
-      games
       |> Enum.map(fn g ->
         %{
           mine: Enum.find(g.game_bots, fn gb -> gb.ai_competition_bot_id == bot.id end).score,
@@ -129,19 +126,20 @@ defmodule Api.AICompetition do
       player = %{
         name: User.display_name(user),
         bot: "#{bot.title} (rev. #{bot.revision})",
-        day_performance: ranks |> Enum.map(&(&1.mine)) |> Enum.filter(fn x -> x != nil end) |> Api.Enum.avg,
-        matches: games |> Enum.count,
+        day_performance: game_scores |> Enum.map(&(&1.mine)) |> Enum.reject(&is_nil/1) |> Api.Enum.avg,
+        matches: game_scores |> Enum.count,
       }
 
       performances =
-      ranks
-      |> Enum.reduce( %{wins: 0, draws: 0, losses: 0}, fn(rank, acc) ->
+      game_scores
+      |> Enum.reduce(%{wins: 0, draws: 0, losses: 0, errors: 0}, fn(rank, acc) ->
           %{mine: mine, min: min, max: max} = rank
 
           %{
-            wins: acc.wins + (if (mine == max && mine != min), do: 1, else: 0),
-            draws: acc.draws + (if (mine == max && mine == min), do: 1, else: 0),
-            losses: acc.losses + (if (mine != max && mine == min), do: 1, else: 0),
+            wins: acc.wins + (if (mine != nil && mine == max && mine != min), do: 1, else: 0),
+            draws: acc.draws + (if (mine != nil && mine == max && mine == min), do: 1, else: 0),
+            losses: acc.losses + (if (mine != nil && mine != max && mine == min), do: 1, else: 0),
+            errors: acc.errors + (if (mine == nil), do: 1, else: 0),
           }
         end
       )
@@ -149,15 +147,15 @@ defmodule Api.AICompetition do
       Map.merge(player, performances)
     end)
     |> Enum.sort_by(&(-&1.day_performance))
-    |> Enum.scan(%{ idx: 0, rank: 0, day_performance: 0 }, fn(player, %{idx: idx, rank: rank, day_performance: score}) ->
-      rank = if (player.day_performance < score), do: idx, else: rank
-
-      Map.merge(player, %{
-        rank: rank,
-        idx: idx + 1,
-        bonus_points: day_performance_bonus(run_name) |> Enum.at(rank),
-      })
+    |> Api.Enum.rank1224_by(&(&1.day_performance))
+    |> Enum.map(fn({player, rank}) ->
+      Map.merge(
+        player,
+        %{
+          rank: rank,
+          bonus_points: day_performance_bonus(run_name) |> Enum.at(rank),
+        }
+      )
     end)
   end
-
 end
