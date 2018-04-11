@@ -36,7 +36,7 @@ defmodule Api.Suffrages.Candidate do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @attrs)
-    |> validate_required(@reguired_attrs)
+    |> validate_required(@required_attrs)
     |> assoc_constraint(:suffrage)
   end
 end

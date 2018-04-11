@@ -91,6 +91,8 @@ defmodule Api.GraphQL.Types do
     # field :technologies, :array
     field :applied, :boolean
     field :accepted, :boolean
+    field :eligible, :boolean
+    field :disqualified_at, :utc_datetime
 
     field :competition, :competition, resolve: assoc(:competition)
 
@@ -264,6 +266,16 @@ defmodule Api.GraphQL.Types do
     field :status, :string
     field :voting_started_at, :naive_datetime
     field :voting_ended_at, :naive_datetime
+
+    field :teams, list_of(:team), resolve: assoc(:teams)
+  end
+
+  object :vote do
+    field :id, :string
+    field :voter_identity, :string
+    field :ballot, :array
+
+    field :suffrage, :suffrage, resolve: assoc(:suffrage)
   end
 
   #============================================================================ Admin

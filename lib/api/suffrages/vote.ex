@@ -2,6 +2,7 @@ defmodule Api.Suffrages.Vote do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Api.Competitions.Attendance
   alias Api.Suffrages.Suffrage
 
   @attrs ~w(
@@ -13,10 +14,11 @@ defmodule Api.Suffrages.Vote do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "votes" do
-    belongs_to :suffrage, Suffrage
     field :voter_identity, :string
-
     field :ballot, {:array, :binary_id}
+
+    belongs_to :suffrage, Suffrage
+
     timestamps()
   end
 

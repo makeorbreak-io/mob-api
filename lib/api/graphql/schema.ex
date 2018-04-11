@@ -22,14 +22,14 @@ defmodule Api.GraphQL.Schema do
 
   import_types Api.GraphQL.Types
 
-  #----------------------------------------------------------------- Queries
+  #---------------------------------------------------------------------------- Queries
   query do
 
     field :me, :user do
       resolve &Resolvers.me/2
     end
 
-    #--------------------------------------------------------------- Publicly available information
+    #-------------------------------------------------------------------------- Publicly available information
     @desc "Single workshop details"
     field :workshop, :workshop do
       arg :slug, non_null(:string)
@@ -60,8 +60,7 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    #-------------------------------------------------------- Participant / non-paginated resources
-
+    #-------------------------------------------------------------------------- Participant / team
     @desc "Single team details"
     field :team, :team do
       arg :id, non_null(:string)
@@ -71,6 +70,7 @@ defmodule Api.GraphQL.Schema do
       resolve Resolvers.by_id(Team)
     end
 
+    #-------------------------------------------------------------------------- Participant / AI Competition
     @desc "Last 50 AI Competition games for the current user"
     field :ai_games, list_of(:ai_competition_game) do
       middleware RequireAuthn
@@ -80,6 +80,7 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
+    #-------------------------------------------------------------------------- Participant / Voting
     @desc "Voting categories"
     field :suffrages, list_of(:suffrage) do
       middleware RequireAuthn
@@ -89,7 +90,15 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    #---------------------------------------------------------------------- Admin / dashboard stats
+    field :votes, list_of(:vote) do
+      middleware RequireAuthn
+
+      resolve fn _args, %{context: %{current_user: current_user}} ->
+        Suffrages.get_votes(current_user)
+      end
+    end
+
+    #-------------------------------------------------------------------------- Admin / dashboard stats
     field :admin_stats, :admin_stats do
       middleware RequireAdmin
 
@@ -98,7 +107,7 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    #------------------------------------------------------------------ Admin / Paginated resources
+    #-------------------------------------------------------------------------- Admin / Paginated resources
     connection field :users, node_type: :user do
       arg :order_by, :string
 
@@ -123,6 +132,7 @@ defmodule Api.GraphQL.Schema do
       resolve Resolvers.by_id(Bot)
     end
 
+    #-------------------------------------------------------------------------- Admin / Non-Paginated resources
     field :bots, list_of(:ai_competition_bot) do
       middleware RequireAdmin
 
@@ -150,7 +160,7 @@ defmodule Api.GraphQL.Schema do
     end
   end
 
-  #----------------------------------------------------------------------------- Mutations
+  #============================================================================ Mutations
 
   mutation do
     #-------------------------------------------------------------------------- User session
@@ -187,7 +197,7 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    #----------------------------------------------------------------- Participant / team & invites
+    #-------------------------------------------------------------------------- Participant / team & invites
     @desc "Creates a team"
     field :create_team, type: :team do
       arg :team, non_null(:team_input)
@@ -285,7 +295,7 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    #----------------------------------------------------------------- Participant / ai competition
+    #-------------------------------------------------------------------------- Participant / ai competition
     @desc "Creates an AI competition bot"
     field :create_ai_competition_bot, :user do
       arg :bot, non_null(:ai_competition_bot_input)
@@ -299,7 +309,7 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    #---------------------------------------------------------------------- Participant / workshops
+    #-------------------------------------------------------------------------- Participant / workshops
     @desc "Joins a workshop"
     field :join_workshop, :workshop do
       arg :slug, non_null(:string)
@@ -319,6 +329,21 @@ defmodule Api.GraphQL.Schema do
 
       resolve fn %{slug: slug}, %{context: %{current_user: current_user}} ->
         Workshops.leave(current_user, slug)
+      end
+    end
+
+    #-------------------------------------------------------------------------- Participant / voting
+    @desc "Casts votes"
+    field :cast_votes, :user do
+      arg :votes, non_null(:string) # stringified json
+
+      middleware RequireAuthn
+
+      resolve fn %{votes: votes}, %{context: %{current_user: current_user}} ->
+        ballots = votes |> Poison.decode! |> Map.to_list
+        Suffrages.upsert_votes(current_user, ballots)
+
+        {:ok, Accounts.get_user(current_user.id)}
       end
     end
 
@@ -463,6 +488,17 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
+    @desc "Makes a team eligible for voting"
+    field :make_team_eligible, :team do
+      arg :id, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{id: id}, _info ->
+        Teams.update_any_team(id, %{eligible: true})
+      end
+    end
+
     #-------------------------------------------------------------------------- Admin / AI Competition
     @desc "Runs AI Competition ranked games"
     field :perform_ranked_ai_games, :string do
@@ -549,15 +585,20 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    # @desc "Disqualify team (admin only)"
-    # field :disqualify_team, :string do
-    #   arg :id, non_null(:string)
+    @desc "Disqualify team (admin only)"
+    field :disqualify_team, :team do
+      arg :id, non_null(:string)
 
-    #   middleware RequireAdmin
+      middleware RequireAdmin
 
-    #   resolve fn %{id: id}, _info ->
-    #     Suffrages.disqualify_team
-    #   end
-    # end
+      resolve fn %{id: id}, %{context: %{current_user: current_user}} ->
+        Competitions.default_competition.suffrages
+        |> Enum.each(fn suffrage ->
+          Suffrages.disqualify_team(id, suffrage.id, current_user)
+        end)
+
+        {:ok, Teams.get_team(id)}
+      end
+    end
   end
 end

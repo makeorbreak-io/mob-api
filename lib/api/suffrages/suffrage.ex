@@ -33,6 +33,7 @@ defmodule Api.Suffrages.Suffrage do
     has_many :votes, Vote
     has_many :paper_votes, PaperVote
     has_many :candidates, Candidate
+    has_many :teams, through: [:candidates, :team]
 
     timestamps()
   end

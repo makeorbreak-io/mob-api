@@ -18,7 +18,9 @@ defmodule Api.Competitions do
   def default_competition do
     q = from c in Competition,
         where: c.name == "default"
-    Repo.one(q) || Repo.insert!(%Competition{name: "default"})
+
+    (Repo.one(q) || Repo.insert!(%Competition{name: "default"}))
+    |> Repo.preload(:suffrages)
   end
 
   def create_competition(competition_params) do

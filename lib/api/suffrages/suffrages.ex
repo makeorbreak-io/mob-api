@@ -5,6 +5,7 @@ defmodule Api.Suffrages do
   alias Api.Accounts.User
   alias Api.Teams.Team
   alias Api.Competitions
+  alias Api.Competitions.Attendance
   alias Api.Suffrages.{Suffrage, Vote, PaperVote, Candidate, Category}
   alias Ecto.{Multi, Changeset}
 
@@ -23,6 +24,10 @@ defmodule Api.Suffrages do
 
   def get_suffrage(id) do
     Repo.get(Suffrage, id)
+  end
+
+  def by_slug(slug) do
+    Repo.get_by(Suffrage, slug: slug)
   end
 
   def update_suffrage(id, params) do
@@ -119,9 +124,13 @@ defmodule Api.Suffrages do
     end
   end
 
-  def upsert_votes(user, votes, suffrage_id) do
-    multi = Multi.new()
-
+  # votes:
+  #
+  # [
+  #   {suffrage_id, ["uuid", "uuid"]},
+  #   {suffrage_id, ["uuid", "uuid"]},
+  # ]
+  def upsert_votes(user, votes) do
     votes_length = Enum.reduce(votes, 0, fn {_, ballot}, acc -> acc + length(ballot) end)
 
     valid_votes_length = Enum.reduce(votes, 0, fn {_, ballot}, acc ->
@@ -158,11 +167,13 @@ defmodule Api.Suffrages do
     e -> e
   end
 
-  def get_votes(user, suffrage_id) do
+  def get_votes(user) do
     votes = from(
       v in Vote,
-      where: v.voter_identity == ^user.voter_identity,
-      where: v.suffrage_id == ^suffrage_id
+      join: a in Attendance,
+      where: a.attendee == ^user.id,
+      where: a.competition_id == ^Competitions.default_competition.id,
+      where: a.voter_identity == v.voter_identity,
     )
     |> Repo.all
 
@@ -260,8 +271,11 @@ defmodule Api.Suffrages do
 
   defp get_struct(user, suffrage_id) do
     query = from v in Vote,
-      where: v.voter_identity == ^user.voter_identity,
-      where: v.suffrage_id == ^suffrage_id
+      join: a in Attendance,
+      where: v.suffrage_id == ^suffrage_id,
+      where: a.attendee == ^user.id,
+      where: a.competition_id == ^Competitions.default_competition.id,
+      where: a.voter_identity == v.voter_identity
 
     case Repo.one(query) do
       nil -> %Vote{}
@@ -460,11 +474,11 @@ defmodule Api.Suffrages do
     end
   end
 
-  def disqualify_team(team, suffrage, admin) do
+  def disqualify_team(team_id, suffrage_id, admin) do
     from(
       c in Candidate,
-      where: c.team_id == ^team.id,
-      where: c.suffrage_id == ^suffrage.id,
+      where: c.team_id == ^team_id,
+      where: c.suffrage_id == ^suffrage_id,
       where: is_nil(c.disqualified_at),
       update: [set: [
         disqualified_at: ^(DateTime.utc_now),
@@ -479,9 +493,10 @@ defmodule Api.Suffrages do
 
     tie_breakers = 1..Enum.count(candidates) |> Enum.shuffle()
 
-    Enum.each(candidates, fn candidate ->
-      {number, tie_breakers} = List.pop_at(tie_breakers, 0)
+    Enum.reduce(candidates, tie_breakers, fn candidate, acc ->
+      {number, remaining} = List.pop_at(acc, 0)
       update_candidate(candidate, %{tie_breaker: number})
+      remaining
     end)
   end
 end
