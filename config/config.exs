@@ -65,7 +65,7 @@ config :sentry,
 # https://github.com/quantum-elixir/quantum-core
 config :api, Api.Scheduler,
   jobs: [
-    {"0 * * * *", {Api.AICompetition, :perform_training_matches, []}},
+    {"*/15 * * * *", {Api.AICompetition, :perform_training_matches, []}},
   ]
 
 
