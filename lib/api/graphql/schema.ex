@@ -5,11 +5,12 @@ defmodule Api.GraphQL.Schema do
   alias Api.GraphQL.Middleware.{RequireAuthn, RequireAdmin}
   alias Api.GraphQL.Resolvers
 
+  alias Api.Repo # FIXME: this should not be here
+
   alias Api.Accounts
   alias Api.Accounts.User
   alias Api.Competitions
-  alias Api.Integrations.Medium
-  alias Api.Flyby
+  alias Api.Integrations.{Medium, Github}
   alias Api.Flybys
   alias Api.Teams
   alias Api.Teams.{Team}
@@ -17,28 +18,20 @@ defmodule Api.GraphQL.Schema do
   alias Api.AICompetition
   alias Api.AICompetition.{Games, Bots, Bot}
   alias Api.Stats
+  alias Api.Suffrages
   alias Api.Workshops
   alias Api.Workshops.{Workshop}
 
   import_types Api.GraphQL.Types
 
+  #---------------------------------------------------------------------------- Queries
   query do
 
-    #
-    # single resources
     field :me, :user do
       resolve &Resolvers.me/2
     end
 
-    @desc "Single team details"
-    field :team, :team do
-      arg :id, non_null(:string)
-
-      middleware RequireAuthn
-
-      resolve Resolvers.by_id(Team)
-    end
-
+    #--------------------------------------------------------------- Publicly available information
     @desc "Single workshop details"
     field :workshop, :workshop do
       arg :slug, non_null(:string)
@@ -46,8 +39,16 @@ defmodule Api.GraphQL.Schema do
       resolve Resolvers.by_attr(Workshop, :slug)
     end
 
-    #
-    # non-paginated collections
+    @desc "MoB 2018 FLY paper plane competition entries"
+    field :flybys, list_of(:flyby) do
+      resolve fn _args, _info -> {:ok, Flybys.all} end
+    end
+
+    @desc "workshops list"
+    field :workshops, list_of(:workshop) do
+      resolve fn _args, _info -> {:ok, Workshops.all} end
+    end
+
     field :medium, :medium do
       resolve fn _args, _info ->
         json = Medium.get_latest_posts(2)
@@ -61,12 +62,18 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    # field :ai_leaderboard, :array do
-    #   resolve fn _args, _info ->
-    #     {:ok, AICompetition.leaderboard}
-    #   end
-    # end
+    #---------------------------------------------------------------------------- Participant / team
+    @desc "Single team details"
+    field :team, :team do
+      arg :id, non_null(:string)
 
+      middleware RequireAuthn
+
+      resolve Resolvers.by_id(Team)
+    end
+
+    #------------------------------------------------------------------ Participant / AI Competition
+    @desc "Last 50 AI Competition games for the current user"
     field :ai_games, list_of(:ai_competition_game) do
       middleware RequireAuthn
 
@@ -75,19 +82,25 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    field :flybys, list_of(:flyby) do
-      resolve fn _args, _info -> {:ok, Flybys.all} end
+    #-------------------------------------------------------------------------- Participant / Voting
+    @desc "Voting categories"
+    field :suffrages, list_of(:suffrage) do
+      middleware RequireAuthn
+
+      resolve fn _args, _info ->
+        {:ok, Suffrages.all_suffrages}
+      end
     end
 
-    field :workshops, list_of(:workshop) do
-      resolve fn _args, _info -> {:ok, Workshops.all} end
+    field :votes, list_of(:vote) do
+      middleware RequireAuthn
+
+      resolve fn _args, %{context: %{current_user: current_user}} ->
+        Suffrages.get_votes(current_user)
+      end
     end
 
-    #
-    # admin fields
-
-    #
-    # stats / analytics
+    #----------------------------------------------------------------------- Admin / dashboard stats
     field :admin_stats, :admin_stats do
       middleware RequireAdmin
 
@@ -96,8 +109,7 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    #
-    # paginated resource collections
+    #------------------------------------------------------------------- Admin / Paginated resources
     connection field :users, node_type: :user do
       arg :order_by, :string
 
@@ -122,6 +134,7 @@ defmodule Api.GraphQL.Schema do
       resolve Resolvers.by_id(Bot)
     end
 
+    #--------------------------------------------------------------- Admin / Non-Paginated resources
     field :bots, list_of(:ai_competition_bot) do
       middleware RequireAdmin
 
@@ -147,9 +160,46 @@ defmodule Api.GraphQL.Schema do
         {:ok, bots}
       end
     end
+
+    field :unredeemed_paper_votes, list_of(:paper_vote) do
+      middleware RequireAdmin
+
+      resolve fn _args, _info ->
+        suffrage_ids = Competitions.default_competition.suffrages |> Enum.map &(&1.id)
+
+        {
+          :ok,
+          suffrage_ids
+          |> Enum.flat_map(fn id ->
+            Suffrages.unredeemed_paper_votes(id)
+            |> Repo.all
+          end)
+        }
+      end
+    end
+
+    field :redeemed_paper_votes, list_of(:paper_vote) do
+      middleware RequireAdmin
+
+      resolve fn _args, _info ->
+        suffrage_ids = Competitions.default_competition.suffrages |> Enum.map &(&1.id)
+
+        {
+          :ok,
+          suffrage_ids
+          |> Enum.flat_map(fn id ->
+            Suffrages.redeemed_paper_votes(id)
+            |> Repo.all
+          end)
+        }
+      end
+    end
   end
 
+  #======================================================================================= Mutations
+
   mutation do
+    #---------------------------------------------------------------------------------- User session
     @desc "Authenticates a user and returns a JWT"
     field :authenticate, type: :string do
       arg :email, non_null(:string)
@@ -183,6 +233,7 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
+    #------------------------------------------------------------------ Participant / team & invites
     @desc "Creates a team"
     field :create_team, type: :team do
       arg :team, non_null(:team_input)
@@ -280,6 +331,7 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
+    #-------------------------------------------------------------------------- Participant / ai competition
     @desc "Creates an AI competition bot"
     field :create_ai_competition_bot, :user do
       arg :bot, non_null(:ai_competition_bot_input)
@@ -293,6 +345,7 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
+    #-------------------------------------------------------------------------- Participant / workshops
     @desc "Joins a workshop"
     field :join_workshop, :workshop do
       arg :slug, non_null(:string)
@@ -315,8 +368,24 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    #========================================================================== ADMIN
+    #-------------------------------------------------------------------------- Participant / voting
+    @desc "Casts votes"
+    field :cast_votes, :user do
+      arg :votes, non_null(:string) # stringified json
 
+      middleware RequireAuthn
+
+      resolve fn %{votes: votes}, %{context: %{current_user: current_user}} ->
+        ballots = votes |> Poison.decode! |> Map.to_list
+        Suffrages.upsert_votes(current_user, ballots)
+
+        {:ok, Accounts.get_user(current_user.id)}
+      end
+    end
+
+    #========================================================================================= ADMIN
+
+    #----------------------------------------------------------------------------- Admin / workshops
     @desc "Creates a workshop (admin only)"
     field :create_workshop, :workshop do
       arg :workshop, non_null(:workshop_input)
@@ -351,6 +420,7 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
+    #----------------------------------------------------------------------------------- Admin / fly
     @desc "Creates a paper plane competition entry"
     field :create_flyby, :flyby do
       arg :flyby, non_null(:flyby_input)
@@ -373,26 +443,7 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    # @desc "Send emails to users that haven't applied to the hackathon yet"
-    # field :send_not_applied_emails, :string do
-    #   middleware RequireAdmin
-
-    #   resolve fn _args, _info ->
-    #     Competitions.send_not_applied_email
-    #     {:ok, ""}
-    #   end
-    # end
-
-    # @desc "Send food allergies inquiry emails"
-    # field :send_food_allergies_emails, :string do
-    #   middleware RequireAdmin
-
-    #   resolve fn _args, _info ->
-    #     Competitions.send_food_allergies_email
-    #     {:ok, ""}
-    #   end
-    # end
-
+    #--------------------------------------------------------------------------------- Admin / users
     @desc "Makes a user admin (admin only)"
     field :make_admin, :user do
       arg :id, non_null(:string)
@@ -427,6 +478,7 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
+    #--------------------------------------------------------------------------------- Admin / teams
     @desc "Apply the team to the hackathon (admin only)"
     field :apply_team_to_hackathon, :team do
       arg :id, non_null(:string)
@@ -472,6 +524,41 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
+    @desc "Removes any team membership (admin only)"
+    field :remove_any_membership, :team do
+      arg :team_id, non_null(:string)
+      arg :user_id, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{team_id: team_id, user_id: user_id}, _info ->
+        Teams.remove_any_membership(team_id, user_id)
+      end
+    end
+
+    @desc "Makes a team eligible for voting"
+    field :make_team_eligible, :team do
+      arg :id, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{id: id}, _info ->
+        Teams.update_any_team(id, %{eligible: true})
+      end
+    end
+
+    @desc "Creates a repo on github for a team"
+    field :create_team_repo, :team do
+      arg :id, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{id: id}, _info ->
+        Github.create_repo(id)
+      end
+    end
+
+    #------------------------------------------------------------------------ Admin / AI Competition
     @desc "Runs AI Competition ranked games"
     field :perform_ranked_ai_games, :string do
       arg :name, non_null(:string)
@@ -487,15 +574,135 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    # @desc "Disqualify team (admin only)"
-    # field :disqualify_team, :string do
-    #   arg :id, non_null(:string)
+    #------------------------------------------------------------------------------ Admin / check in
+    @desc "Toggles competition check in status for user"
+    field :toggle_user_checkin, :user do
+      arg :user_id, non_null(:string)
 
-    #   middleware RequireAdmin
+      middleware RequireAdmin
 
-    #   resolve fn %{id: id}, _info ->
-    #     Suffrages.disqualify_team
-    #   end
-    # end
+      resolve fn %{user_id: user_id}, _info ->
+        Competitions.toggle_checkin(Competitions.default_competition.id, user_id)
+      end
+    end
+
+    @desc "Toggle workshop check in status for user"
+    field :toggle_workshop_checkin, :workshop do
+      arg :slug, non_null(:string)
+      arg :user_id, non_null(:string)
+      arg :value, non_null(:boolean)
+
+      middleware RequireAdmin
+
+      resolve fn %{slug: slug, user_id: user_id, value: value}, _info ->
+        Workshops.toggle_checkin(slug, user_id, value)
+      end
+    end
+
+    #-------------------------------------------------------------------------------- Admin / voting
+    @desc "Create suffrage (admin only)"
+    field :create_suffrage, :suffrage do
+      arg :suffrage, non_null(:suffrage_input)
+
+      middleware RequireAdmin
+
+      resolve fn %{suffrage: suffrage}, _info ->
+        Suffrages.create_suffrage(suffrage)
+      end
+    end
+
+    @desc "Delete suffrage (admin only)"
+    field :delete_suffrage, :suffrage do
+      arg :id, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{id: id}, _info ->
+        Suffrages.delete_suffrage(id)
+      end
+    end
+
+    @desc "Opens voting for a suffrage"
+    field :start_suffrage_voting, :suffrage do
+      arg :id, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{id: id}, _info ->
+        Suffrages.start_suffrage(id)
+      end
+    end
+
+    @desc "Closes voting for a suffrage"
+    field :end_suffrage_voting, :suffrage do
+      arg :id, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{id: id}, _info ->
+        Suffrages.end_suffrage(id)
+      end
+    end
+
+    @desc "Disqualify team (admin only)"
+    field :disqualify_team, :team do
+      arg :id, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{id: id}, %{context: %{current_user: current_user}} ->
+        Competitions.default_competition.suffrages
+        |> Enum.each(fn suffrage ->
+          Suffrages.disqualify_team(id, suffrage.id, current_user)
+        end)
+
+        {:ok, Teams.get_team(id)}
+      end
+    end
+
+    @desc "Creates a paper vote"
+    field :create_paper_vote, :paper_vote do
+      arg :suffrage_id, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{suffrage_id: suffrage_id}, %{context: %{current_user: current_user}} ->
+        pv = Suffrages.create_paper_vote(suffrage_id, current_user)
+      end
+    end
+
+    @desc "Redeems a paper vote"
+    field :redeem_paper_vote, :paper_vote do
+      arg :paper_vote_id, non_null(:string)
+      arg :user_id, non_null(:string)
+      arg :team_id, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn args, info ->
+        %{paper_vote_id: paper_vote_id, user_id: user_id, team_id: team_id} = args
+        %{context: %{current_user: current_user}} = info
+
+        paper_vote = Suffrages.get_paper_vote(paper_vote_id)
+        user = Accounts.get_user(user_id)
+        team = Teams.get_team(team_id)
+
+        Suffrages.redeem_paper_vote(paper_vote, team, user, paper_vote.suffrage, current_user)
+      end
+    end
+
+    @desc "Annuls a paper vote"
+    field :annul_paper_vote, :paper_vote do
+      arg :paper_vote_id, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{paper_vote_id: paper_vote_id}, %{context: %{current_user: current_user}} ->
+        paper_vote = Suffrages.get_paper_vote(paper_vote_id)
+
+        Suffrages.annul_paper_vote(paper_vote, current_user, paper_vote.suffrage)
+      end
+    end
+
   end
 end

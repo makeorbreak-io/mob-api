@@ -4,8 +4,10 @@ defmodule Api.GraphQL.Types do
   use Absinthe.Ecto, repo: Api.Repo
 
   alias Api.Repo
+  alias Api.Competitions
   alias Api.Accounts.User
   alias Api.AICompetition.Bots
+  alias Api.Suffrages
 
   import_types Absinthe.Type.Custom
   import_types Api.GraphQL.Scalars
@@ -22,18 +24,8 @@ defmodule Api.GraphQL.Types do
     field :inserted_at, :utc_datetime
     field :updated_at, :utc_datetime
 
-    # field :game_bots, :ai_competition_game_bot, resolve: assoc(:game_bots)
     field :bots, list_of(:ai_competition_bot), resolve: assoc(:bots)
-    # field :users, :user, resolve: assoc(:users)
   end
-
-  # connection node_type: :ai_competition_game_bot
-  # object :ai_competition_game_bot do
-  #   field :id, :string
-  #   field :score, :integer
-
-  #   field :bot, :ai_competition_bot, resolve: assoc(:bot)
-  # end
 
   connection node_type: :ai_competition_bot
   object :ai_competition_bot do
@@ -65,9 +57,6 @@ defmodule Api.GraphQL.Types do
         end
       end
     end
-
-    # field :user, :user, resolve: assoc(:user)
-    # field :game_bots, :ai_competition_game_bot, resolve: assoc(:game_bots)
   end
 
   connection node_type: :competition
@@ -100,9 +89,15 @@ defmodule Api.GraphQL.Types do
     field :tie_breaker, :integer
     field :project_name, :string
     field :project_desc, :string
-    # field :technologies, :array
+    field :prize_preference, :array
     field :applied, :boolean
     field :accepted, :boolean
+    field :eligible, :boolean
+    field :is_disqualified, :boolean do
+      resolve fn _args, %{source: source} ->
+        {:ok, Suffrages.is_disqualified(source.id)}
+      end
+    end
 
     field :competition, :competition, resolve: assoc(:competition)
 
@@ -174,6 +169,12 @@ defmodule Api.GraphQL.Types do
       end
     end
 
+    field :current_attendance, :attendance do
+      resolve fn _args, %{source: source} ->
+        {:ok, Competitions.get_attendance(Competitions.default_competition.id, source.id)}
+      end
+    end
+
     field :teams, list_of(:team), resolve: assoc(:teams)
     field :invites, list_of(:invite), resolve: assoc(:invites)
     field :invitations, list_of(:invite), resolve: assoc(:invitations)
@@ -230,7 +231,7 @@ defmodule Api.GraphQL.Types do
     field :short_speaker, :string
     field :short_date, :string
 
-    field :attendances, list_of(:attendance), resolve: assoc(:attendances)
+    field :attendances, list_of(:workshop_attendance), resolve: assoc(:attendances)
     field :users, list_of(:user) do
       resolve fn _args, %{source: source, context: %{current_user: current_user}} ->
         role = current_user && current_user.role
@@ -244,9 +245,50 @@ defmodule Api.GraphQL.Types do
 
   object :attendance do
     field :id, :string
+    field :competition_id, :string
+    field :attendee, :string
     field :checked_in, :boolean
+  end
 
-    field :user, :user, resolve: assoc(:user)
+  object :workshop_attendance do
+    field :checked_in, :boolean
+    field :user, :user do
+      resolve fn _args, %{source: source, context: %{current_user: current_user}} ->
+        role = current_user && current_user.role
+        case role do
+          "admin" -> {:ok, Repo.preload(source, :user).user}
+          _ -> {:ok, nil}
+        end
+      end
+    end
+  end
+
+  #============================================================================ Voting / competition
+  object :suffrage do
+    field :id, :string
+    field :name, :string
+    field :slug, :string
+    field :status, :string
+    field :voting_started_at, :naive_datetime
+    field :voting_ended_at, :naive_datetime
+
+    field :teams, list_of(:team), resolve: assoc(:teams)
+  end
+
+  object :vote do
+    field :id, :string
+    field :voter_identity, :string
+    field :ballot, :array
+    field :suffrage_id, :string
+
+    # field :suffrage, :suffrage, resolve: assoc(:suffrage)
+  end
+
+  object :paper_vote do
+    field :id, :string
+    field :suffrage_id, :string
+    field :redeemed_at, :utc_datetime
+    field :annuled_at, :utc_datetime
   end
 
   #============================================================================ Admin

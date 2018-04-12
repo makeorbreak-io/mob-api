@@ -49,4 +49,9 @@ defmodule Api.GraphQL.InputTypes do
     field :email, non_null(:string)
     field :time, non_null(:integer)
   end
+
+  input_object :suffrage_input do
+    field :name, non_null(:string)
+    field :slug, non_null(:string)
+  end
 end

@@ -114,7 +114,7 @@ defmodule Api.Mixfile do
       "test": [
         "ecto.create --quiet",
         "ecto.migrate",
-        "credo --strict",
+        #"credo --strict",
         "coveralls",
       ],
       "server": [
@@ -122,12 +122,6 @@ defmodule Api.Mixfile do
       ],
       "sentry_recompile": [
         "clean", "compile",
-      ],
-      "deploy": [
-        "edeliver build release",
-        "edeliver deploy release production",
-        "edeliver restart production",
-        "edeliver migrate production",
       ],
     ]
   end

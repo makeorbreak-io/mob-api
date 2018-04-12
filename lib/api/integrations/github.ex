@@ -21,8 +21,8 @@ defmodule Api.Integrations.Github do
     case create(team) do
       {:ok, repo} ->
         Teams.update_any_team(id, %{repo: repo})
-        :ok
-      {:error, error} -> error
+        add_users_to_repo(id)
+      {:error, error} -> {:error, error}
     end
   end
 
@@ -33,6 +33,8 @@ defmodule Api.Integrations.Github do
     Enum.each(members, fn(member) ->
       add_collaborator(team.repo, member.github_handle)
     end)
+
+    {:ok, team}
   end
 
   defp create(team) do

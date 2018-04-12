@@ -19,5 +19,6 @@ defmodule Api.Teams.Membership do
     struct
     |> cast(params, [:user_id, :team_id])
     |> validate_required([:user_id, :team_id])
+    |> foreign_key_constraint(:user_id)
   end
 end

@@ -51,8 +51,8 @@ defmodule Api.AICompetition.Games do
       run: run,
     })
 
-    case Repo.insert!(changeset) do
-      game ->
+    case Repo.insert(changeset) do
+      {:ok, game} ->
         Repo.insert!(%GameBot{game: game, bot: bot1})
         Repo.insert!(%GameBot{game: game, bot: bot2})
 

@@ -3,14 +3,17 @@ ExUnit.start
 Ecto.Adapters.SQL.Sandbox.mode(Api.Repo, :manual)
 
 defmodule ApiWeb.TestHelper do
+  import Ecto.Query, warn: false
+
   alias Api.Repo
   alias Api.Accounts.User
   alias Api.Workshops.{Workshop, Attendance}
   alias Api.Teams.{Team, Membership, Invite}
+  alias Api.Competitions
   alias Api.Competitions.Competition
-  alias Api.Suffrages.{Category, Suffrage, Vote, PaperVote}
+  alias Api.Teams
+  alias Api.Suffrages.{Suffrage, Vote, PaperVote}
   alias Api.Competitions.Attendance, as: CompAttendance
-  alias ApiWeb.StringHelper
 
   @valid_user_attrs %{
     name: "john doe",
@@ -48,6 +51,19 @@ defmodule ApiWeb.TestHelper do
     |> Repo.insert!
   end
 
+  def create_attendee(competition) do
+    user = create_user()
+    create_competition_attendance(competition, user)
+
+    user
+  end
+
+  def create_attendance_with_user(competition) do
+    user = create_user()
+
+    create_competition_attendance(competition, user)
+  end
+
   def create_admin(params \\ @valid_user_attrs) do
     %User{}
     |> User.admin_changeset(
@@ -61,10 +77,10 @@ defmodule ApiWeb.TestHelper do
   def create_team(user, competition, params \\ nil) do
     params = params || %{name: "awesome team #{to_string(:rand.uniform())}"}
     team = %Team{competition_id: competition.id}
-    |> Team.changeset(params, Repo)
+    |> Team.changeset(params)
     |> Repo.insert!
 
-    Repo.insert! %Membership{user_id: user.id, team_id: team.id, role: "owner"}
+    create_membership(team, user)
 
     team
   end
@@ -122,54 +138,42 @@ defmodule ApiWeb.TestHelper do
     |> Repo.insert!
   end
 
-  def create_category(params \\ %{}) do
-    %Category{}
-    |> Category.changeset(
-      %{
-        name: StringHelper.slugify("cool #{:rand.uniform()}"),
-      }
-      |> Map.merge(params)
-    )
-    |> Repo.insert!
-  end
-
-  def create_suffrage(competition) do
+  def create_suffrage(competition_id) do
     %Suffrage{}
     |> Suffrage.changeset(
       %{
-        competition_id: competition.id
+        name: "awesome #{to_string(:rand.uniform())}",
+        slug: "awesome #{to_string(:rand.uniform())}",
+        competition_id: competition_id
       }
     )
     |> Repo.insert!
   end
 
-  def check_in_everyone(people \\ nil) do
+  def check_in_everyone(competition_id, people \\ nil) do
     people = people || Repo.all(User)
 
     people
     |> Enum.map(fn user ->
-      user
-      |> User.admin_changeset()
-      |> Repo.update!
+      Competitions.toggle_checkin(competition_id, user.id)
     end)
   end
 
-  def make_teams_eligible(teams \\ nil) do
-    teams = teams || Repo.all(Team)
+  def make_teams_eligible(competition_id, teams \\ nil) do
+    teams = teams || Repo.all(from t in Team, where: t.competition_id == ^competition_id)
 
     teams
     |> Enum.map(fn team ->
+      {:ok, team} = Teams.update_any_team(team.id, %{eligible: true})
       team
-      |> Team.admin_changeset(%{eligible: true}, Repo)
-      |> Repo.update!
     end)
   end
 
-  def create_vote(user, suffrage, ballot) do
+  def create_vote(attendance, suffrage, ballot) do
     %Vote{}
     |> Vote.changeset(
       %{
-        voter_identity: user.voter_identity,
+        voter_identity: attendance.voter_identity,
         suffrage_id: suffrage.id,
         ballot: ballot
       }

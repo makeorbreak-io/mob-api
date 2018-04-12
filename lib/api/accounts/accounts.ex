@@ -6,7 +6,7 @@ defmodule Api.Accounts do
   alias Api.Teams
   alias Api.Notifications.Emails
   alias Comeonin.Bcrypt
-  alias Guardian.{Plug, Permissions}
+  alias Guardian.Permissions
 
   def create_session(email, password) do
     Repo.get_by(User, email: email)

@@ -1,9 +1,8 @@
 defmodule Api.Teams.Team do
   use Ecto.Schema
   import Ecto.Changeset
-  import Ecto.Query
 
-  alias Api.Teams.{Team, Membership, Invite}
+  alias Api.Teams.{Membership, Invite}
   alias Api.Competitions.Competition
 
   @valid_attrs ~w(
@@ -11,11 +10,14 @@ defmodule Api.Teams.Team do
     applied
     project_name
     project_desc
+    eligible
+    prize_preference
+    prize_preference_hmac_secret
     technologies
     competition_id
   )a
 
-  @admin_attrs @valid_attrs ++ ~w(repo accepted)a
+  @admin_attrs @valid_attrs ++ ~w(repo accepted eligible)a
 
   @required_attrs ~w(
     name
@@ -29,6 +31,9 @@ defmodule Api.Teams.Team do
     field :repo, :map
     field :applied, :boolean, default: false
     field :accepted, :boolean, default: false
+    field :eligible, :boolean, default: false
+    field :prize_preference_hmac_secret, :string
+    field :prize_preference, {:array, :string}
     field :project_name, :string
     field :project_desc, :string
     field :technologies, {:array, :string}
@@ -45,9 +50,9 @@ defmodule Api.Teams.Team do
   @doc """
   Builds a changeset based on the `struct` and `params`.
   """
-  def changeset(struct, params, repo), do: _cs(struct, params, repo, @valid_attrs)
-  def admin_changeset(struct, params, repo), do: _cs(struct, params, repo, @admin_attrs)
-  defp _cs(struct, params, repo, attrs) do
+  def changeset(struct, params), do: _cs(struct, params, @valid_attrs)
+  def admin_changeset(struct, params), do: _cs(struct, params, @admin_attrs)
+  defp _cs(struct, params, attrs) do
     struct
     |> cast(params, attrs)
     |> validate_required(@required_attrs)

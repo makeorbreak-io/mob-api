@@ -6,7 +6,7 @@ defmodule Api.VoteTest do
   setup %{} do
     competition = create_competition()
     {:ok, %{
-      suffrage: create_suffrage(competition),
+      suffrage: create_suffrage(competition.id),
       team: create_team(create_user(), competition),
     }}
   end

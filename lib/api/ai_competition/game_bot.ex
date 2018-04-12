@@ -2,7 +2,6 @@ defmodule Api.AICompetition.GameBot do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias Api.Accounts.User
   alias Api.AICompetition.{Game, GameBot, Bot}
 
   @primary_key {:id, :binary_id, autogenerate: true}

@@ -18,7 +18,9 @@ defmodule Api.Competitions do
   def default_competition do
     q = from c in Competition,
         where: c.name == "default"
-    Repo.one(q) || Repo.insert!(%Competition{name: "default"})
+
+    (Repo.one(q) || Repo.insert!(%Competition{name: "default"}))
+    |> Repo.preload(:suffrages)
   end
 
   def create_competition(competition_params) do
@@ -42,13 +44,17 @@ defmodule Api.Competitions do
   end
 
   def create_attendance(competition_id, attendee_id) do
-    attendee = Repo.get(User, attendee_id)
     changeset = Attendance.changeset(%Attendance{}, %{
       competition_id: competition_id,
       attendee: attendee_id
     })
 
     Repo.insert(changeset)
+  end
+
+  def toggle_checkin(competition_id, attendee_id) do
+    attendance = get_attendance(competition_id, attendee_id)
+    toggle_checkin(competition_id, attendee_id, !attendance.checked_in)
   end
 
   def toggle_checkin(competition_id, attendee_id, value) do
@@ -58,9 +64,9 @@ defmodule Api.Competitions do
     changeset = Attendance.changeset(attendance, %{checked_in: value})
 
     case Repo.update(changeset) do
-      {:ok, attendance} ->
+      {:ok, _attendance} ->
         value && (Emails.checkin_email(attendee) |> Mailer.deliver_later)
-        {:ok, attendance}
+        {:ok, attendee}
       {:error, changeset} -> {:error, changeset}
     end
   end

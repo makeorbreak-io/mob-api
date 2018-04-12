@@ -42,7 +42,7 @@ defmodule Api.Workshops do
           %{user_id: user.id, workshop_id: workshop.id})
 
         case Repo.insert(changeset) do
-          {:ok, attendance} ->
+          {:ok, _attendance} ->
             increase_participants_counter(workshop)
             Emails.joined_workshop_email(user, workshop) |> Mailer.deliver_later
 

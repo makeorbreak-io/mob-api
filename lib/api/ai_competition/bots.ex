@@ -4,9 +4,6 @@ defmodule Api.AICompetition.Bots do
   alias Api.Repo
   alias Api.AICompetition.Bot
 
-  @ai_competition_host Application.get_env(:api, :ai_competition_host)
-  @http Application.get_env(:api, :http_lib)
-
   def get_bot(id) do
     Repo.get!(Bot, id)
   end
@@ -30,8 +27,8 @@ defmodule Api.AICompetition.Bots do
       Map.merge(params, %{user_id: current_user.id, revision: revision})
     )
 
-    case Repo.insert!(changeset) do
-      bot ->
+    case Repo.insert(changeset) do
+      {:ok, bot} ->
         submit_to_ai_server(bot, "compile")
         {:ok, bot}
       {:error, changeset} ->
