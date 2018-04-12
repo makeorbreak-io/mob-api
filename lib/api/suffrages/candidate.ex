@@ -9,8 +9,6 @@ defmodule Api.Suffrages.Candidate do
   @attrs ~w(
     disqualified_at
     disqualified_by_id
-    prize_preference
-    prize_preference_hmac_secret
     tie_breaker
     team_id
     suffrage_id
@@ -22,8 +20,6 @@ defmodule Api.Suffrages.Candidate do
   @foreign_key_type :binary_id
   schema "teams_suffrages" do
     field :disqualified_at, :utc_datetime
-    field :prize_preference_hmac_secret, :string
-    field :prize_preference, {:array, :string}
     field :tie_breaker, :integer
 
     belongs_to :disqualified_by, User

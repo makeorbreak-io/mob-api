@@ -111,30 +111,6 @@ defmodule Api.TeamsTest do
     refute Repo.get_by(Team, name: team.name)
   end
 
-  # test "disqualify team", %{t1: t1} do
-  #   admin = create_admin()
-
-  #   Teams.disqualify_team(t1.id, admin)
-
-  #   t = Repo.get!(Team, t1.id)
-  #   assert t.disqualified_at
-  #   assert t.disqualified_by_id == admin.id
-  # end
-
-  # test "disqualify team twice", %{t1: t1} do
-  #   admin = create_admin()
-  #   admin2 = create_admin()
-
-  #   Teams.disqualify_team(t1.id, admin)
-  #   d1 = Repo.get!(Team, t1.id).disqualified_at
-
-  #   Teams.disqualify_team(t1.id, admin2)
-
-  #   t = Repo.get!(Team, t1.id)
-  #   assert t.disqualified_at == d1
-  #   assert t.disqualified_by_id == admin.id
-  # end
-
   test "remove membership by authorized user", %{u1: u1, t1: t1} do
     u2 = create_user()
     create_membership(t1, u2)
@@ -188,30 +164,6 @@ defmodule Api.TeamsTest do
     u2 = create_user()
     assert Teams.remove_any_membership(t1.id, u2.id) == :membership_not_found
   end
-
-  # test "shuffle_tie_breakers" do
-  #   initial_teams =
-  #     for _ <- (1..10),
-  #     do: Repo.insert!(Team.changeset(%Team{}, @team_valid_attrs, Repo))
-
-  #   {:ok, _} = Teams.shuffle_tie_breakers
-
-  #   tie_breakers = fn
-  #     teams -> Enum.map(teams, &(&1.tie_breaker))
-  #   end
-  #   # This is flaky, since they can happen to be shuffled to their initial
-  #   # order, but I can't think of anything better to check.
-  #   refute tie_breakers.(initial_teams) == tie_breakers.(Team |> Repo.all)
-  # end
-
-  # test "assign missing preferences to team" do
-  #   t = create_team(create_user())
-
-  #   assert t.prize_preference == nil
-  #   Teams.assign_missing_preferences
-  #   assert Repo.get!(Team, t.id).prize_preference |> Enum.sort ==
-  #     ["funny", "hardcore", "useful"] |> Enum.sort
-  # end
 
   test "list user invites", %{u1: u1, c1: c1, t1: t1} do
     t2 = create_team(u1, c1)

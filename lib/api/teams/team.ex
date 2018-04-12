@@ -10,6 +10,9 @@ defmodule Api.Teams.Team do
     applied
     project_name
     project_desc
+    eligible
+    prize_preference
+    prize_preference_hmac_secret
     technologies
     competition_id
   )a
@@ -29,6 +32,8 @@ defmodule Api.Teams.Team do
     field :applied, :boolean, default: false
     field :accepted, :boolean, default: false
     field :eligible, :boolean, default: false
+    field :prize_preference_hmac_secret, :string
+    field :prize_preference, {:array, :string}
     field :project_name, :string
     field :project_desc, :string
     field :technologies, {:array, :string}

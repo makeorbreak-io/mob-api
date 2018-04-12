@@ -51,16 +51,17 @@ defmodule ApiWeb.TestHelper do
     |> Repo.insert!
   end
 
-  def create_user_with_attendance(competition, params \\ @valid_user_attrs) do
-    user = %User{}
-    |> User.registration_changeset(
-      params
-      |> add_email
-    )
-    |> Repo.insert!
+  def create_attendee(competition) do
+    user = create_user()
+    create_competition_attendance(competition, user)
+
+    user
+  end
+
+  def create_attendance_with_user(competition) do
+    user = create_user()
 
     create_competition_attendance(competition, user)
-    user
   end
 
   def create_admin(params \\ @valid_user_attrs) do
@@ -79,7 +80,7 @@ defmodule ApiWeb.TestHelper do
     |> Team.changeset(params)
     |> Repo.insert!
 
-    Repo.insert! %Membership{user_id: user.id, team_id: team.id, role: "owner"}
+    create_membership(team, user)
 
     team
   end
@@ -137,13 +138,13 @@ defmodule ApiWeb.TestHelper do
     |> Repo.insert!
   end
 
-  def create_suffrage(competition) do
+  def create_suffrage(competition_id) do
     %Suffrage{}
     |> Suffrage.changeset(
       %{
         name: "awesome #{to_string(:rand.uniform())}",
         slug: "awesome #{to_string(:rand.uniform())}",
-        competition_id: competition.id
+        competition_id: competition_id
       }
     )
     |> Repo.insert!
@@ -168,11 +169,11 @@ defmodule ApiWeb.TestHelper do
     end)
   end
 
-  def create_vote(user, suffrage, ballot) do
+  def create_vote(attendance, suffrage, ballot) do
     %Vote{}
     |> Vote.changeset(
       %{
-        voter_identity: user.voter_identity,
+        voter_identity: attendance.voter_identity,
         suffrage_id: suffrage.id,
         ballot: ballot
       }
