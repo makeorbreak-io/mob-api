@@ -274,8 +274,16 @@ defmodule Api.GraphQL.Types do
     field :id, :string
     field :voter_identity, :string
     field :ballot, :array
+    field :suffrage_id, :string
 
-    field :suffrage, :suffrage, resolve: assoc(:suffrage)
+    # field :suffrage, :suffrage, resolve: assoc(:suffrage)
+  end
+
+  object :paper_vote do
+    field :id, :string
+    field :suffrage_id, :string
+    field :redeemed_at, :utc_datetime
+    field :annuled_at, :utc_datetime
   end
 
   #============================================================================ Admin

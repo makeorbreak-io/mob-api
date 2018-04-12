@@ -5,6 +5,8 @@ defmodule Api.GraphQL.Schema do
   alias Api.GraphQL.Middleware.{RequireAuthn, RequireAdmin}
   alias Api.GraphQL.Resolvers
 
+  alias Api.Repo # FIXME: this should not be here
+
   alias Api.Accounts
   alias Api.Accounts.User
   alias Api.Competitions
@@ -156,6 +158,40 @@ defmodule Api.GraphQL.Schema do
         |> Enum.map(&(Bots.current_bot(&1, AICompetition.ranked_match_config(run_name).timestamp)))
 
         {:ok, bots}
+      end
+    end
+
+    field :unredeemed_paper_votes, list_of(:paper_vote) do
+      middleware RequireAdmin
+
+      resolve fn _args, _info ->
+        suffrage_ids = Competitions.default_competition.suffrages |> Enum.map &(&1.id)
+
+        {
+          :ok,
+          suffrage_ids
+          |> Enum.flat_map(fn id ->
+            Suffrages.unredeemed_paper_votes(id)
+            |> Repo.all
+          end)
+        }
+      end
+    end
+
+    field :redeemed_paper_votes, list_of(:paper_vote) do
+      middleware RequireAdmin
+
+      resolve fn _args, _info ->
+        suffrage_ids = Competitions.default_competition.suffrages |> Enum.map &(&1.id)
+
+        {
+          :ok,
+          suffrage_ids
+          |> Enum.flat_map(fn id ->
+            Suffrages.redeemed_paper_votes(id)
+            |> Repo.all
+          end)
+        }
       end
     end
   end
@@ -600,5 +636,50 @@ defmodule Api.GraphQL.Schema do
         {:ok, Teams.get_team(id)}
       end
     end
+
+    @desc "Creates a paper vote"
+    field :create_paper_vote, :paper_vote do
+      arg :suffrage_id, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{suffrage_id: suffrage_id}, %{context: %{current_user: current_user}} ->
+        pv = Suffrages.create_paper_vote(suffrage_id, current_user)
+      end
+    end
+
+    @desc "Redeems a paper vote"
+    field :redeem_paper_vote, :paper_vote do
+      arg :paper_vote_id, non_null(:string)
+      arg :user_id, non_null(:string)
+      arg :team_id, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn args, info ->
+        %{paper_vote_id: paper_vote_id, user_id: user_id, team_id: team_id} = args
+        %{context: %{current_user: current_user}} = info
+
+        paper_vote = Suffrages.get_paper_vote(paper_vote_id)
+        user = Accounts.get_user(user_id)
+        team = Teams.get_team(team_id)
+
+        Suffrages.redeem_paper_vote(paper_vote, team, user, paper_vote.suffrage, current_user)
+      end
+    end
+
+    @desc "Annuls a paper vote"
+    field :annul_paper_vote, :paper_vote do
+      arg :paper_vote_id, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{paper_vote_id: paper_vote_id}, %{context: %{current_user: current_user}} ->
+        paper_vote = Suffrages.get_paper_vote(paper_vote_id)
+
+        Suffrages.annul_paper_vote(paper_vote, current_user, paper_vote.suffrage)
+      end
+    end
+
   end
 end

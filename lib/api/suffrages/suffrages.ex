@@ -440,12 +440,12 @@ defmodule Api.Suffrages do
     ) |> Repo.one()
 
     cond do
-      suffrage_status(paper_vote.suffrage_id) == :not_started -> :not_started
-      suffrage_status(paper_vote.suffrage_id) == :ended -> :already_ended
-      paper_vote.redeemed_at -> :already_redeemed
-      paper_vote.annulled_at -> :annulled
-      is_nil(candidate) -> :team_not_candidate
-      !is_nil(candidate.disqualified_at) -> :team_disqualified
+      suffrage_status(paper_vote.suffrage_id) == :not_started -> {:error, :not_started}
+      suffrage_status(paper_vote.suffrage_id) == :ended -> {:error, :already_ended}
+      paper_vote.redeemed_at -> {:error, :already_redeemed}
+      paper_vote.annulled_at -> {:error, :annulled}
+      is_nil(candidate) -> {:error, :team_not_candidate}
+      !is_nil(candidate.disqualified_at) -> {:error, :team_disqualified}
       true ->
         {
           :ok,
@@ -465,7 +465,7 @@ defmodule Api.Suffrages do
     at = at || DateTime.utc_now
 
     case suffrage_status(suffrage.id) do
-      :ended -> :already_ended
+      :ended -> {:error, :already_ended}
       _ ->
         {
           :ok,
