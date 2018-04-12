@@ -3,7 +3,7 @@ defmodule Api.Suffrages do
 
   alias Api.Repo
   alias Api.Accounts.User
-  alias Api.Teams.Team
+  alias Api.Teams.{Team, Membership}
   alias Api.Competitions
   alias Api.Competitions.Attendance
   alias Api.Suffrages.{Suffrage, Vote, PaperVote, Candidate}
@@ -137,18 +137,15 @@ defmodule Api.Suffrages do
 
     attendance = Competitions.get_attendance(Competitions.default_competition.id, user.id)
 
-    # votes_length = Enum.reduce(votes, 0, fn {_, ballot}, acc -> acc + length(ballot) end)
+    votes_length = Enum.reduce(votes, 0, fn {_, ballot}, acc -> acc + length(ballot) end)
 
-    # valid_votes_length = Enum.reduce(votes, 0, fn {suffrage_id, ballot}, acc ->
-    #   if validate_ballot(suffrage_id, ballot, user), do: acc + length(ballot), else: acc
-    # end)
+    valid_votes_length = Enum.reduce(votes, 0, fn {suffrage_id, ballot}, acc ->
+      if validate_ballot(suffrage_id, ballot, user), do: acc + length(ballot), else: acc
+    end)
 
-    # if votes_length != valid_votes_length do
-    #   IO.puts "INVALID VOTES"
-    #   IO.puts votes_length
-    #   IO.puts valid_votes_length
-    #   throw {:error, "Invalid vote"}
-    # end
+    if votes_length != valid_votes_length do
+      throw {:error, "Invalid vote"}
+    end
 
     multi = Enum.reduce(votes, multi, fn {suffrage_id, ballot}, acc ->
 
@@ -270,22 +267,24 @@ defmodule Api.Suffrages do
 
   defp on_votable_team(nil, _), do: nil
   defp on_votable_team(team, suffrage_id) do
-    teams = candidates(suffrage_id) |> Repo.all()
+    teams = candidates(suffrage_id) |> Repo.all() |> Enum.map(&(&1.team_id))
 
-    case team in teams do
+    case team.id in teams do
       true -> team
       false -> nil
     end
   end
 
-  defp not_on_own_team(nil, _) do
-    false
-  end
-
+  defp not_on_own_team(nil, _), do: false
   defp not_on_own_team(team, user) do
-    user = Repo.preload(user, :teams)
-    user_team = Repo.one(from t in user.teams, where: t.competition_id == ^Competitions.default_competition().id)
-    user_team.id != team.id
+    user_team = from(
+      m in Membership,
+      join: t in Team,
+      where: m.user_id == ^user.id,
+      where: t.competition_id == ^Competitions.default_competition().id,
+      where: m.team_id == t.id
+    ) |> Repo.one()
+    user_team.team_id != team.id
   end
 
   defp get_struct(user, suffrage_id) do
