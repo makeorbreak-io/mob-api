@@ -13,6 +13,7 @@ defmodule Api.GraphQL.InputTypes do
     field :project_desc, :string
     field :technologies, :array
     field :applied, :boolean
+    field :prize_preference, :string # stringified array
   end
 
   input_object :user_input do

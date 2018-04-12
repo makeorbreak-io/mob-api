@@ -4,9 +4,9 @@ defmodule Api.Accounts.User do
 
   alias Api.Repo
   alias Api.Competitions.Attendance, as: CompAttendance
-  alias Api.Workshops.Workshop
-  alias Api.Workshops.Attendance
   alias Api.{Teams.Invite, Teams.Membership}
+  alias Api.{Workshops.Workshop, Workshops.Attendance}
+  alias Api.{Teams.Invite, Teams.Membership, Teams.ProjectFavorite}
   alias Api.AICompetition.Bot
   alias Comeonin.Bcrypt
 
@@ -66,6 +66,7 @@ defmodule Api.Accounts.User do
     has_many :teams, through: [:memberships, :team]
     has_many :ai_competition_bots, Bot
     has_many :attendances, CompAttendance, foreign_key: :attendee
+    has_many :project_favorites, ProjectFavorite
 
     many_to_many :workshops, Workshop, join_through: Attendance, on_delete: :delete_all
   end
