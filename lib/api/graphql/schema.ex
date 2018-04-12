@@ -10,7 +10,7 @@ defmodule Api.GraphQL.Schema do
   alias Api.Accounts
   alias Api.Accounts.User
   alias Api.Competitions
-  alias Api.Integrations.Medium
+  alias Api.Integrations.{Medium, Github}
   alias Api.Flybys
   alias Api.Teams
   alias Api.Teams.{Team}
@@ -31,7 +31,7 @@ defmodule Api.GraphQL.Schema do
       resolve &Resolvers.me/2
     end
 
-    #-------------------------------------------------------------------------- Publicly available information
+    #--------------------------------------------------------------- Publicly available information
     @desc "Single workshop details"
     field :workshop, :workshop do
       arg :slug, non_null(:string)
@@ -62,7 +62,7 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    #-------------------------------------------------------------------------- Participant / team
+    #---------------------------------------------------------------------------- Participant / team
     @desc "Single team details"
     field :team, :team do
       arg :id, non_null(:string)
@@ -72,7 +72,7 @@ defmodule Api.GraphQL.Schema do
       resolve Resolvers.by_id(Team)
     end
 
-    #-------------------------------------------------------------------------- Participant / AI Competition
+    #------------------------------------------------------------------ Participant / AI Competition
     @desc "Last 50 AI Competition games for the current user"
     field :ai_games, list_of(:ai_competition_game) do
       middleware RequireAuthn
@@ -100,7 +100,7 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    #-------------------------------------------------------------------------- Admin / dashboard stats
+    #----------------------------------------------------------------------- Admin / dashboard stats
     field :admin_stats, :admin_stats do
       middleware RequireAdmin
 
@@ -109,7 +109,7 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    #-------------------------------------------------------------------------- Admin / Paginated resources
+    #------------------------------------------------------------------- Admin / Paginated resources
     connection field :users, node_type: :user do
       arg :order_by, :string
 
@@ -134,7 +134,7 @@ defmodule Api.GraphQL.Schema do
       resolve Resolvers.by_id(Bot)
     end
 
-    #-------------------------------------------------------------------------- Admin / Non-Paginated resources
+    #--------------------------------------------------------------- Admin / Non-Paginated resources
     field :bots, list_of(:ai_competition_bot) do
       middleware RequireAdmin
 
@@ -196,10 +196,10 @@ defmodule Api.GraphQL.Schema do
     end
   end
 
-  #============================================================================ Mutations
+  #======================================================================================= Mutations
 
   mutation do
-    #-------------------------------------------------------------------------- User session
+    #---------------------------------------------------------------------------------- User session
     @desc "Authenticates a user and returns a JWT"
     field :authenticate, type: :string do
       arg :email, non_null(:string)
@@ -233,7 +233,7 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    #-------------------------------------------------------------------------- Participant / team & invites
+    #------------------------------------------------------------------ Participant / team & invites
     @desc "Creates a team"
     field :create_team, type: :team do
       arg :team, non_null(:team_input)
@@ -383,9 +383,9 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    #========================================================================== ADMIN
+    #========================================================================================= ADMIN
 
-    #-------------------------------------------------------------------------- Admin / workshops
+    #----------------------------------------------------------------------------- Admin / workshops
     @desc "Creates a workshop (admin only)"
     field :create_workshop, :workshop do
       arg :workshop, non_null(:workshop_input)
@@ -420,7 +420,7 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    #-------------------------------------------------------------------------- Admin / fly
+    #----------------------------------------------------------------------------------- Admin / fly
     @desc "Creates a paper plane competition entry"
     field :create_flyby, :flyby do
       arg :flyby, non_null(:flyby_input)
@@ -443,7 +443,7 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    #-------------------------------------------------------------------------- Admin / users
+    #--------------------------------------------------------------------------------- Admin / users
     @desc "Makes a user admin (admin only)"
     field :make_admin, :user do
       arg :id, non_null(:string)
@@ -478,7 +478,7 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    #-------------------------------------------------------------------------- Admin / teams
+    #--------------------------------------------------------------------------------- Admin / teams
     @desc "Apply the team to the hackathon (admin only)"
     field :apply_team_to_hackathon, :team do
       arg :id, non_null(:string)
@@ -554,11 +554,11 @@ defmodule Api.GraphQL.Schema do
       middleware RequireAdmin
 
       resolve fn %{id: id}, _info ->
-        {:ok, nil}
+        Github.create_repo(id)
       end
     end
 
-    #-------------------------------------------------------------------------- Admin / AI Competition
+    #------------------------------------------------------------------------ Admin / AI Competition
     @desc "Runs AI Competition ranked games"
     field :perform_ranked_ai_games, :string do
       arg :name, non_null(:string)
@@ -574,7 +574,7 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    #-------------------------------------------------------------------------- Admin / check in
+    #------------------------------------------------------------------------------ Admin / check in
     @desc "Toggles competition check in status for user"
     field :toggle_user_checkin, :user do
       arg :user_id, non_null(:string)
@@ -599,7 +599,7 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    #-------------------------------------------------------------------------- Admin / voting
+    #-------------------------------------------------------------------------------- Admin / voting
     @desc "Create suffrage (admin only)"
     field :create_suffrage, :suffrage do
       arg :suffrage, non_null(:suffrage_input)
