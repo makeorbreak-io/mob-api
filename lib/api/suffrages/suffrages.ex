@@ -137,24 +137,30 @@ defmodule Api.Suffrages do
 
     attendance = Competitions.get_attendance(Competitions.default_competition.id, user.id)
 
-    votes_length = Enum.reduce(votes, 0, fn {_, ballot}, acc -> acc + length(ballot) end)
+    # votes_length = Enum.reduce(votes, 0, fn {_, ballot}, acc -> acc + length(ballot) end)
 
-    valid_votes_length = Enum.reduce(votes, 0, fn {_, ballot}, acc ->
-      if validate_ballot(ballot, user), do: acc + length(ballot), else: acc
-    end)
+    # valid_votes_length = Enum.reduce(votes, 0, fn {suffrage_id, ballot}, acc ->
+    #   if validate_ballot(suffrage_id, ballot, user), do: acc + length(ballot), else: acc
+    # end)
 
-    if votes_length != valid_votes_length do
-      throw {:error, "Invalid vote"}
-    end
+    # if votes_length != valid_votes_length do
+    #   IO.puts "INVALID VOTES"
+    #   IO.puts votes_length
+    #   IO.puts valid_votes_length
+    #   throw {:error, "Invalid vote"}
+    # end
 
-    multi = Enum.reduce(votes, multi, fn {suffrage_id, ballot}, multi ->
+    multi = Enum.reduce(votes, multi, fn {suffrage_id, ballot}, acc ->
 
       case suffrage_status(suffrage_id) do
         :not_started -> throw {:error, :not_started}
         :ended -> throw {:error, :already_ended}
+        _ -> nil
       end
 
-      Multi.insert_or_update(multi,
+      IO.inspect multi
+
+      Multi.insert_or_update(acc,
         suffrage_id,
         Vote.changeset(
           get_struct(user, suffrage_id),
@@ -242,18 +248,19 @@ defmodule Api.Suffrages do
     }
   end
 
-  defp validate_ballot(votes, user), do: validate_ballot(votes, user, [])
-  defp validate_ballot([], _, acc), do: Enum.all?(acc)
-  defp validate_ballot([vote|rest], user, acc), do: validate_ballot(
+  defp validate_ballot(suffrage_id, votes, user), do: validate_ballot(suffrage_id, votes, user, [])
+  defp validate_ballot(suffrage_id, [], _, acc), do: Enum.all?(acc)
+  defp validate_ballot(suffrage_id, [vote|rest], user, acc), do: validate_ballot(
+    suffrage_id,
     rest,
     user,
-    acc ++ [validate_vote(vote, user)]
+    acc ++ [validate_vote(suffrage_id, vote, user)]
   )
 
-  defp validate_vote(vote, user) do
+  defp validate_vote(suffrage_id, vote, user) do
     vote
     |> on_valid_team()
-    |> on_votable_team(vote.suffrage_id)
+    |> on_votable_team(suffrage_id)
     |> not_on_own_team(user)
   end
 
@@ -271,8 +278,15 @@ defmodule Api.Suffrages do
     end
   end
 
-  defp not_on_own_team(nil, _), do: false
-  defp not_on_own_team(team, user), do: user.team.team_id != team.id
+  defp not_on_own_team(nil, _) do
+    false
+  end
+
+  defp not_on_own_team(team, user) do
+    user = Repo.preload(user, :teams)
+    user_team = Repo.one(from t in user.teams, where: t.competition_id == ^Competitions.default_competition().id)
+    user_team.id != team.id
+  end
 
   defp get_struct(user, suffrage_id) do
     suffrage = get_suffrage(suffrage_id)
