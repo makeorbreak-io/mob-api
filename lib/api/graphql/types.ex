@@ -7,6 +7,7 @@ defmodule Api.GraphQL.Types do
   alias Api.Competitions
   alias Api.Accounts.User
   alias Api.AICompetition.Bots
+  alias Api.Suffrages
 
   import_types Absinthe.Type.Custom
   import_types Api.GraphQL.Scalars
@@ -88,11 +89,15 @@ defmodule Api.GraphQL.Types do
     field :tie_breaker, :integer
     field :project_name, :string
     field :project_desc, :string
-    # field :technologies, :array
+    field :prize_preference, :array
     field :applied, :boolean
     field :accepted, :boolean
     field :eligible, :boolean
-    field :disqualified_at, :utc_datetime
+    field :is_disqualified, :boolean do
+      resolve fn _args, %{source: source} ->
+        {:ok, Suffrages.is_disqualified(source.id)}
+      end
+    end
 
     field :competition, :competition, resolve: assoc(:competition)
 

@@ -508,6 +508,20 @@ defmodule Api.Suffrages do
     |> Repo.update_all([])
   end
 
+  def is_disqualified(team_id) do
+    candidates = from(
+      c in Candidate,
+      join: s in assoc(c, :suffrage),
+      join: comp in assoc(s, :competition),
+      where: comp.id == ^Competitions.default_competition.id,
+      where: c.team_id == ^team_id,
+      where: not is_nil(c.disqualified_at),
+    )
+    |> Repo.all()
+
+    length(candidates) > 0
+  end
+
   def assign_tie_breakers(suffrage_id) do
     candidates = candidates(suffrage_id) |> Repo.all()
 
