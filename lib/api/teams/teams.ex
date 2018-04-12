@@ -117,8 +117,8 @@ defmodule Api.Teams do
         t in Membership,
         where: t.user_id == ^user.id and t.team_id == ^team_id
     )) do
-      {1, _} -> :ok
-      {0, _} -> :membership_not_found
+      {1, _} -> {:ok, get_team(team_id)}
+      {0, _} -> {:error, :membership_not_found}
     end
   catch
     e -> e

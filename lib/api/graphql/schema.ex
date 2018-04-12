@@ -524,6 +524,18 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
+    @desc "Removes any team membership (admin only)"
+    field :remove_any_membership, :team do
+      arg :team_id, non_null(:string)
+      arg :user_id, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{team_id: team_id, user_id: user_id}, _info ->
+        Teams.remove_any_membership(team_id, user_id)
+      end
+    end
+
     @desc "Makes a team eligible for voting"
     field :make_team_eligible, :team do
       arg :id, non_null(:string)
@@ -532,6 +544,17 @@ defmodule Api.GraphQL.Schema do
 
       resolve fn %{id: id}, _info ->
         Teams.update_any_team(id, %{eligible: true})
+      end
+    end
+
+    @desc "Creates a repo on github for a team"
+    field :create_team_repo, :team do
+      arg :id, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{id: id}, _info ->
+        {:ok, nil}
       end
     end
 
