@@ -6,6 +6,7 @@
 erl_crash.dump
 *.ez
 *.beam
+*.dump
 /db
 node_modules/
 /priv/static/
