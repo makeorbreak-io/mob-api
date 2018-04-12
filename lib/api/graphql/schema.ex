@@ -335,17 +335,15 @@ defmodule Api.GraphQL.Schema do
     #-------------------------------------------------------------------------- Participant / voting
     @desc "Casts votes"
     field :cast_votes, :user do
-      arg :suffrage_id, non_null(:string)
       arg :votes, non_null(:string) # stringified json
 
       middleware RequireAuthn
 
-      resolve fn %{suffrage_id: suffrage_id, votes: votes},
-        %{context: %{current_user: current_user}} ->
-          ballots = votes |> Poison.decode! |> Map.to_list
-          Suffrages.upsert_votes(current_user, suffrage_id, ballots)
+      resolve fn %{votes: votes}, %{context: %{current_user: current_user}} ->
+        ballots = votes |> Poison.decode! |> Map.to_list
+        Suffrages.upsert_votes(current_user, ballots)
 
-          {:ok, Accounts.get_user(current_user.id)}
+        {:ok, Accounts.get_user(current_user.id)}
       end
     end
 

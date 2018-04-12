@@ -132,12 +132,10 @@ defmodule Api.Suffrages do
   #   {suffrage_id, ["uuid", "uuid"]},
   #   {suffrage_id, ["uuid", "uuid"]},
   # ]
-  def upsert_votes(user, suffrage_id, votes) do
+  def upsert_votes(user, votes) do
     multi = Multi.new()
 
-    suffrage = get_suffrage(suffrage_id)
-
-    attendance = Competitions.get_attendance(suffrage.competition_id, user.id)
+    attendance = Competitions.get_attendance(Competitions.default_competition.id, user.id)
 
     votes_length = Enum.reduce(votes, 0, fn {_, ballot}, acc -> acc + length(ballot) end)
 
@@ -149,12 +147,13 @@ defmodule Api.Suffrages do
       throw {:error, "Invalid vote"}
     end
 
-    case suffrage_status(suffrage.id) do
-      :not_started -> throw {:error, :not_started}
-      :ended -> throw {:error, :already_ended}
-    end
-
     multi = Enum.reduce(votes, multi, fn {suffrage_id, ballot}, multi ->
+
+      case suffrage_status(suffrage_id) do
+        :not_started -> throw {:error, :not_started}
+        :ended -> throw {:error, :already_ended}
+      end
+
       Multi.insert_or_update(multi,
         suffrage_id,
         Vote.changeset(
@@ -414,8 +413,8 @@ defmodule Api.Suffrages do
     |> Repo.preload(:suffrage)
   end
 
-  def create_paper_vote(suffrage, admin) do
-    case suffrage_status(suffrage.id) do
+  def create_paper_vote(suffrage_id, admin) do
+    case suffrage_status(suffrage_id) do
       :ended -> :already_ended
       _ ->
         {
@@ -423,7 +422,7 @@ defmodule Api.Suffrages do
           %PaperVote{}
           |> PaperVote.changeset(%{
             created_by_id: admin.id,
-            suffrage_id: suffrage.id
+            suffrage_id: suffrage_id,
           })
           |> Repo.insert!
         }
