@@ -41,7 +41,7 @@ defmodule Api.Integrations.Github do
     client = init()
 
     case Repositories.org_create(@organization, slugify(team.project_name),
-      client, [description: team.project_desc, private: false]) do
+      client, [private: false]) do
         {201, repo} -> {:ok, repo}
         {_, error} -> {:error, error["message"]}
     end
