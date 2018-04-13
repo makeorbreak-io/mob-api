@@ -2,8 +2,7 @@ defmodule Api.Teams.ProjectFavorites do
   import Ecto.Query, warn: false
 
   alias Api.Repo
-  alias Api.Accounts.User
-  alias Api.Teams.{Team, ProjectFavorite}
+  alias Api.Teams.ProjectFavorite
 
   def user_favorites(user) do
     q = from pf in ProjectFavorite,
@@ -29,7 +28,7 @@ defmodule Api.Teams.ProjectFavorites do
       where: pf.team_id == ^team_id
 
     pf = Repo.one(q)
-    if (pf) do
+    if pf do
       Repo.delete(pf)
       {:ok, %ProjectFavorite{}}
     else

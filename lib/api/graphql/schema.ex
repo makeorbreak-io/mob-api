@@ -189,14 +189,14 @@ defmodule Api.GraphQL.Schema do
       middleware RequireAdmin
 
       resolve fn _args, _info ->
-        suffrage_ids = Competitions.default_competition.suffrages |> Enum.map &(&1.id)
+        suffrage_ids = Competitions.default_competition().suffrages |> Enum.map &(&1.id)
 
         {
           :ok,
           suffrage_ids
           |> Enum.flat_map(fn id ->
             Suffrages.unredeemed_paper_votes(id)
-            |> Repo.all
+            |> Repo.all()
           end)
         }
       end
@@ -206,7 +206,7 @@ defmodule Api.GraphQL.Schema do
       middleware RequireAdmin
 
       resolve fn _args, _info ->
-        suffrage_ids = Competitions.default_competition.suffrages |> Enum.map &(&1.id)
+        suffrage_ids = Competitions.default_competition().suffrages |> Enum.map &(&1.id)
 
         {
           :ok,
@@ -361,7 +361,7 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    #-------------------------------------------------------------------------- Participant / ai competition
+    #------------------------------------------------------------------ Participant / ai competition
     @desc "Creates an AI competition bot"
     field :create_ai_competition_bot, :user do
       arg :bot, non_null(:ai_competition_bot_input)
@@ -375,7 +375,7 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    #-------------------------------------------------------------------------- Participant / workshops
+    #----------------------------------------------------------------------- Participant / workshops
     @desc "Joins a workshop"
     field :join_workshop, :workshop do
       arg :slug, non_null(:string)
@@ -413,7 +413,7 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    #-------------------------------------------------------------------------- Participant / projects
+    #------------------------------------------------------------------------ Participant / projects
     @desc "Toggles favorite status on a project"
     field :toggle_project_favorite, :project_favorite do
       arg :team_id, non_null(:string)
@@ -709,7 +709,7 @@ defmodule Api.GraphQL.Schema do
       middleware RequireAdmin
 
       resolve fn %{suffrage_id: suffrage_id}, %{context: %{current_user: current_user}} ->
-        pv = Suffrages.create_paper_vote(suffrage_id, current_user)
+        Suffrages.create_paper_vote(suffrage_id, current_user)
       end
     end
 

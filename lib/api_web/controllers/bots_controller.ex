@@ -2,8 +2,7 @@ defmodule ApiWeb.BotsController do
   use Api.Web, :controller
 
   alias Api.Repo
-  alias Api.AICompetition
-  alias Api.AICompetition.{Bot, Bots, Games}
+  alias Api.AICompetition.{Bot, Bots}
 
   def callback(conn, %{"id" => id, "status" => status, "result" => result}) do
     bot = Bots.get_bot(id)

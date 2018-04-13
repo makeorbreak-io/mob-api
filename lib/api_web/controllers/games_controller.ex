@@ -17,7 +17,7 @@ defmodule ApiWeb.GamesController do
     send_resp(conn, 200, "")
   end
 
-  def callback(conn, %{"id" => id, "status" => status, "result" => result}) do
+  def callback(conn, %{"id" => id, "status" => status}) do
     game = Games.get_game(id)
 
     changeset = Game.changeset(game, %{

@@ -2,7 +2,6 @@ defmodule Api.AICompetition.Games do
   import Ecto.Query, warn: false
 
   alias Api.Repo
-  alias Api.Accounts.User
   alias Api.AICompetition.{Game, GameBot, Bot}
 
   def get_game(id) do
@@ -100,17 +99,15 @@ defmodule Api.AICompetition.Games do
   end
 
   def base_points(game, bot_id) do
-    try do
-      score = game.final_state
-      |> Map.fetch!("colors")
-      |> Enum.flat_map(fn c -> c end)
-      |> Enum.map(fn c -> (if c == bot_id, do: 1, else: 0) end)
-      |> Api.Enum.avg
+    score = game.final_state
+    |> Map.fetch!("colors")
+    |> Enum.flat_map(fn c -> c end)
+    |> Enum.map(fn c -> (if c == bot_id, do: 1, else: 0) end)
+    |> Api.Enum.avg
 
-      score * 100 |> trunc
-    rescue
-      Enum.OutOfBoundsError -> 0
-    end
+    score * 100 |> trunc
+  rescue
+    Enum.OutOfBoundsError -> 0
   end
 
   def submit_to_ai_server(game, "compete") do

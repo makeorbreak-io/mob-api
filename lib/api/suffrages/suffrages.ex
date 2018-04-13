@@ -155,8 +155,6 @@ defmodule Api.Suffrages do
         _ -> nil
       end
 
-      IO.inspect multi
-
       Multi.insert_or_update(acc,
         suffrage_id,
         Vote.changeset(
@@ -246,7 +244,7 @@ defmodule Api.Suffrages do
   end
 
   defp validate_ballot(suffrage_id, votes, user), do: validate_ballot(suffrage_id, votes, user, [])
-  defp validate_ballot(suffrage_id, [], _, acc), do: Enum.all?(acc)
+  defp validate_ballot(_, [], _, acc), do: Enum.all?(acc)
   defp validate_ballot(suffrage_id, [vote|rest], user, acc), do: validate_ballot(
     suffrage_id,
     rest,

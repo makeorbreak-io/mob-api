@@ -2,12 +2,11 @@ defmodule Api.AICompetition do
   import Ecto.Query, warn: false
 
   alias Api.Repo
-  alias Api.Accounts
   alias Api.Accounts.User
-  alias Api.AICompetition.{Games, Game, GameBot, Bot, Bots, GameTemplates}
+  alias Api.AICompetition.{Games, Game, Bot, Bots, GameTemplates}
 
   def users_with_valid_bots do
-    users = from(
+    from(
       u in User,
       join: b in Bot,
       where:
@@ -41,7 +40,7 @@ defmodule Api.AICompetition do
       &GameTemplates.five_by_eleven/2,
     ]
 
-    users_with_valid_bots
+    users_with_valid_bots()
     |> user_pairs
     |> Enum.flat_map(fn [u1, u2] ->
       templates
@@ -75,12 +74,24 @@ defmodule Api.AICompetition do
 
   def ranked_match_config(run_name) do
     %{
-      "day 1" => %{timestamp: ~N[2018-04-10 03:00:00], templates: [&GameTemplates.ten_by_ten/2, &GameTemplates.five_by_eleven/2]},
-      "day 2" => %{timestamp: ~N[2018-04-11 03:00:00], templates: [&GameTemplates.ten_by_ten/2, &GameTemplates.five_by_eleven/2]},
-      "day 3" => %{timestamp: ~N[2018-04-12 03:00:00], templates: [&GameTemplates.ten_by_ten/2, &GameTemplates.five_by_eleven/2]},
-      "day 4" => %{timestamp: ~N[2018-04-13 03:00:00], templates: [&GameTemplates.ten_by_ten/2, &GameTemplates.five_by_eleven/2]},
-      "day 5" => %{timestamp: ~N[2018-04-14 03:00:00], templates: [&GameTemplates.seven_by_thirteen/2, &GameTemplates.seven_by_thirteen/2]},
-      "day 6" => %{timestamp: ~N[2018-04-15 03:00:00], templates: [&GameTemplates.seven_by_thirteen_b/2, &GameTemplates.seven_by_thirteen_b/2]},
+      "day 1" => %{timestamp: ~N[2018-04-10 03:00:00], templates: [
+        &GameTemplates.ten_by_ten/2, &GameTemplates.five_by_eleven/2
+      ]},
+      "day 2" => %{timestamp: ~N[2018-04-11 03:00:00], templates: [
+        &GameTemplates.ten_by_ten/2, &GameTemplates.five_by_eleven/2
+      ]},
+      "day 3" => %{timestamp: ~N[2018-04-12 03:00:00], templates: [
+        &GameTemplates.ten_by_ten/2, &GameTemplates.five_by_eleven/2
+      ]},
+      "day 4" => %{timestamp: ~N[2018-04-13 03:00:00], templates: [
+        &GameTemplates.ten_by_ten/2, &GameTemplates.five_by_eleven/2
+      ]},
+      "day 5" => %{timestamp: ~N[2018-04-14 03:00:00], templates: [
+        &GameTemplates.seven_by_thirteen/2, &GameTemplates.seven_by_thirteen/2
+      ]},
+      "day 6" => %{timestamp: ~N[2018-04-15 03:00:00], templates: [
+        &GameTemplates.seven_by_thirteen_b/2, &GameTemplates.seven_by_thirteen_b/2
+      ]},
     }
     |> Map.fetch!(run_name)
   end
@@ -126,7 +137,10 @@ defmodule Api.AICompetition do
       player = %{
         name: User.display_name(user),
         bot: "#{bot.title} (rev. #{bot.revision})",
-        day_performance: game_scores |> Enum.map(&(&1.mine)) |> Enum.reject(&is_nil/1) |> Api.Enum.avg,
+        day_performance: game_scores
+          |> Enum.map(&(&1.mine))
+          |> Enum.reject(&is_nil/1)
+          |> Api.Enum.avg,
         matches: game_scores |> Enum.count,
       }
 
@@ -136,10 +150,10 @@ defmodule Api.AICompetition do
           %{mine: mine, min: min, max: max} = rank
 
           %{
-            wins: acc.wins + (if (mine != nil && mine == max && mine != min), do: 1, else: 0),
-            draws: acc.draws + (if (mine != nil && mine == max && mine == min), do: 1, else: 0),
-            losses: acc.losses + (if (mine != nil && mine != max && mine == min), do: 1, else: 0),
-            errors: acc.errors + (if (mine == nil), do: 1, else: 0),
+            wins: acc.wins + (if mine != nil && mine == max && mine != min, do: 1, else: 0),
+            draws: acc.draws + (if mine != nil && mine == max && mine == min, do: 1, else: 0),
+            losses: acc.losses + (if mine != nil && mine != max && mine == min, do: 1, else: 0),
+            errors: acc.errors + (if mine == nil, do: 1, else: 0),
           }
         end
       )
