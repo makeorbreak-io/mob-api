@@ -8,6 +8,17 @@
     "lib/api_web/endpoint.ex",
     "test/support/conn_case.ex",
     "test/support/data_case.ex",
+    "lib/api/ai_competition/*",
+    "lib/api/ecto.ex",
+    "lib/api/enum.ex",
+    "lib/api/flybys/*",
+    "lib/api/graphql/*",
+    "lib/api/stats/stats.ex",
+    "lib/api_web/*",
+    "lib/api/integrations/*",
+    "lib/api/teams/project_favorite.ex",
+    "lib/api/teams/project_favorites.ex",
+    "lib/mix/tasks/api.validate_info_end.ex"
   ],
 
   "default_stop_words": [

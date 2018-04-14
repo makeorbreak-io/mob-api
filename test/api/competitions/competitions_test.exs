@@ -30,6 +30,12 @@ defmodule Api.CompetitionsTest do
     assert length(competitions) == 2
   end
 
+  test "default competition" do
+    {:ok, competition} = Competitions.create_competition(%{name: "default"})
+
+    assert competition.id == Competitions.default_competition().id
+  end
+
   test "get competition", %{c1: c1} do
     assert Competitions.get_competition(c1.id) == c1
   end

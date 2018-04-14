@@ -5,8 +5,6 @@ defmodule Api.GraphQL.Schema do
   alias Api.GraphQL.Middleware.{RequireAuthn, RequireAdmin}
   alias Api.GraphQL.Resolvers
 
-  alias Api.Repo # FIXME: this should not be here
-
   alias Api.Accounts
   alias Api.Accounts.User
   alias Api.Competitions
@@ -59,6 +57,18 @@ defmodule Api.GraphQL.Schema do
           |> Map.get("Post")
           |> Map.values
         }}
+      end
+    end
+
+    field :info_start, non_null(:string) do
+      resolve fn _args, _info ->
+        {:ok, Suffrages.build_info_start(Competitions.default_competition().id)}
+      end
+    end
+
+    field :info_end, :string do
+      resolve fn _args, _info ->
+        {:ok, Suffrages.build_info_end(Competitions.default_competition().id)}
       end
     end
 
@@ -189,15 +199,9 @@ defmodule Api.GraphQL.Schema do
       middleware RequireAdmin
 
       resolve fn _args, _info ->
-        suffrage_ids = Competitions.default_competition().suffrages |> Enum.map &(&1.id)
-
         {
           :ok,
-          suffrage_ids
-          |> Enum.flat_map(fn id ->
-            Suffrages.unredeemed_paper_votes(id)
-            |> Repo.all()
-          end)
+          Suffrages.unredeemed_paper_votes(Competitions.default_competition().id)
         }
       end
     end
@@ -206,16 +210,18 @@ defmodule Api.GraphQL.Schema do
       middleware RequireAdmin
 
       resolve fn _args, _info ->
-        suffrage_ids = Competitions.default_competition().suffrages |> Enum.map &(&1.id)
-
         {
           :ok,
-          suffrage_ids
-          |> Enum.flat_map(fn id ->
-            Suffrages.redeemed_paper_votes(id)
-            |> Repo.all
-          end)
+          Suffrages.redeemed_paper_votes(Competitions.default_competition().id)
         }
+      end
+    end
+
+    field :missing_voters, list_of(:user) do
+      middleware RequireAdmin
+
+      resolve fn _args, _info ->
+        {:ok, Suffrages.missing_voters()}
       end
     end
   end

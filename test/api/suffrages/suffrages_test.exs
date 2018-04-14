@@ -2,7 +2,7 @@ defmodule Api.SuffragesTest do
   use Api.DataCase
 
   alias Api.Suffrages
-  alias Api.Suffrages.Candidate
+  alias Api.Suffrages.{Candidate, Suffrage}
   alias Api.Teams.Team
 
   setup do
@@ -16,58 +16,82 @@ defmodule Api.SuffragesTest do
     {
       :ok,
       %{
-        competition: competition,
-        suffrage: create_suffrage(competition.id),
-        admin: create_admin(),
-        member: member,
-        team: team,
+        c: competition,
+        s: create_suffrage(competition.id),
+        a: create_admin(),
+        m: member,
+        t: team,
       },
     }
   end
 
-  test "before start", %{suffrage: suffrage} do
-     assert Suffrages.suffrage_status(suffrage.id) == :not_started
+  test "all suffrages", %{s: s1, c: c} do
+    s2 = create_suffrage(c.id)
+
+    assert Suffrages.all_suffrages() == [s1, s2]
   end
 
-  test "start_suffrage", %{suffrage: suffrage} do
-    {:ok, _} = Suffrages.start_suffrage(suffrage.id)
-    assert Suffrages.suffrage_status(suffrage.id) == :started
+  test "create_suffrage", %{c: c} do
+    {:ok, s1} = Suffrages.create_suffrage(%{name: "koch", slug: "koch-2018", competition_id: c.id})
+
+    assert Repo.get(Suffrage, s1.id)
   end
 
-  test "end_suffrage", %{suffrage: suffrage} do
-    {:ok, _} = Suffrages.start_suffrage(suffrage.id)
-    {:ok, _} = Suffrages.end_suffrage(suffrage.id)
-    assert Suffrages.suffrage_status(suffrage.id) == :ended
+  test "get suffrage by slug", %{s: s} do
+    assert s == Suffrages.by_slug(s.slug)
   end
 
-  test "start_suffrage twice", %{suffrage: suffrage} do
-    {:ok, _} = Suffrages.start_suffrage(suffrage.id)
-    :already_started = Suffrages.start_suffrage(suffrage.id)
+  test "delete_suffrage", %{c: c} do
+    s1 = create_suffrage(c.id)
+
+    Suffrages.delete_suffrage(s1.id)
+
+    refute Repo.get(Suffrage, s1.id)
   end
 
-  test "end_suffrage without starting", %{suffrage: suffrage} do
-    :not_started = Suffrages.end_suffrage(suffrage.id)
+  test "before start", %{s: s} do
+     assert Suffrages.suffrage_status(s.id) == :not_started
   end
 
-  test "end_suffrage twice", %{suffrage: suffrage} do
-    {:ok, _} = Suffrages.start_suffrage(suffrage.id)
-    {:ok, _} = Suffrages.end_suffrage(suffrage.id)
-    :already_ended = Suffrages.end_suffrage(suffrage.id)
+  test "start_suffrage", %{s: s} do
+    {:ok, _} = Suffrages.start_suffrage(s.id)
+    assert Suffrages.suffrage_status(s.id) == :started
   end
 
-  test "create paper vote", %{suffrage: s, admin: a} do
-    {:ok, _} = Suffrages.create_paper_vote(s, a)
+  test "end_suffrage", %{s: s} do
+    {:ok, _} = Suffrages.start_suffrage(s.id)
+    {:ok, _} = Suffrages.end_suffrage(s.id)
+    assert Suffrages.suffrage_status(s.id) == :ended
   end
 
-  test "create paper vote after end", %{suffrage: s, admin: a} do
+  test "start_suffrage twice", %{s: s} do
+    {:ok, _} = Suffrages.start_suffrage(s.id)
+    :already_started = Suffrages.start_suffrage(s.id)
+  end
+
+  test "end_suffrage without starting", %{s: s} do
+    :not_started = Suffrages.end_suffrage(s.id)
+  end
+
+  test "end_suffrage twice", %{s: s} do
+    {:ok, _} = Suffrages.start_suffrage(s.id)
+    {:ok, _} = Suffrages.end_suffrage(s.id)
+    :already_ended = Suffrages.end_suffrage(s.id)
+  end
+
+  test "create paper vote", %{s: s, a: a} do
+    {:ok, _} = Suffrages.create_paper_vote(s.id, a)
+  end
+
+  test "create paper vote after end", %{s: s, a: a} do
     Suffrages.start_suffrage(s.id)
     Suffrages.end_suffrage(s.id)
 
-    :already_ended = Suffrages.create_paper_vote(s, a)
+    :already_ended = Suffrages.create_paper_vote(s.id, a)
   end
 
-  test "redeem paper vote", %{suffrage: s, admin: a, member: m, team: t, competition: c} do
-    {:ok, p} = Suffrages.create_paper_vote(s, a)
+  test "redeem paper vote", %{s: s, a: a, m: m, t: t, c: c} do
+    {:ok, p} = Suffrages.create_paper_vote(s.id, a)
 
     make_teams_eligible(c.id)
     Suffrages.start_suffrage(s.id)
@@ -76,34 +100,34 @@ defmodule Api.SuffragesTest do
   end
 
   test "redeem paper vote not twice",
-    %{suffrage: s, admin: a, member: m, team: t, competition: c} do
-    {:ok, p} = Suffrages.create_paper_vote(s, a)
+    %{s: s, a: a, m: m, t: t, c: c} do
+    {:ok, p} = Suffrages.create_paper_vote(s.id, a)
 
     make_teams_eligible(c.id)
     Suffrages.start_suffrage(s.id)
 
     {:ok, p} = Suffrages.redeem_paper_vote(p, t, m, s, a)
-    :already_redeemed = Suffrages.redeem_paper_vote(p, t, m, s, a)
+    {:error, :already_redeemed} = Suffrages.redeem_paper_vote(p, t, m, s, a)
   end
 
-  test "redeem paper vote not annulled", %{suffrage: s, admin: a, member: m, team: t} do
-    {:ok, p} = Suffrages.create_paper_vote(s, a)
+  test "redeem paper vote not annulled", %{s: s, a: a, m: m, t: t} do
+    {:ok, p} = Suffrages.create_paper_vote(s.id, a)
     Suffrages.start_suffrage(s.id)
 
     {:ok, p} = Suffrages.annul_paper_vote(p, a, s)
-    :annulled = Suffrages.redeem_paper_vote(p, t, m, s, a)
+    {:error, :annulled} = Suffrages.redeem_paper_vote(p, t, m, s, a)
   end
 
-  test "redeem paper vote not eligible", %{suffrage: s, admin: a, member: m, team: t} do
-    {:ok, p} = Suffrages.create_paper_vote(s, a)
+  test "redeem paper vote not eligible", %{s: s, a: a, m: m, t: t} do
+    {:ok, p} = Suffrages.create_paper_vote(s.id, a)
     # Notice I'm not making teams eligible
     Suffrages.start_suffrage(s.id)
 
-    :team_not_candidate = Suffrages.redeem_paper_vote(p, t, m, s, a)
+    {:error, :team_not_candidate} = Suffrages.redeem_paper_vote(p, t, m, s, a)
   end
 
-  test "redeem paper vote disqualified", %{suffrage: s, admin: a, member: m, team: t, competition: c} do
-    {:ok, p} = Suffrages.create_paper_vote(s, a)
+  test "redeem paper vote disqualified", %{s: s, a: a, m: m, t: t, c: c} do
+    {:ok, p} = Suffrages.create_paper_vote(s.id, a)
     make_teams_eligible(c.id)
     Suffrages.start_suffrage(s.id)
 
@@ -113,37 +137,37 @@ defmodule Api.SuffragesTest do
     Suffrages.redeem_paper_vote(p, t, m, s, a)
   end
 
-  test "redeem paper vote before start", %{suffrage: s, admin: a, member: m, team: t} do
-    {:ok, p} = Suffrages.create_paper_vote(s, a)
+  test "redeem paper vote before start", %{s: s, a: a, m: m, t: t} do
+    {:ok, p} = Suffrages.create_paper_vote(s.id, a)
 
-    :not_started = Suffrages.redeem_paper_vote(p, t, m, s, a)
+    {:error, :not_started} = Suffrages.redeem_paper_vote(p, t, m, s, a)
   end
 
-  test "redeem paper vote after end", %{suffrage: s, admin: a, member: m, team: t, competition: c} do
-    {:ok, p} = Suffrages.create_paper_vote(s, a)
+  test "redeem paper vote after end", %{s: s, a: a, m: m, t: t, c: c} do
+    {:ok, p} = Suffrages.create_paper_vote(s.id, a)
 
     make_teams_eligible(c.id)
     Suffrages.start_suffrage(s.id)
     Suffrages.end_suffrage(s.id)
 
-    :already_ended = Suffrages.redeem_paper_vote(p, t, m, s, a)
+    {:error, :already_ended} = Suffrages.redeem_paper_vote(p, t, m, s, a)
   end
 
-  test "annul paper vote", %{suffrage: s, admin: a} do
-    {:ok, p} = Suffrages.create_paper_vote(s, a)
+  test "annul paper vote", %{s: s, a: a} do
+    {:ok, p} = Suffrages.create_paper_vote(s.id, a)
     {:ok, _} = Suffrages.annul_paper_vote(p, a, s)
   end
 
-  test "annul paper vote after end", %{suffrage: s, admin: a} do
-    {:ok, p} = Suffrages.create_paper_vote(s, a)
+  test "annul paper vote after end", %{s: s, a: a} do
+    {:ok, p} = Suffrages.create_paper_vote(s.id, a)
 
     Suffrages.start_suffrage(s.id)
     Suffrages.end_suffrage(s.id)
 
-    :already_ended = Suffrages.annul_paper_vote(p, a, s)
+    {:error, :already_ended} = Suffrages.annul_paper_vote(p, a, s)
   end
 
-  test "disqualify team", %{team: t1, suffrage: s1, competition: c1} do
+  test "disqualify team", %{t: t1, s: s1, c: c1} do
     admin = create_admin()
 
     make_teams_eligible(c1.id)
@@ -161,7 +185,7 @@ defmodule Api.SuffragesTest do
     assert c.disqualified_by_id == admin.id
   end
 
-  test "disqualify team twice", %{team: t1, suffrage: s1, competition: c1} do
+  test "disqualify team twice", %{t: t1, s: s1, c: c1} do
     admin = create_admin()
     admin2 = create_admin()
 
@@ -181,7 +205,7 @@ defmodule Api.SuffragesTest do
     assert c.disqualified_by_id == admin.id
   end
 
-  test "assign missing preferences to team", %{team: t, competition: c, suffrage: s1} do
+  test "assign missing preferences to team", %{t: t, c: c, s: s1} do
     s2 = create_suffrage(c.id)
     s3 = create_suffrage(c.id)
 
@@ -196,23 +220,22 @@ defmodule Api.SuffragesTest.CalculatePodium do
   use Api.DataCase
 
   alias Api.Suffrages
-  alias Api.Suffrages.Suffrage
-  alias Api.Teams.Team
+  alias Api.Suffrages.{Suffrage, Candidate}
 
   setup do
-    c1 = create_competition()
+    c1 = create_competition(%{name: "default"})
     s1 = create_suffrage(c1.id)
     u1 = create_attendee(c1)
-    t1 = create_team(u1, c1)
+    t1 = create_team(u1, c1, %{prize_preference: [s1.id]})
 
     u2 = create_attendee(c1)
-    t2 = create_team(u2, c1)
+    t2 = create_team(u2, c1, %{prize_preference: [s1.id]})
 
     u3 = create_attendee(c1)
-    t3 = create_team(u3, c1)
+    t3 = create_team(u3, c1, %{prize_preference: [s1.id]})
 
     u4 = create_attendee(c1)
-    t4 = create_team(u4, c1)
+    t4 = create_team(u4, c1, %{prize_preference: [s1.id]})
 
     check_in_everyone(c1.id)
     make_teams_eligible(c1.id)
@@ -226,14 +249,52 @@ defmodule Api.SuffragesTest.CalculatePodium do
         u1: u1,
         u2: u2,
         u3: u3,
+        u4: u4,
         t1: t1,
         t2: t2,
         t3: t3,
         t4: t4,
         c1: c1,
-        s1: s1
+        s1: s1,
+        a: create_admin(),
       },
     }
+  end
+
+  test "insert valid vote", %{t2: t2, u1: u1, s1: s1} do
+    Suffrages.upsert_votes(u1, [{s1.id, [t2.id]}])
+
+    {:ok, votes} = Suffrages.get_votes(u1)
+
+    assert Enum.count(votes) == 1
+  end
+
+  test "insert invalid vote", %{t1: t1, u1: u1, s1: s1} do
+    assert {:error, "Invalid vote"} == Suffrages.upsert_votes(u1, [{s1.id, [t1.id]}])
+
+    {:ok, votes} = Suffrages.get_votes(u1)
+
+    assert Enum.count(votes) == 0
+  end
+
+  test "update valid vote", %{t2: t2, t3: t3, u1: u1, s1: s1} do
+    Suffrages.upsert_votes(u1, [{s1.id, [t2.id]}])
+
+    Suffrages.upsert_votes(u1, [{s1.id, [t2.id, t3.id]}])
+
+    {:ok, votes} = Suffrages.get_votes(u1)
+
+    assert List.first(votes).ballot == [t2.id, t3.id]
+  end
+
+  test "update invalid vote", %{t1: t1, t2: t2, u1: u1, s1: s1} do
+    Suffrages.upsert_votes(u1, [{s1.id, [t2.id]}])
+
+    Suffrages.upsert_votes(u1, [{s1.id, [t2.id, t1.id]}])
+
+    {:ok, votes} = Suffrages.get_votes(u1)
+
+    assert List.first(votes).ballot == [t2.id]
   end
 
   test "calculate_podium", %{c1: c1, t1: t1, t2: t2, t3: t3, t4: t4, s1: s1} do
@@ -258,30 +319,33 @@ defmodule Api.SuffragesTest.CalculatePodium do
   end
 
   test "calculate_podium tie", %{c1: c1, t1: t1, t2: t2, t3: t3, s1: s1} do
-    create_vote(create_attendance_with_user(c1), s1, [t1.id])
-    create_vote(create_attendance_with_user(c1), s1, [t1.id])
-    create_vote(create_attendance_with_user(c1), s1, [t2.id])
-    create_vote(create_attendance_with_user(c1), s1, [t2.id])
-    create_vote(create_attendance_with_user(c1), s1, [t3.id])
-
-    Team.changeset(t3, %{tie_breaker: 0}) |> Repo.update!
-    Team.changeset(t2, %{tie_breaker: 10}) |> Repo.update!
-    Team.changeset(t1, %{tie_breaker: 20}) |> Repo.update!
+    u1 = create_attendee(c1)
+    u2 = create_attendee(c1)
+    u3 = create_attendee(c1)
+    u4 = create_attendee(c1)
+    u5 = create_attendee(c1)
 
     check_in_everyone(c1.id)
     make_teams_eligible(c1.id)
     Suffrages.start_suffrage(s1.id)
 
-    assert Suffrages.calculate_podium(s1.id) == [
-      t2.id,
-      t1.id,
-      t3.id,
-    ]
+    Suffrages.upsert_votes(u1, [{s1.id, [t2.id]}])
+    Suffrages.upsert_votes(u2, [{s1.id, [t1.id]}])
+    Suffrages.upsert_votes(u3, [{s1.id, [t2.id]}])
+    Suffrages.upsert_votes(u4, [{s1.id, [t1.id]}])
+    Suffrages.upsert_votes(u5, [{s1.id, [t3.id]}])
+
+    Repo.get_by!(Candidate, team_id: t1.id) |> Candidate.changeset(%{tie_breaker: 0}) |> Repo.update!
+    Repo.get_by!(Candidate, team_id: t2.id) |> Candidate.changeset(%{tie_breaker: -10}) |> Repo.update!
+    Repo.get_by!(Candidate, team_id: t3.id) |> Candidate.changeset(%{tie_breaker: -20}) |> Repo.update!
+
+    assert Suffrages.calculate_podium(s1.id) == [t2.id, t1.id, t3.id]
   end
 
-  test "resolve_voting", %{t1: t1, t2: t2, t3: t3, c1: c1, s1: s1} do
+  test "resolve_voting", %{t1: t1, t2: t2, t3: t3, c1: c1, s1: s1, a: a, u1: u1, u2: u2, u3: u3, u4: u4} do
     s2 = create_suffrage(c1.id)
     s3 = create_suffrage(c1.id)
+
     create_vote(create_attendance_with_user(c1), s1, [t1.id])
     create_vote(create_attendance_with_user(c1), s1, [t1.id])
     create_vote(create_attendance_with_user(c1), s1, [t1.id])
@@ -304,15 +368,19 @@ defmodule Api.SuffragesTest.CalculatePodium do
     create_vote(create_attendance_with_user(c1), s3, [t3.id])
 
     check_in_everyone(c1.id)
+
     make_teams_eligible(c1.id)
     Suffrages.start_suffrage(s1.id)
-    Suffrages.resolve_suffrage!(s1.id)
+    Suffrages.redeem_paper_vote(create_paper_vote(s1, a), t1, a, s1, a)
+    Suffrages.end_suffrage(s1.id)
 
     Suffrages.start_suffrage(s2.id)
-    Suffrages.resolve_suffrage!(s2.id)
+    Suffrages.redeem_paper_vote(create_paper_vote(s2, a), t2, a, s2, a)
+    Suffrages.end_suffrage(s2.id)
 
     Suffrages.start_suffrage(s3.id)
-    Suffrages.resolve_suffrage!(s3.id)
+    Suffrages.redeem_paper_vote(create_paper_vote(s3, a), t3, a, s3, a)
+    Suffrages.end_suffrage(s3.id)
 
     assert Repo.get(Suffrage, s1.id).podium == [
       t1.id,
@@ -329,5 +397,7 @@ defmodule Api.SuffragesTest.CalculatePodium do
       t1.id,
       t2.id,
     ]
+
+    assert Suffrages.missing_voters |> Enum.map(&(&1.id)) == [u1.id, u2.id, u3.id, u4.id]
   end
 end
