@@ -45,4 +45,26 @@ defmodule Api.AICompetition.GameTemplates do
     }
   end
 
+  def seven_by_thirteen(bot1, bot2) do
+    id1 = bot1.id
+    id2 = bot2.id
+
+    %{
+      width: 13,
+      height: 7,
+      turns_left: 130,
+      colors: [
+        [nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil],
+        [nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil],
+        [nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil],
+        [nil, id1, nil, nil, nil, nil, nil, nil, nil, nil, nil, id2, nil],
+        [nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil],
+        [nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil],
+        [nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil]
+      ],
+      player_positions: %{} |> Map.put(id1, [3, 1]) |> Map.put(id2, [3, 11]),
+      previous_actions: [],
+    }
+  end
+
 end
