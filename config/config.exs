@@ -63,10 +63,10 @@ config :sentry,
 
 # Quantum scheduler config
 # https://github.com/quantum-elixir/quantum-core
-config :api, Api.Scheduler,
-  jobs: [
-    {"*/30 * * * *", {Api.AICompetition, :perform_training_matches, []}},
-  ]
+# config :api, Api.Scheduler,
+#   jobs: [
+#     {"*/30 * * * *", {Api.AICompetition, :perform_training_matches, []}},
+#   ]
 
 
 # Import environment specific config. This must remain at the bottom
