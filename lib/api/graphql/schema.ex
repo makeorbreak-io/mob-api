@@ -165,6 +165,26 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
+    field :run_games, list_of(:ai_competition_game) do
+      arg :run_name, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{run_name: run_name}, _info ->
+        {:ok, Games.run_games(run_name)}
+      end
+    end
+
+    field :game, :ai_competition_game do
+      arg :id, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{id: id}, _info ->
+        {:ok, Games.get_game(id)}
+      end
+    end
+
     field :unredeemed_paper_votes, list_of(:paper_vote) do
       middleware RequireAdmin
 
