@@ -262,6 +262,9 @@ defmodule Api.Suffrages do
         }
       end),
     } |> Poison.encode!
+  catch
+    {:error, :not_started} -> nil
+    {:error, :ongoing} -> nil
   end
 
   defp validate_ballot(suffrage_id, votes, user), do: validate_ballot(suffrage_id, votes, user, [])

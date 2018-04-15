@@ -29,7 +29,7 @@ defmodule Api.GraphQL.Schema do
       resolve &Resolvers.me/2
     end
 
-    #--------------------------------------------------------------- Publicly available information
+    #-------------------------------------------------------------------------- Publicly available information
     @desc "Single workshop details"
     field :workshop, :workshop do
       arg :slug, non_null(:string)
@@ -82,7 +82,7 @@ defmodule Api.GraphQL.Schema do
       resolve Resolvers.by_id(Team)
     end
 
-    #------------------------------------------------------------------ Participant / AI Competition
+    #--------------------------------------------------------------------------- Participant / AI Competition
     @desc "Last 50 AI Competition games for the current user"
     field :ai_games, list_of(:ai_competition_game) do
       middleware RequireAuthn
@@ -92,7 +92,7 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
-    #-------------------------------------------------------------------------- Participant / Voting
+    #--------------------------------------------------------------------------- Participant / Voting
     @desc "Voting categories"
     field :suffrages, list_of(:suffrage) do
       middleware RequireAuthn
