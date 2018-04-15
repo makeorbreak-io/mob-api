@@ -126,12 +126,6 @@ defmodule Api.Suffrages do
     end
   end
 
-  # votes:
-  #
-  # [
-  #   {suffrage_id, ["uuid", "uuid"]},
-  #   {suffrage_id, ["uuid", "uuid"]},
-  # ]
   def upsert_votes(user, votes) do
     multi = Multi.new()
 
@@ -154,8 +148,6 @@ defmodule Api.Suffrages do
         :ended -> throw {:error, :already_ended}
         _ -> nil
       end
-
-      IO.inspect multi
 
       Multi.insert_or_update(acc,
         suffrage_id,
@@ -188,65 +180,92 @@ defmodule Api.Suffrages do
     {:ok, votes}
   end
 
-  def build_info_start(suffrage_id) do
-    at = suffrage_voting_started_at(suffrage_id)
-
-    %{
-      participants: %{
-        initial_count: Repo.aggregate(voters(suffrage_id, at), :count, :id),
-      },
-      paper_votes: %{
-        initial_count: Repo.aggregate(valid_paper_votes(suffrage_id, at), :count, :id),
-      },
-      teams: candidates(suffrage_id, at) |> Repo.all(),
-    }
-  end
-
-  def voters(suffrage_id, at \\ nil) do
+  def valid_voters(competition_id, at \\ nil) do
     at = at || DateTime.utc_now
 
     from(
       c in Candidate,
+      join: s in assoc(c, :suffrage),
       left_join: t in assoc(c, :team),
       left_join: m in assoc(t, :members),
-      where: t.suffrage_id == ^suffrage_id,
+      where: s.competition_id == ^competition_id,
       where: is_nil(c.disqualified_at) or c.disqualified_at > ^at,
       select: m
     )
   end
 
-  def build_info_end(suffrage_id) do
-    begun_at = suffrage_voting_started_at(suffrage_id)
-    ended_at = suffrage_voting_ended_at(suffrage_id)
-    suffrage = get_suffrage(suffrage_id)
+  def build_info_start(competition_id) do
+    suffrages = all_suffrages()
+    suffrage = List.first(suffrages)
+    begun_at = suffrage_voting_started_at(suffrage.id)
+    teams =
+      candidates(suffrage.id, begun_at)
+      |> Repo.all
+      |> Repo.preload(:team) |> Enum.map(&(&1.team))
 
     %{
       participants: %{
         initial_count:
-          Repo.aggregate(voters(suffrage_id, begun_at), :count, :id),
-        final_count:
-          Repo.aggregate(voters(suffrage_id, ended_at), :count, :id),
+          Repo.aggregate(valid_voters(competition_id, begun_at), :count, :id),
       },
       paper_votes: %{
         initial_count:
-          Repo.aggregate(valid_paper_votes(suffrage_id, begun_at), :count, :id),
-        final_count:
-          Repo.aggregate(redeemed_paper_votes(suffrage_id, ended_at), :count, :id),
+          Repo.aggregate(valid_paper_votes(competition_id, begun_at), :count, :id),
       },
-      teams: candidates(suffrage_id, begun_at) |> Repo.all,
-      name: suffrage.name,
-      all_teams: Repo.all(from t in Team, where: t.competition_id == ^suffrage.competition_id),
-      suffrages_to_votes: all_suffrages() |> Map.new(fn s ->
+      teams: teams |> Enum.map(&(&1.name)),
+    } |> Poison.encode!
+  end
+
+  def build_info_end(competition_id) do
+    suffrages = all_suffrages()
+    suffrage = List.first(suffrages)
+
+    case suffrage_status(suffrage.id) do
+      :not_started -> throw {:error, :not_started}
+      :started -> throw {:error, :ongoing}
+      :ended -> nil
+    end
+
+    begun_at = suffrage_voting_started_at(suffrage.id)
+    ended_at = suffrage_voting_ended_at(suffrage.id)
+    teams = candidates(suffrage.id, begun_at) |> Repo.all |> Repo.preload(:team) |> Enum.map(&(&1.team))
+    team_name_map =
+      teams
+      |> Map.new(&{&1.id, &1.name})
+
+    %{
+      participants: %{
+        initial_count:
+          Repo.aggregate(valid_voters(competition_id, begun_at), :count, :id),
+        final_count:
+          Repo.aggregate(valid_voters(competition_id, ended_at), :count, :id),
+      },
+      paper_votes: %{
+        initial_count:
+          Repo.aggregate(valid_paper_votes(competition_id, begun_at), :count, :id) ,
+        final_count:
+          Repo.aggregate(redeemed_paper_votes(competition_id, ended_at), :count, :id),
+      },
+      teams: teams |> Enum.map(&(&1.name)),
+      podiums: suffrages |> Map.new(fn s -> {s.name, s.podium |> Enum.map(&team_name_map[&1])} end),
+      categories_to_votes: suffrages |> Map.new(fn s ->
         {
-          s.id,
-          ballots(suffrage.id, ended_at),
+          s.name,
+          ballots(suffrage.id, ended_at)
+          |> Map.new(fn {id, ballot} ->
+              {
+                id,
+                ballot
+                |> Enum.map(&team_name_map[&1])
+              }
+            end),
         }
       end),
-    }
+    } |> Poison.encode!
   end
 
   defp validate_ballot(suffrage_id, votes, user), do: validate_ballot(suffrage_id, votes, user, [])
-  defp validate_ballot(suffrage_id, [], _, acc), do: Enum.all?(acc)
+  defp validate_ballot(_, [], _, acc), do: Enum.all?(acc)
   defp validate_ballot(suffrage_id, [vote|rest], user, acc), do: validate_ballot(
     suffrage_id,
     rest,
@@ -284,7 +303,8 @@ defmodule Api.Suffrages do
       where: t.competition_id == ^Competitions.default_competition().id,
       where: m.team_id == t.id
     ) |> Repo.one()
-    user_team.team_id != team.id
+
+    user_team == nil || user_team.team_id != team.id
   end
 
   defp get_struct(user, suffrage_id) do
@@ -314,7 +334,7 @@ defmodule Api.Suffrages do
 
     paper_votes =
       Repo.all(from(
-        pv in redeemed_paper_votes(suffrage_id, at),
+        pv in redeemed_paper_votes_in_suffrage(suffrage_id, at),
         where: pv.suffrage_id == ^(suffrage_id)
       ))
       |> Enum.map(&({&1.id, [&1.team_id]}))
@@ -335,6 +355,7 @@ defmodule Api.Suffrages do
     valid_team_ids =
       candidates
       |> Enum.map(&(&1.team_id))
+
 
     votes =
       ballots(suffrage_id, at)
@@ -372,32 +393,38 @@ defmodule Api.Suffrages do
   end
 
   def missing_voters do
-    voters =
-      from(
-        v in Vote,
-        join: u in assoc(v, :voter),
-        select: u.id
-      )
-      |> Repo.all()
+    competition_id = Competitions.default_competition().id
 
-    missing_voters = from(
-      u in User,
-      join: tm in assoc(u, :teams),
-      join: t in assoc(tm, :team),
-      where: not (u.id in ^voters),
-      order_by: [asc: u.id],
-      select: {t, u},
+    voters = from(
+      v in Vote,
+      join: u in User,
+      join: a in assoc(u, :attendances),
+      where: v.voter_identity == a.voter_identity,
+      where: a.competition_id == ^competition_id,
+      select: u.id
+    ) |> Repo.all()
+
+    from(
+      u2 in User,
+      join: a in assoc(u2, :attendances),
+      where: a.competition_id == ^competition_id,
+      where: not u2.id in ^voters,
     )
-
-    Repo.all(missing_voters)
-    |> Enum.group_by(fn {team, _} -> team end, fn {_, user} -> user end)
-    |> Enum.map(fn {k, v} -> %{
-      team: k,
-      users: v,
-    } end)
+    |> Repo.all()
   end
 
-  def valid_paper_votes(suffrage_id, at \\ nil) do
+  def valid_paper_votes(competition_id, at \\ nil) do
+    at = at || DateTime.utc_now
+
+    from(
+      pv in PaperVote,
+      join: s in assoc(pv, :suffrage),
+      where: s.competition_id == ^competition_id,
+      where: is_nil(pv.annulled_at) or pv.annulled_at > ^at
+    )
+  end
+
+  def valid_paper_votes_in_suffrage(suffrage_id, at \\ nil) do
     at = at || DateTime.utc_now
 
     from(
@@ -407,17 +434,24 @@ defmodule Api.Suffrages do
     )
   end
 
-  def redeemed_paper_votes(suffrage_id, at \\ nil) do
+  def redeemed_paper_votes(competition_id, at \\ nil) do
     at = at || DateTime.utc_now
 
-    from pv in valid_paper_votes(suffrage_id, at),
+    from pv in valid_paper_votes(competition_id, at),
       where: not is_nil(pv.team_id)
   end
 
-  def unredeemed_paper_votes(suffrage_id, at \\ nil) do
+  def redeemed_paper_votes_in_suffrage(suffrage_id, at \\ nil) do
     at = at || DateTime.utc_now
 
-    from pv in valid_paper_votes(suffrage_id, at),
+    from pv in valid_paper_votes_in_suffrage(suffrage_id, at),
+      where: not is_nil(pv.team_id)
+  end
+
+  def unredeemed_paper_votes(competition_id, at \\ nil) do
+    at = at || DateTime.utc_now
+
+    from pv in valid_paper_votes(competition_id, at),
       where: is_nil(pv.redeemed_at)
   end
 

@@ -2,7 +2,6 @@ defmodule Api.Suffrages.Vote do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias Api.Competitions.Attendance
   alias Api.Suffrages.Suffrage
 
   @attrs ~w(

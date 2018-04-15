@@ -4,7 +4,6 @@ defmodule Api.Teams.ProjectFavorite do
 
   alias Api.Accounts.User
   alias Api.Teams.Team
-  alias ApiWeb.EctoHelper
 
   @valid_attrs ~w(
     team_id
@@ -32,4 +31,3 @@ defmodule Api.Teams.ProjectFavorite do
     |> unique_constraint(:no_duplicate_project_favorites, name: :no_duplicate_project_favorites)
   end
 end
-

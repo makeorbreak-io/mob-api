@@ -28,7 +28,8 @@ defmodule Api.GraphQL.Scalars do
     parse &parse_naive_datetime/1
   end
 
-  @spec parse_naive_datetime(Absinthe.Blueprint.Input.String.t()) :: {:ok, NaiveDateTime.t()} | :error
+  @spec parse_naive_datetime(Absinthe.Blueprint.Input.String.t())
+    :: {:ok, NaiveDateTime.t()} | :error
   @spec parse_naive_datetime(Absinthe.Blueprint.Input.Null.t()) :: {:ok, nil}
   defp parse_naive_datetime(%Absinthe.Blueprint.Input.String{value: value}) do
     case NaiveDateTime.from_iso8601(value) do

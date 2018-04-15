@@ -115,7 +115,7 @@ defmodule Api.Mixfile do
         "ecto.create --quiet",
         "ecto.migrate",
         #"credo --strict",
-        "coveralls",
+        "coveralls.html",
       ],
       "server": [
         "phx.server",

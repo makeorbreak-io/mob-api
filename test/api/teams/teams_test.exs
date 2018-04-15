@@ -152,7 +152,7 @@ defmodule Api.TeamsTest do
     u2 = create_user()
     create_membership(t1, u2)
 
-    assert Teams.remove_any_membership(t1.id, u2.id) == :ok
+    assert Teams.remove_any_membership(t1.id, u2.id) == {:ok, t1}
     refute Repo.get_by(Membership, team_id: t1.id, user_id: u2.id)
   end
 
@@ -162,7 +162,7 @@ defmodule Api.TeamsTest do
 
   test "remove any nonexistent membership", %{t1: t1} do
     u2 = create_user()
-    assert Teams.remove_any_membership(t1.id, u2.id) == :membership_not_found
+    assert Teams.remove_any_membership(t1.id, u2.id) == {:error, :membership_not_found}
   end
 
   test "list user invites", %{u1: u1, c1: c1, t1: t1} do

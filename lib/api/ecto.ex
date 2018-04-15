@@ -1,5 +1,5 @@
 defmodule Api.Ecto do
-  import Ecto.Query, only: [from: 1, from: 2]
+  import Ecto.Query, only: [from: 2]
 
   @batch_size 2000
 
@@ -16,8 +16,8 @@ defmodule Api.Ecto do
         results = repo.all(from _ in query, offset: ^offset, limit: ^batch_size)
 
         if length(results) < batch_size,
-          do: { results, :done },
-          else: { results, offset + batch_size }
+          do: {results, :done},
+          else: {results, offset + batch_size}
     end)
 
     batches_stream |> Stream.concat

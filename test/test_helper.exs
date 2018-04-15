@@ -74,8 +74,8 @@ defmodule ApiWeb.TestHelper do
     |> Repo.insert!
   end
 
-  def create_team(user, competition, params \\ nil) do
-    params = params || %{name: "awesome team #{to_string(:rand.uniform())}"}
+  def create_team(user, competition, params \\ %{}) do
+    params = Map.merge(params, %{name: "awesome team #{to_string(:rand.uniform())}"})
     team = %Team{competition_id: competition.id}
     |> Team.changeset(params)
     |> Repo.insert!
@@ -151,7 +151,7 @@ defmodule ApiWeb.TestHelper do
   end
 
   def check_in_everyone(competition_id, people \\ nil) do
-    people = people || Repo.all(User)
+    people = people || Repo.all(from u in User, where: u.role == "participant")
 
     people
     |> Enum.map(fn user ->

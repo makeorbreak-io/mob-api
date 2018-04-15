@@ -35,21 +35,4 @@ defmodule Api.TeamTest do
     changeset = Team.admin_changeset(%Team{}, %{"accepted" => true})
     {:ok, _} = Changeset.fetch_change(changeset, :accepted)
   end
-
-  # test "tie_breaker is sequential" do
-  #   c = create_competition()
-  #   first = Repo.insert!(Team.changeset(
-  #     %Team{},
-  #     Map.merge(@valid_attrs, %{competition_id: c.id}),
-  #     Repo)
-  #   )
-  #   assert first.tie_breaker == 1
-
-  #   second = Repo.insert!(Team.changeset(
-  #     %Team{},
-  #     Map.merge(@valid_attrs, %{competition_id: c.id}),
-  #     Repo)
-  #   )
-  #   assert second.tie_breaker == 2
-  # end
 end

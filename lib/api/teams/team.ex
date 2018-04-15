@@ -2,7 +2,7 @@ defmodule Api.Teams.Team do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias Api.Teams.{Team, Membership, Invite, ProjectFavorite}
+  alias Api.Teams.{Membership, Invite, ProjectFavorite}
   alias Api.Competitions.Competition
 
   @valid_attrs ~w(
