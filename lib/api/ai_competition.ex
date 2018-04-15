@@ -80,7 +80,7 @@ defmodule Api.AICompetition do
       "day 3" => %{timestamp: ~N[2018-04-12 03:00:00], templates: [&GameTemplates.ten_by_ten/2, &GameTemplates.five_by_eleven/2]},
       "day 4" => %{timestamp: ~N[2018-04-13 03:00:00], templates: [&GameTemplates.ten_by_ten/2, &GameTemplates.five_by_eleven/2]},
       "day 5" => %{timestamp: ~N[2018-04-14 03:00:00], templates: [&GameTemplates.seven_by_thirteen/2, &GameTemplates.seven_by_thirteen/2]},
-      "day 6" => %{timestamp: ~N[2018-04-15 03:00:00], templates: []},
+      "day 6" => %{timestamp: ~N[2018-04-15 03:00:00], templates: [&GameTemplates.seven_by_thirteen_b/2, &GameTemplates.seven_by_thirteen_b/2]},
     }
     |> Map.fetch!(run_name)
   end
