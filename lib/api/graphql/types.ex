@@ -265,6 +265,16 @@ defmodule Api.GraphQL.Types do
     field :competition_id, :string
     field :attendee, :string
     field :checked_in, :boolean
+
+    field :voter_identity, :string do
+      resolve fn _args, %{source: source, context: %{current_user: current_user}} ->
+        if source.attendee == current_user.id do
+          {:ok, source.voter_identity}
+        else
+          {:ok, nil}
+        end
+      end
+    end
   end
 
   object :workshop_attendance do

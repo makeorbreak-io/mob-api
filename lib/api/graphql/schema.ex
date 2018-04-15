@@ -202,6 +202,7 @@ defmodule Api.GraphQL.Schema do
         {
           :ok,
           Suffrages.unredeemed_paper_votes(Competitions.default_competition().id)
+          |> Api.Repo.all()
         }
       end
     end
@@ -213,6 +214,7 @@ defmodule Api.GraphQL.Schema do
         {
           :ok,
           Suffrages.redeemed_paper_votes(Competitions.default_competition().id)
+          |> Api.Repo.all()
         }
       end
     end
