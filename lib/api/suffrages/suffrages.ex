@@ -251,7 +251,7 @@ defmodule Api.Suffrages do
       categories_to_votes: suffrages |> Map.new(fn s ->
         {
           s.name,
-          ballots(suffrage.id, ended_at)
+          ballots(s.id, ended_at)
           |> Map.new(fn {id, ballot} ->
               {
                 id,
