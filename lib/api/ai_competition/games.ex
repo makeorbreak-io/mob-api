@@ -42,7 +42,6 @@ defmodule Api.AICompetition.Games do
       join: gb in GameBot, where: gb.ai_competition_game_id == g.id,
       join: b in Bot, where: b.id == gb.ai_competition_bot_id and b.user_id == ^user.id,
       where: g.status == "processed" and g.is_ranked == true,
-      where: not g.run in ["day 6"],
       order_by: [desc: g.updated_at],
     )
 
