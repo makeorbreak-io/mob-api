@@ -10,4 +10,4 @@ PRODUCTION_USER="deploy"
 DELIVER_TO="edeliver"
 
 AUTO_VERSION=git-revision+branch-unless-master
-GIT_CLEAN_PATHS='_build/prod/rel rel priv/generated'
+GIT_CLEAN_PATHS="_build/prod/rel rel priv/generated"
