@@ -18,6 +18,9 @@ The deployment process is done using the following commands:
 * mix edeliver restart production
 * mix edeliver migrate production
 
+Note that trying to stop the api from edeliver won't be too successfull as
+systemd will notice its absence and restart it immediatly.
+
 We try to preserve our deps' built files. If you need to clean those for
 some reason, run `GIT_CLEAN_PATHS=. mix edeliver build release`.
 

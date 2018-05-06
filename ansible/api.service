@@ -1,0 +1,17 @@
+[Unit]
+Description=API
+After=network.target
+
+[Service]
+Type=forking
+User=deploy
+Group=deploy
+WorkingDirectory=/home/deploy/edeliver/api
+ExecStart=/home/deploy/edeliver/api/bin/api start
+ExecStop=/home/deploy/edeliver/api/bin/api stop
+PIDFile=/home/deploy/edeliver/api/api.pid
+Restart=on-failure
+EnvironmentFile=/etc/environment
+
+[Install]
+WantedBy=multi-user.target
