@@ -61,6 +61,9 @@ config :sentry,
   enable_source_code_context: true,
   root_source_code_path: File.cwd!
 
+config :pid_file,
+  file: "./api.pid"
+
 # Quantum scheduler config
 # https://github.com/quantum-elixir/quantum-core
 # config :api, Api.Scheduler,
