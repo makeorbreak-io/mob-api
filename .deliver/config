@@ -10,4 +10,5 @@ PRODUCTION_USER="deploy"
 DELIVER_TO="edeliver"
 
 AUTO_VERSION=git-revision+branch-unless-master
-GIT_CLEAN_PATHS="_build/prod/rel rel priv/generated"
+# pkoch was observing `git clean` not working if we had more than on path on this var.
+GIT_CLEAN_PATHS="_build/prod/rel"
