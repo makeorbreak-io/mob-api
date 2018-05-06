@@ -8,3 +8,5 @@ PRODUCTION_HOSTS="api.makeorbreak.io"
 PRODUCTION_USER="deploy"
 
 DELIVER_TO="edeliver"
+
+AUTO_VERSION=git-revision+branch-unless-master
