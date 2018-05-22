@@ -127,16 +127,10 @@ defmodule Api.GraphQL.Types do
     field :id, :string
     field :email, :string
     field :name, :string
-    field :birthday, :date
-    field :employment_status, :string
-    field :company, :string
-    field :college, :string
     field :github_handle, :string
-    field :twitter_handle, :string
-    field :linkedin_url, :string
-    field :bio, :string
     field :role, :string
     field :tshirt_size, :string
+    field :data_usage_consent, :boolean
 
     field :gravatar_hash, :string do
       resolve fn _args, %{source: source} ->
@@ -210,7 +204,7 @@ defmodule Api.GraphQL.Types do
         {
           :ok,
           User.display_name(
-            (source.email && %{name: nil, email: source.email})
+            (source.email && %{name: nil, email: source.email, deleted_at: nil})
             || (source |> Repo.preload(:invitee)).invitee
           )
         }

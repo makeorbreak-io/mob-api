@@ -29,6 +29,7 @@ defmodule Api.GraphQL.InputTypes do
     field :bio, :string
     field :role, :string
     field :tshirt_size, non_null(:string)
+    field :data_usage_consent, :boolean
   end
 
   input_object :workshop_input do

@@ -14,17 +14,12 @@ defmodule Api.Accounts.User do
     email
     name
     password
-    birthday
-    employment_status
-    college
-    company
     github_handle
-    twitter_handle
-    linkedin_url
-    bio
     tshirt_size
     pwd_recovery_token
     pwd_recovery_token_expiration
+    data_usage_consent
+    deleted_at
   )a
 
   @admin_attrs @valid_attrs ++ ~w(
@@ -41,18 +36,13 @@ defmodule Api.Accounts.User do
     field :email, :string
     field :name, :string
     field :password_hash, :string
-    field :birthday, :date
-    field :employment_status, :string
-    field :college, :string
-    field :company, :string
     field :github_handle, :string
-    field :twitter_handle, :string
-    field :linkedin_url, :string
-    field :bio, :string
     field :role, :string, default: "participant"
     field :tshirt_size, :string
     field :pwd_recovery_token, :string
     field :pwd_recovery_token_expiration, :utc_datetime, default: nil
+    field :data_usage_consent, :boolean
+    field :deleted_at, :utc_datetime, default: nil
 
     timestamps()
 
@@ -107,8 +97,8 @@ defmodule Api.Accounts.User do
   def gravatar_hash(%{email: email}),
     do: :crypto.hash(:md5, String.trim(email)) |> Base.encode16(case: :lower)
 
-  def display_name(%{name: name, email: email}) do
-    name || (email |> String.split("@") |> Enum.at(0))
+  def display_name(%{name: name, email: email, deleted_at: deleted_at}) do
+    if deleted_at == nil, do: name || (email |> String.split("@") |> Enum.at(0)), else: "[deleted]"
   end
 
   def can_apply_to_workshops(user) do
