@@ -100,6 +100,15 @@ defmodule Api.Notifications.Emails do
     |> render("food_allergies.html")
   end
 
+  def gdpr_email(recipient) do
+    base_email(recipient)
+    |> subject("Make or Break — Update your privacy settings")
+    |> put_html_layout({LayoutView, "email.html"})
+    |> assign(:name, User.display_name(recipient))
+    |> assign(:title, "Privacy policy updates")
+    |> render("gdpr.html")
+  end
+
   defp base_email(recipient) do
     # Here you can set a default from, default headers, etc.
     new_email()

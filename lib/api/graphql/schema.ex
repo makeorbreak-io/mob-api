@@ -265,6 +265,15 @@ defmodule Api.GraphQL.Schema do
       end
     end
 
+    @desc "Deletes account"
+    field :delete_account, type: :user do
+      middleware RequireAuthn
+
+      resolve fn _args, %{context: %{current_user: current_user}} ->
+        Accounts.delete_user(current_user, current_user.id)
+      end
+    end
+
     #------------------------------------------------------------------ Participant / team & invites
     @desc "Creates a team"
     field :create_team, type: :team do
@@ -751,6 +760,21 @@ defmodule Api.GraphQL.Schema do
         paper_vote = Suffrages.get_paper_vote(paper_vote_id)
 
         Suffrages.annul_paper_vote(paper_vote, current_user, paper_vote.suffrage)
+      end
+    end
+
+    #-------------------------------------------------------------------------------- Admin / voting
+    @desc "Sends GDPR email"
+    field :send_gdpr_email, :string do
+      middleware RequireAdmin
+
+      resolve fn _, _ ->
+        Accounts.list_users
+        |> Enum.each(fn u ->
+          Api.Notifications.Emails.gdpr_email(u)
+          |> Api.Mailer.deliver_later
+        end)
+        {:ok, ""}
       end
     end
 

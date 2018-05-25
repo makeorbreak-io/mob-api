@@ -64,7 +64,19 @@ defmodule Api.Accounts do
     user = Repo.get!(User, id)
 
     if user.id == current_user.id do
-      Repo.delete(user)
+      changeset = User.participant_changeset(user, %{
+        email: user.id <> "@deleted",
+        name: nil,
+        password_hash: nil,
+        github_handle: nil,
+        tshirt_size: nil,
+        pwd_recovery_token: nil,
+        pwd_recovery_token_expiration: nil,
+        data_usage_consent: nil,
+        deleted_at: NaiveDateTime.utc_now,
+      })
+
+      Repo.update(changeset)
     else
       {:unauthorized, :unauthorized}
     end
