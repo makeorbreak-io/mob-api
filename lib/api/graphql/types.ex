@@ -131,6 +131,8 @@ defmodule Api.GraphQL.Types do
     field :role, :string
     field :tshirt_size, :string
     field :data_usage_consent, :boolean
+    field :spam_consent, :boolean
+    field :share_consent, :boolean
 
     field :gravatar_hash, :string do
       resolve fn _args, %{source: source} ->

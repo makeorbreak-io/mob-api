@@ -19,6 +19,8 @@ defmodule Api.Accounts.User do
     pwd_recovery_token
     pwd_recovery_token_expiration
     data_usage_consent
+    spam_consent
+    share_consent
     deleted_at
   )a
 
@@ -42,6 +44,8 @@ defmodule Api.Accounts.User do
     field :pwd_recovery_token, :string
     field :pwd_recovery_token_expiration, :utc_datetime, default: nil
     field :data_usage_consent, :boolean
+    field :spam_consent, :boolean
+    field :share_consent, :boolean
     field :deleted_at, :utc_datetime, default: nil
 
     timestamps()
