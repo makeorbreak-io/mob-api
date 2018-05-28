@@ -17,8 +17,8 @@ defmodule Api.GraphQL.InputTypes do
   end
 
   input_object :user_input do
-    field :name, non_null(:string)
-    field :email, non_null(:string)
+    field :name, :string
+    field :email, :string
     field :birthday, :date
     field :employment_status, :string
     field :company, :string
@@ -28,7 +28,7 @@ defmodule Api.GraphQL.InputTypes do
     field :linkedin_url, :string
     field :bio, :string
     field :role, :string
-    field :tshirt_size, non_null(:string)
+    field :tshirt_size, :string
     field :data_usage_consent, :boolean
     field :spam_consent, :boolean
     field :share_consent, :boolean
