@@ -68,6 +68,15 @@ defmodule Api.GraphQL.Types do
     field :teams, list_of(:team)
   end
 
+  connection node_type: :email
+  object :email do
+    field :id, :string
+    field :name, :string
+    field :subject, :string
+    field :title, :string
+    field :content, :string
+  end
+
   object :medium do
     field :posts, :json
   end

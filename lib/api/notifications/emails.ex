@@ -109,10 +109,31 @@ defmodule Api.Notifications.Emails do
     |> render("gdpr.html")
   end
 
+  def send_email(email, recipient) do
+    base_email(recipient)
+    |> subject(email.subject)
+    |> assign(:title, email.title)
+    |> assign(:name, User.display_name(recipient))
+    |> assign(:content, email.content)
+    # |> assign(:content, EEx.eval_string(email.content, [name: "test name"]))
+    |> put_html_layout({LayoutView, "email.html"})
+    |> render("email.html")
+    |> premail()
+  end
+
   defp base_email(recipient) do
     # Here you can set a default from, default headers, etc.
     new_email()
     |> from({"Make or Break", "info@makeorbreak.io"})
     |> to(recipient)
+  end
+
+  defp premail(email) do
+    html = Premailex.to_inline_css(email.html_body)
+    # text = Premailex.to_text(email.html_body)
+
+    email
+    |> html_body(html)
+    # |> text_body(text)
   end
 end

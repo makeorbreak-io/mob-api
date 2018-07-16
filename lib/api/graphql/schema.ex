@@ -8,8 +8,12 @@ defmodule Api.GraphQL.Schema do
   alias Api.Accounts
   alias Api.Accounts.User
   alias Api.Competitions
-  alias Api.Integrations.{Medium, Github}
+  alias Api.Competitions.Competition
+  alias Api.Emails
+  alias Api.Emails.Email
   alias Api.Flybys
+  alias Api.Integrations.{Medium, Github}
+  alias Api.Mailer
   alias Api.Teams
   alias Api.Teams.{Team, ProjectFavorites}
   alias Api.Competitions
@@ -138,6 +142,22 @@ defmodule Api.GraphQL.Schema do
       middleware RequireAdmin
 
       resolve Resolvers.all(Team)
+    end
+
+    connection field :competitions, node_type: :competition do
+      arg :order_by, :string
+
+      middleware RequireAdmin
+
+      resolve Resolvers.all(Competition)
+    end
+
+    connection field :emails, node_type: :email do
+      arg :order_by, :string
+
+      middleware RequireAdmin
+
+      resolve Resolvers.all(Email)
     end
 
     field :bot, :ai_competition_bot do
@@ -443,6 +463,52 @@ defmodule Api.GraphQL.Schema do
     end
 
     #========================================================================================= ADMIN
+
+    #----------------------------------------------------------------------------- Admin / emails
+    @desc "Creates an email (admin only)"
+    field :create_email, :email do
+      arg :email, non_null(:email_input)
+
+      middleware RequireAdmin
+
+      resolve fn %{email: email}, _info ->
+        Emails.create_email(email)
+      end
+    end
+
+    @desc "Sends an email (admin only)"
+    field :send_email, :string do
+      arg :id, non_null(:string)
+      arg :recipients, non_null(list_of(:string))
+
+      middleware RequireAdmin
+
+      resolve fn %{id: id, recipients: recipients}, _info ->
+        email = Emails.get_email!(id)
+
+        recipients
+        |> Enum.each(
+          fn user_id ->
+            user = Accounts.get_user(user_id)
+            Api.Notifications.Emails.send_email(email, user)
+            |> Mailer.deliver_later
+          end
+        )
+
+        {:ok, nil}
+      end
+    end
+
+    @desc "Deletes an email (admin only)"
+    field :delete_email, :email do
+      arg :id, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{id: id}, _info ->
+        Emails.delete_email(id)
+      end
+    end
 
     #----------------------------------------------------------------------------- Admin / workshops
     @desc "Creates a workshop (admin only)"
