@@ -6,12 +6,13 @@ defmodule Api.GraphQL.Schema do
 
   import_types Api.GraphQL.Types
 
-  import_types Api.GraphQL.Queries.AdminResources
   import_types Api.GraphQL.Queries.AICompetition
-  import_types Api.GraphQL.Queries.Integrations
+  import_types Api.GraphQL.Queries.AdminResources
+  import_types Api.GraphQL.Queries.Competitions
   import_types Api.GraphQL.Queries.Flybys
-  import_types Api.GraphQL.Queries.Teams
+  import_types Api.GraphQL.Queries.Integrations
   import_types Api.GraphQL.Queries.Suffrages
+  import_types Api.GraphQL.Queries.Teams
   import_types Api.GraphQL.Queries.Workshops
 
   import_types Api.GraphQL.Mutations.AICompetition
@@ -27,8 +28,9 @@ defmodule Api.GraphQL.Schema do
   query do
     import_fields :admin_resources
     import_fields :ai_competition_queries
-    import_fields :integrations_queries
+    import_fields :competitions_queries
     import_fields :flybys_queries
+    import_fields :integrations_queries
     import_fields :suffrages_queries
     import_fields :teams_queries
     import_fields :workshops_queries

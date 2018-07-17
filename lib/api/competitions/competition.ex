@@ -7,6 +7,7 @@ defmodule Api.Competitions.Competition do
   @valid_attrs ~w(
     name
     status
+    is_default
   )a
 
   @primary_key {:id, :binary_id, autogenerate: true}
@@ -15,6 +16,7 @@ defmodule Api.Competitions.Competition do
     field :name, :string
     # Enum - "created", "started", "ended"
     field :status, :string, default: "created"
+    field :is_default, :boolean, default: false
 
     has_many :suffrages, Suffrage
   end

@@ -64,6 +64,7 @@ defmodule Api.GraphQL.Types do
     field :id, :string
     field :name, :string
     field :status, :string
+    field :is_default, :boolean
 
     field :teams, list_of(:team)
   end
