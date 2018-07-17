@@ -107,7 +107,7 @@ defmodule Api.Accounts do
     {:ok, jwt, _} = Guardian.encode_and_sign(
       user,
       :token,
-      perms: %{"#{user.role}": Permissions.max},
+      perms: %{"#{user.role}": Permissions.max}
     )
     {:ok, jwt}
   end

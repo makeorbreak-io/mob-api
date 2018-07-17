@@ -82,33 +82,6 @@ defmodule Api.Notifications.Emails do
     |> render("team_acceptance.html")
   end
 
-  def not_applied(recipient) do
-    base_email(recipient)
-    |> subject("Apply to Make or Break hackathon until March 31")
-    |> put_html_layout({LayoutView, "email.html"})
-    |> assign(:name, User.display_name(recipient))
-    |> assign(:title, "Apply to Make or Break hackathon")
-    |> render("not_applied.html")
-  end
-
-  def food_allergies(recipient) do
-    base_email(recipient)
-    |> subject("Make or Break — food restrictions inquiry")
-    |> put_html_layout({LayoutView, "email.html"})
-    |> assign(:name, User.display_name(recipient))
-    |> assign(:title, "Food restrictions inquiry")
-    |> render("food_allergies.html")
-  end
-
-  def gdpr_email(recipient) do
-    base_email(recipient)
-    |> subject("Make or Break — Update your privacy settings")
-    |> put_html_layout({LayoutView, "email.html"})
-    |> assign(:name, User.display_name(recipient))
-    |> assign(:title, "Privacy policy updates")
-    |> render("gdpr.html")
-  end
-
   def send_email(email, recipient) do
     base_email(recipient)
     |> subject(email.subject)
@@ -130,10 +103,8 @@ defmodule Api.Notifications.Emails do
 
   defp premail(email) do
     html = Premailex.to_inline_css(email.html_body)
-    # text = Premailex.to_text(email.html_body)
 
     email
     |> html_body(html)
-    # |> text_body(text)
   end
 end

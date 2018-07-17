@@ -5,7 +5,6 @@ defmodule Api.Competitions do
   alias Api.Accounts.User
   alias Api.Competitions.{Competition, Attendance}
   alias Api.Notifications.Emails
-  alias Ecto.Adapters.SQL
 
   def list_competitions do
     Repo.all(Competition)
