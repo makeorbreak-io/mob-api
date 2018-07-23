@@ -20,6 +20,18 @@ defmodule Api.GraphQL.Mutations.Emails do
       end
     end
 
+    @desc "Updates an email (admin only)"
+    field :update_email, :email do
+      arg :id, non_null(:string)
+      arg :email, non_null(:email_input)
+
+      middleware RequireAdmin
+
+      resolve fn %{id: id, email: email}, _info ->
+        Emails.update_email(id, email)
+      end
+    end
+
     @desc "Sends an email (admin only)"
     field :send_email, :string do
       arg :id, non_null(:string)

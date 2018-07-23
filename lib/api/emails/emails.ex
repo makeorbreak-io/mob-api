@@ -16,9 +16,9 @@ defmodule Api.Emails do
     |> Repo.insert()
   end
 
-  def update_email(%Email{} = email, attrs) do
-    email
-    |> Email.changeset(attrs)
+  def update_email(id, params) do
+    %Email{}
+    |> Email.changeset(params)
     |> Repo.update()
   end
 
