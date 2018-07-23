@@ -40,12 +40,17 @@ defmodule Api.GraphQL.Queries.AdminResources do
     end
 
     @desc "All competitions (admin)"
-    connection field :competitions, node_type: :competition do
+    field :competitions, list_of(:competition) do
       arg :order_by, :string
 
       middleware RequireAdmin
 
-      resolve Resolvers.all(Competition)
+      resolve fn _, _ ->
+        competitions = Api.Competitions.list_competitions
+        |> Api.Repo.preload(:suffrages)
+
+        {:ok, competitions}
+      end
     end
 
     @desc "All emails (admin)"

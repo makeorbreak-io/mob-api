@@ -29,11 +29,24 @@ defmodule Api.GraphQL.Mutations.Suffrages do
     @desc "Create suffrage (admin only)"
     field :create_suffrage, :suffrage do
       arg :suffrage, non_null(:suffrage_input)
+      arg :competition_id, non_null(:string)
 
       middleware RequireAdmin
 
-      resolve fn %{suffrage: suffrage}, _info ->
-        Suffrages.create_suffrage(suffrage)
+      resolve fn %{suffrage: suffrage, competition_id: competition_id}, _info ->
+        Suffrages.create_suffrage(suffrage, competition_id)
+      end
+    end
+
+    @desc "Updates a suffrage (admin only)"
+    field :update_suffrage, :suffrage do
+      arg :id, non_null(:string)
+      arg :suffrage, non_null(:suffrage_input)
+
+      middleware RequireAdmin
+
+      resolve fn %{id: id, suffrage: suffrage} , _info ->
+        Suffrages.update_suffrage(id, suffrage)
       end
     end
 

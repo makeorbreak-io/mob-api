@@ -67,6 +67,7 @@ defmodule Api.GraphQL.Types do
     field :is_default, :boolean
 
     field :teams, list_of(:team)
+    field :suffrages, list_of(:suffrage)
   end
 
   connection node_type: :email
@@ -304,6 +305,7 @@ defmodule Api.GraphQL.Types do
     field :status, :string
     field :voting_started_at, :naive_datetime
     field :voting_ended_at, :naive_datetime
+    field :competition_id
 
     field :teams, list_of(:team), resolve: assoc(:teams)
   end

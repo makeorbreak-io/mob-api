@@ -13,9 +13,9 @@ defmodule Api.Suffrages do
     Repo.all(Suffrage)
   end
 
-  def create_suffrage(params) do
+  def create_suffrage(params, competition_id) do
     changeset = Suffrage.changeset(
-      %Suffrage{competition_id: Competitions.default_competition().id},
+      %Suffrage{competition_id: competition_id},
       params
     )
 
