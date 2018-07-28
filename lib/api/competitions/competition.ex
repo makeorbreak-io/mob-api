@@ -2,6 +2,7 @@ defmodule Api.Competitions.Competition do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Api.Teams.Team
   alias Api.Suffrages.Suffrage
 
   @valid_attrs ~w(
@@ -19,6 +20,7 @@ defmodule Api.Competitions.Competition do
     field :is_default, :boolean, default: false
 
     has_many :suffrages, Suffrage
+    has_many :teams, Team
   end
 
   def changeset(struct, params \\ %{}) do
