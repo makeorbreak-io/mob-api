@@ -83,6 +83,19 @@ defmodule Api.GraphQL.Mutations.Suffrages do
       end
     end
 
+    @desc "Resolves a suffrage"
+    field :resolve_suffrage, :suffrage do
+      arg :id, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{id: id}, _info ->
+        Suffrages.resolve_suffrage!(id)
+      end
+    end
+
+    #========================================================================== Paper Votes
+
     @desc "Disqualify team (admin only)"
     field :disqualify_team, :team do
       arg :id, non_null(:string)
@@ -98,6 +111,8 @@ defmodule Api.GraphQL.Mutations.Suffrages do
         {:ok, Teams.get_team(id)}
       end
     end
+
+    #========================================================================== Paper Votes
 
     @desc "Creates a paper vote"
     field :create_paper_vote, :paper_vote do
