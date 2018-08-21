@@ -55,12 +55,12 @@ defmodule Api.GraphQL.Mutations.Competitions do
 
     @desc "Toggles competition check in status for user"
     field :toggle_user_checkin, :user do
-      arg :user_id, non_null(:string)
+      arg :id, non_null(:string)
 
       middleware RequireAdmin
 
-      resolve fn %{user_id: user_id}, _info ->
-        Competitions.toggle_checkin(Competitions.default_competition.id, user_id)
+      resolve fn %{id: id}, _info ->
+        Competitions.toggle_checkin(Competitions.default_competition.id, id)
       end
     end
   end
