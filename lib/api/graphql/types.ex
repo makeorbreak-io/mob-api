@@ -116,6 +116,7 @@ defmodule Api.GraphQL.Types do
     field :members, list_of(:user), resolve: assoc(:members)
     field :invites, list_of(:invite), resolve: assoc(:invites)
     field :favorites, list_of(:project_favorite), resolve: assoc(:project_favorites)
+    field :suffrages, list_of(:suffrage), resolve: assoc(:suffrages)
   end
 
   object :project_favorite do
