@@ -2,6 +2,7 @@ defmodule Api.Competitions.Competition do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Api.Competitions.Attendance
   alias Api.Teams.Team
   alias Api.Suffrages.Suffrage
 
@@ -21,6 +22,8 @@ defmodule Api.Competitions.Competition do
 
     has_many :suffrages, Suffrage
     has_many :teams, Team
+    has_many :attendances, Attendance
+    has_many :users, through: [:attendances, :attendee]
   end
 
   def changeset(struct, params \\ %{}) do

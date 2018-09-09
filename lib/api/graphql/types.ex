@@ -68,6 +68,7 @@ defmodule Api.GraphQL.Types do
 
     field :teams, list_of(:team)
     field :suffrages, list_of(:suffrage)
+    field :attendances, list_of(:attendance)
   end
 
   connection node_type: :email
@@ -273,6 +274,12 @@ defmodule Api.GraphQL.Types do
     field :competition_id, :string
     field :attendee, :string
     field :checked_in, :boolean
+
+    field :user, :user do
+      resolve fn _args, %{source: source} ->
+        {:ok, Repo.get(User, source.attendee) |> Repo.preload([:teams])}
+      end
+    end
 
     field :voter_identity, :string do
       resolve fn _args, %{source: source, context: %{current_user: current_user}} ->

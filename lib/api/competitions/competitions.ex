@@ -12,6 +12,7 @@ defmodule Api.Competitions do
 
   def get_competition(id) do
     Repo.get(Competition, id)
+    |> Repo.preload([:suffrages, :teams, :attendances])
   end
 
   def default_competition do
