@@ -7,6 +7,7 @@ defmodule Api.GraphQL.Queries.AdminResources do
 
   alias Api.Accounts.User
   alias Api.Competitions.Competition
+  alias Api.Emails
   alias Api.Emails.Email
   alias Api.Stats
   alias Api.Teams.Team
@@ -60,6 +61,17 @@ defmodule Api.GraphQL.Queries.AdminResources do
       middleware RequireAdmin
 
       resolve Resolvers.all(Email)
+    end
+
+    @desc "Single email (admin)"
+    field :email, type: :email do
+      arg :id, non_null(:string)
+
+      middleware RequireAdmin
+
+      resolve fn %{id: id}, _info ->
+        {:ok, Emails.get_email!(id)}
+      end
     end
   end
 end
