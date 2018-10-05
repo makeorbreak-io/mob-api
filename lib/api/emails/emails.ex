@@ -17,9 +17,10 @@ defmodule Api.Emails do
   end
 
   def update_email(id, params) do
-    %Email{}
-    |> Email.changeset(params)
-    |> Repo.update()
+    email = get_email!(id)
+    changeset = Email.changeset(email, params)
+
+    Repo.update(changeset)
   end
 
   def delete_email(id) do
