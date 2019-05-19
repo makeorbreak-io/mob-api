@@ -1,4 +1,4 @@
-defmodule Api.EmailsTest do
+defmodule Api.NotificationEmailsTest do
   use ApiWeb.ConnCase
   use Bamboo.Test
 

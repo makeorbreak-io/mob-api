@@ -88,7 +88,6 @@ defmodule Api.Notifications.Emails do
     |> assign(:title, email.title)
     |> assign(:name, User.display_name(recipient))
     |> assign(:content, email.content)
-    # |> assign(:content, EEx.eval_string(email.content, [name: "test name"]))
     |> put_html_layout({LayoutView, "email.html"})
     |> render("email.html")
     |> premail()
