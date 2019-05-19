@@ -88,6 +88,7 @@ defmodule Api.Mixfile do
       {:pid_file, "~> 0.1.0"},
       {:poison, ">= 2.2.0"},
       {:postgrex, "~> 0.13.3"},
+      {:premailex, "~> 0.2"},
       {:quantum, "~> 2.2"},
       {:sentry, "~> 5.0.1"},
       {:tentacat, "~> 0.6.2"},

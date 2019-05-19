@@ -64,8 +64,20 @@ defmodule Api.GraphQL.Types do
     field :id, :string
     field :name, :string
     field :status, :string
+    field :is_default, :boolean
 
     field :teams, list_of(:team)
+    field :suffrages, list_of(:suffrage)
+    field :attendances, list_of(:attendance)
+  end
+
+  connection node_type: :email
+  object :email do
+    field :id, :string
+    field :name, :string
+    field :subject, :string
+    field :title, :string
+    field :content, :string
   end
 
   object :medium do
@@ -105,6 +117,7 @@ defmodule Api.GraphQL.Types do
     field :members, list_of(:user), resolve: assoc(:members)
     field :invites, list_of(:invite), resolve: assoc(:invites)
     field :favorites, list_of(:project_favorite), resolve: assoc(:project_favorites)
+    field :suffrages, list_of(:suffrage), resolve: assoc(:suffrages)
   end
 
   object :project_favorite do
@@ -262,6 +275,12 @@ defmodule Api.GraphQL.Types do
     field :attendee, :string
     field :checked_in, :boolean
 
+    field :user, :user do
+      resolve fn _args, %{source: source} ->
+        {:ok, Repo.get(User, source.attendee) |> Repo.preload([:teams])}
+      end
+    end
+
     field :voter_identity, :string do
       resolve fn _args, %{source: source, context: %{current_user: current_user}} ->
         if source.attendee == current_user.id do
@@ -294,6 +313,7 @@ defmodule Api.GraphQL.Types do
     field :status, :string
     field :voting_started_at, :naive_datetime
     field :voting_ended_at, :naive_datetime
+    field :competition_id
 
     field :teams, list_of(:team), resolve: assoc(:teams)
   end

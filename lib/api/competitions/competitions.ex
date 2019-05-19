@@ -5,7 +5,6 @@ defmodule Api.Competitions do
   alias Api.Accounts.User
   alias Api.Competitions.{Competition, Attendance}
   alias Api.Notifications.Emails
-  alias Ecto.Adapters.SQL
 
   def list_competitions do
     Repo.all(Competition)
@@ -13,14 +12,19 @@ defmodule Api.Competitions do
 
   def get_competition(id) do
     Repo.get(Competition, id)
+    |> Repo.preload([:suffrages, :teams, :attendances])
   end
 
   def default_competition do
-    q = from c in Competition,
-        where: c.name == "default"
+    q = (from c in Competition, where: c.is_default == true)
 
-    (Repo.one(q) || Repo.insert!(%Competition{name: "default"}))
+    (Repo.one(q) || Repo.insert!(%Competition{name: "default", is_default: true}))
     |> Repo.preload(:suffrages)
+  end
+
+  def set_as_default(competition_id) do
+    Repo.update_all(Competition, set: [is_default: false])
+    update_competition(competition_id, %{is_default: true})
   end
 
   def create_competition(competition_params) do
@@ -76,55 +80,4 @@ defmodule Api.Competitions do
     get_attendance(id, attendee) |> Repo.delete
   end
 
-  # def send_not_applied_email do
-  #   non_applied_users =
-  #   from(u in User,
-  #     join: m in assoc(u, :memberships),
-  #     join: t in assoc(m, :team),
-  #     where: t.applied == false,
-  #     preload: [memberships: {m, team: t}],
-  #     select: u
-  #   )
-  #   |> Repo.all
-
-  #   users_without_team = Enum.filter(
-  #     Repo.all(User) |> Repo.preload(:memberships),
-  #     fn(user) ->
-  #       user.memberships == []
-  #     end
-  #   )
-
-  #   Enum.each(
-  #     non_applied_users ++ users_without_team,
-  #     fn(user) ->
-  #       Emails.not_applied(user) |> Mailer.deliver_later
-  #     end
-  #   )
-  # end
-
-  # def send_food_allergies_email do
-  #   query =
-  #   "select users.id,users.name,users.email from users left join users_teams on users.id = users_teams.user_id
-  #     left join teams on users_teams.team_id = teams.id
-  #     where users_teams.user_id is not null and teams.accepted = true
-  #   union distinct
-  #   select users.id,users.name,users.email from users left join users_workshops on users.id = users_workshops.user_id
-  #     left join workshops on users_workshops.workshop_id = workshops.id
-  #     where workshops.year = 2018
-  #   union distinct
-  #   select users.id,users.name,users.email from users left join ai_competition_bots on users.id = ai_competition_bots.user_id
-  #     where ai_competition_bots.user_id is not null;"
-
-  #   result = SQL.query!(Repo, query, [])
-  #   cols = Enum.map result.columns, &(String.to_atom(&1))
-
-  #   users = Enum.map result.rows, fn(row) ->
-  #     struct(User, Enum.zip(cols, row))
-  #   end
-
-  #   Enum.each(users, fn(user) ->
-  #     Emails.food_allergies(user)
-  #     |> Mailer.deliver_later
-  #   end)
-  # end
 end

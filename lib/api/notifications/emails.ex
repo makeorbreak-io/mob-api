@@ -82,31 +82,15 @@ defmodule Api.Notifications.Emails do
     |> render("team_acceptance.html")
   end
 
-  def not_applied(recipient) do
+  def send_email(email, recipient) do
     base_email(recipient)
-    |> subject("Apply to Make or Break hackathon until March 31")
-    |> put_html_layout({LayoutView, "email.html"})
+    |> subject(email.subject)
+    |> assign(:title, email.title)
     |> assign(:name, User.display_name(recipient))
-    |> assign(:title, "Apply to Make or Break hackathon")
-    |> render("not_applied.html")
-  end
-
-  def food_allergies(recipient) do
-    base_email(recipient)
-    |> subject("Make or Break — food restrictions inquiry")
+    |> assign(:content, email.content)
     |> put_html_layout({LayoutView, "email.html"})
-    |> assign(:name, User.display_name(recipient))
-    |> assign(:title, "Food restrictions inquiry")
-    |> render("food_allergies.html")
-  end
-
-  def gdpr_email(recipient) do
-    base_email(recipient)
-    |> subject("Make or Break — Update your privacy settings")
-    |> put_html_layout({LayoutView, "email.html"})
-    |> assign(:name, User.display_name(recipient))
-    |> assign(:title, "Privacy policy updates")
-    |> render("gdpr.html")
+    |> render("email.html")
+    |> premail()
   end
 
   defp base_email(recipient) do
@@ -114,5 +98,12 @@ defmodule Api.Notifications.Emails do
     new_email()
     |> from({"Make or Break", "info@makeorbreak.io"})
     |> to(recipient)
+  end
+
+  defp premail(email) do
+    html = Premailex.to_inline_css(email.html_body)
+
+    email
+    |> html_body(html)
   end
 end

@@ -3,6 +3,7 @@ defmodule Api.Teams.Team do
   import Ecto.Changeset
 
   alias Api.Teams.{Membership, Invite, ProjectFavorite}
+  alias Api.Suffrages.Candidate
   alias Api.Competitions.Competition
 
   @valid_attrs ~w(
@@ -45,6 +46,8 @@ defmodule Api.Teams.Team do
     has_many :memberships, Membership, foreign_key: :team_id, on_delete: :delete_all
     has_many :members, through: [:memberships, :user]
     has_many :project_favorites, ProjectFavorite
+    has_many :candidates, Candidate
+    has_many :suffrages, through: [:candidates, :suffrage]
     belongs_to :competition, Competition
   end
 

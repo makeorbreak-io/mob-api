@@ -12,7 +12,7 @@ defmodule Api.Stats do
       u in User,
       group_by: :role,
       order_by: :role,
-      select: %{role: u.role, total: count(u.id)},
+      select: %{role: u.role, total: count(u.id)}
     )
     applied_teams = from t in Team, where: t.applied == true
     applied_users = from u in Membership,

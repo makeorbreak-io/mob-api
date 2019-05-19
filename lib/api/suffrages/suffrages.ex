@@ -13,9 +13,9 @@ defmodule Api.Suffrages do
     Repo.all(Suffrage)
   end
 
-  def create_suffrage(params) do
+  def create_suffrage(params, competition_id) do
     changeset = Suffrage.changeset(
-      %Suffrage{competition_id: Competitions.default_competition().id},
+      %Suffrage{competition_id: competition_id},
       params
     )
 
@@ -173,7 +173,7 @@ defmodule Api.Suffrages do
       join: a in Attendance,
       where: a.attendee == ^user.id,
       where: a.competition_id == ^Competitions.default_competition.id,
-      where: a.voter_identity == v.voter_identity,
+      where: a.voter_identity == v.voter_identity
     )
     |> Repo.all
 
@@ -331,7 +331,7 @@ defmodule Api.Suffrages do
     votes =
       Repo.all(from(
         v in Vote,
-        where: v.suffrage_id == ^suffrage_id,
+        where: v.suffrage_id == ^suffrage_id
       ))
       |> Enum.map(&({&1.voter_identity, &1.ballot}))
 
@@ -411,7 +411,7 @@ defmodule Api.Suffrages do
       u2 in User,
       join: a in assoc(u2, :attendances),
       where: a.competition_id == ^competition_id,
-      where: not u2.id in ^voters,
+      where: not u2.id in ^voters
     )
     |> Repo.all()
   end
@@ -551,7 +551,7 @@ defmodule Api.Suffrages do
       join: comp in assoc(s, :competition),
       where: comp.id == ^Competitions.default_competition.id,
       where: c.team_id == ^team_id,
-      where: not is_nil(c.disqualified_at),
+      where: not is_nil(c.disqualified_at)
     )
     |> Repo.all()
 

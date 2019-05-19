@@ -7,6 +7,12 @@ defmodule Api.GraphQL.InputTypes do
     field :source_code, non_null(:string)
   end
 
+  input_object :competition_input do
+    field :name, non_null(:string)
+    field :status, non_null(:string)
+    field :is_default, :boolean
+  end
+
   input_object :team_input do
     field :name, non_null(:string)
     field :project_name, :string
@@ -57,5 +63,12 @@ defmodule Api.GraphQL.InputTypes do
   input_object :suffrage_input do
     field :name, non_null(:string)
     field :slug, non_null(:string)
+  end
+
+  input_object :email_input do
+    field :name, non_null(:string)
+    field :subject, non_null(:string)
+    field :title, :string
+    field :content, :string
   end
 end

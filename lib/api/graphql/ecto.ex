@@ -2,9 +2,10 @@ defmodule Api.GraphQL.EctoExtensions do
   import Ecto.Query
   alias Ecto.Queryable
 
-  defp string_in_atoms(source, target, ex_args) do
+  defp string_in_atoms(source, target, _ex_args) do
     if target not in Enum.map(source, &to_string/1) do
-      raise Nope, ex_args
+      # raise Exception, ex_args
+      raise "Graphql.EctoExtensions computer says no"
     end
 
     String.to_existing_atom(target)
@@ -36,7 +37,7 @@ defmodule Api.GraphQL.EctoExtensions do
           {
             from(
               [..., l] in query,
-              left_join: a in assoc(l, ^assoc_atom),
+              left_join: a in assoc(l, ^assoc_atom)
             ),
             last_target.__schema__(:association, assoc_atom).related,
           }
