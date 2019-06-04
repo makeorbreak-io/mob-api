@@ -43,9 +43,9 @@ defmodule Api.Accounts.User do
     field :tshirt_size, :string
     field :pwd_recovery_token, :string
     field :pwd_recovery_token_expiration, :utc_datetime, default: nil
-    field :data_usage_consent, :boolean
-    field :spam_consent, :boolean
-    field :share_consent, :boolean
+    field :data_usage_consent, :boolean, default: false
+    field :spam_consent, :boolean, default: false
+    field :share_consent, :boolean, default: false
     field :deleted_at, :utc_datetime, default: nil
 
     timestamps()
