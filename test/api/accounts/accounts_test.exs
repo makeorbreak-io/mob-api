@@ -81,7 +81,7 @@ defmodule Api.AccountsTest do
   test "delete user", %{u1: u1} do
     {:ok, user} = Accounts.delete_user(u1, u1.id)
 
-    refute Repo.get_by(User, email: user.email)
+    assert Repo.get_by(User, email: "#{user.id}@deleted")
   end
 
   test "delete user if user not authorized", %{u1: u1} do
