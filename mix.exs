@@ -78,7 +78,7 @@ defmodule Api.Mixfile do
       {:edeliver, "~> 1.4.4"},
       {:ex_doc, "~> 0.16", only: :dev, runtime: false},
       {:excoveralls, "~> 0.7", only: :test},
-      {:guardian, "~> 0.14"},
+      {:guardian, "~> 2.0"},
       {:httpoison, "~> 0.13"},
       {:markus, "~> 0.3.0"},
       {:phoenix, "~> 1.3.0"},
