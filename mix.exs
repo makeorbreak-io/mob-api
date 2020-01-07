@@ -91,7 +91,7 @@ defmodule Api.Mixfile do
       {:premailex, "~> 0.2"},
       {:quantum, "~> 2.2"},
       {:sentry, "~> 5.0.1"},
-      {:tentacat, "~> 0.6.2"},
+      {:tentacat, "~> 1.2.0"},
       {:timex, "~> 3.0"},
     ]
   end
