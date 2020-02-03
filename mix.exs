@@ -72,7 +72,7 @@ defmodule Api.Mixfile do
       {:comeonin, "~> 3.0"},
       {:cors_plug, "~> 1.2"},
       {:cowboy, "~> 1.0"},
-      {:credo, "~> 0.7", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.2", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
       {:distillery, "~> 1.4"},
       {:edeliver, "~> 1.4.4"},
